@@ -56,16 +56,18 @@
 </template>
 
 <script setup>
-import {ref} from "vue";
+import { useRouter } from "vue-router";
+import { ref } from "vue";
 import store from "@/store";
-import router from "@/router";
+
+const router = useRouter();
 
 const drawer = ref(true);
 const rail = ref(false);
 
 const isActive = (name) => {
   return router.currentRoute.value.name === name;
-}
+};
 
 const links = [
   {
