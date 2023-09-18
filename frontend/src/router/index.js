@@ -17,7 +17,7 @@ const routes = [
   },
   {
     path: '/',
-    component: () => import('@/layouts/default/Default.vue'),
+    component: () => import('@/layouts/AppLayout.vue'),
     beforeEnter: AuthGuard,
     children: [
       {
