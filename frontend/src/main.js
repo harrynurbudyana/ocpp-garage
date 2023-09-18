@@ -12,6 +12,7 @@ import { createApp } from 'vue'
 
 // Plugins
 import { registerPlugins } from '@/plugins'
+import "@mdi/font/css/materialdesignicons.css";
 
 import router from "@/router";
 import store from "@/store";
