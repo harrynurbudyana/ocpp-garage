@@ -1,10 +1,24 @@
 // Composables
 import { createRouter, createWebHistory } from 'vue-router'
+import AuthGuard from "./guards/auth-guard";
+import PublicPageGuard from "./guards/public-page-guard";
+
 
 const routes = [
   {
+    path: "/login",
+    name: "login",
+    beforeEnter: PublicPageGuard,
+    component: () =>
+      import(/* webpackChunkName: "home" */ "@/pages/LoginPage.vue"),
+    meta: {
+      public: true,
+    },
+  },
+  {
     path: '/',
     component: () => import('@/layouts/default/Default.vue'),
+    beforeEnter: AuthGuard,
     children: [
       {
         path: '',

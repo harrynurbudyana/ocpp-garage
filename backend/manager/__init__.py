@@ -7,7 +7,7 @@ from starlette.requests import Request
 
 app = FastAPI()
 
-origins = ["*"]
+origins = ["http://localhost"]
 
 app.add_middleware(
     CORSMiddleware,
