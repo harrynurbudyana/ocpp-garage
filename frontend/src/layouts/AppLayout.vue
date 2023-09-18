@@ -39,7 +39,7 @@
 
     <v-main class="bg-grey-lighten-3">
       <v-progress-linear
-        :indeterminate="store.getters.globalLoading"
+        :indeterminate="getters.globalLoading"
         color="blue-lighten-3"
       ></v-progress-linear>
       <v-container>
@@ -57,16 +57,17 @@
 
 <script setup>
 import { useRouter } from "vue-router";
+import { useStore } from "vuex";
 import { ref } from "vue";
-import store from "@/store";
 
-const router = useRouter();
+const { currentRoute } = useRouter();
+const { getters } = useStore();
 
 const drawer = ref(true);
 const rail = ref(false);
 
 const isActive = (name) => {
-  return router.currentRoute.value.name === name;
+  return currentRoute.value.name === name;
 };
 
 const links = [

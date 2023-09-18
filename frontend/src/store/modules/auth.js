@@ -66,10 +66,6 @@ export default {
     isAuthorized(state) {
       return state.isAuthorized;
     },
-
-    userData(state) {
-      return state.user;
-    },
   },
 
   mutations: {
