@@ -9,7 +9,7 @@
       @click="rail = false"
     >
       <v-list-item
-        prepend-avatar="https://randomuser.me/api/portraits/men/85.jpg"
+        prepend-avatar="https://randomuser.me/api/portraits/men/37.jpg"
         title="John Leider"
         nav
       >
@@ -75,7 +75,7 @@ const links = [
     name: "Dashboard",
     key: "dashboard",
     path: "/",
-    icon: "mdi-home-city",
+    icon: "mdi mdi-monitor-dashboard",
   },
   {
     name: "Stations",
