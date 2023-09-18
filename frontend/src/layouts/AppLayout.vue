@@ -1,6 +1,6 @@
 <template>
   <v-layout class="rounded rounded-md">
-    <v-app-bar title="Application bar"></v-app-bar>
+    <v-app-bar class="px-3" flat density="compact"></v-app-bar>
 
     <v-navigation-drawer
       v-model="drawer"
