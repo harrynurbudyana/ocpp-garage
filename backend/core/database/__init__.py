@@ -16,13 +16,18 @@ asession = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 async def get_session() -> AsyncSession:
     async with asession() as session:
-        yield session
-
+        try:
+            yield session
+        finally:
+            await session.close()
 
 @asynccontextmanager
-async def get_contextual_session():
+async def get_contextual_session() -> AsyncSession:
     async with asession() as session:
-        yield session
+        try:
+            yield session
+        finally:
+            await session.close()
 
 
 Base = declarative_base()
