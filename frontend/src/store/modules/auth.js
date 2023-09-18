@@ -10,7 +10,6 @@ const getDefaultState = () => {
 
 const state = getDefaultState();
 
-
 function _processSuccessfulLogout(commit) {
   commit("unsetAuthorized");
   commit("unsetUser");
@@ -32,7 +31,7 @@ export default {
     initAction({ getters }, payload) {
       // We don't want to make unnecessary request to the backend in case it's
       // a public page, it may effect Page Load Time
-      if (!payload.isPublicPage && !getters.isAuthorized) {
+      if (!payload.isPublicPage && getters.isAuthorized) {
         return this.dispatch("getUser").catch(() => {
           console.log("Wasn't able to receive user data");
         });
@@ -71,7 +70,6 @@ export default {
     userData(state) {
       return state.user;
     },
-
   },
 
   mutations: {
