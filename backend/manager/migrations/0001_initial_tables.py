@@ -55,7 +55,7 @@ def upgrade() -> None:
     sa.Column('location', sa.String(), nullable=True),
     sa.Column('model', sa.String(), nullable=False),
     sa.Column('connectors', sa.JSON(), nullable=True),
-    sa.Column('driver_id', sa.String(), nullable=False),
+    sa.Column('driver_id', sa.String(), nullable=True),
     sa.Column('id', sa.String(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('updated_at', sa.DateTime(), nullable=True),

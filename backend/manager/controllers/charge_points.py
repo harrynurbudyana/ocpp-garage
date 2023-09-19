@@ -1,0 +1,64 @@
+from typing import Tuple
+
+from fastapi import status, Depends
+from loguru import logger
+
+from core.database import get_contextual_session
+from manager.services.charge_points import (
+    get_charge_point,
+    create_charge_point,
+    build_charge_points_query,
+    remove_charge_point
+)
+from manager.utils import params_extractor, paginate
+from manager.views.charge_points import PaginatedChargePointsView, CreateChargPointView
+from manager.routers import AuthenticatedRouter
+
+
+charge_points_router = AuthenticatedRouter(
+    prefix="/charge_points",
+    tags=["charge_points"]
+)
+
+
+@charge_points_router.get(
+    "/",
+    status_code=status.HTTP_200_OK
+)
+async def list_charge_points(
+        search: str = "",
+        params: Tuple = Depends(params_extractor)
+) -> PaginatedChargePointsView:
+    async with get_contextual_session() as session:
+        items, pagination = await paginate(
+            session,
+            lambda: build_charge_points_query(search),
+            *params
+        )
+        return PaginatedChargePointsView(items=[item[0] for item in items], pagination=pagination)
+
+
+@charge_points_router.post(
+    "/",
+    status_code=status.HTTP_201_CREATED,
+)
+async def add_charge_point(
+        data: CreateChargPointView
+):
+    logger.info(f"Start create charge point (data={data})")
+    async with get_contextual_session() as session:
+        await create_charge_point(session, data)
+        await session.commit()
+
+
+@charge_points_router.delete(
+    "/{charge_point_id}",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+async def delete_charge_point(
+        charge_point_id: str
+):
+    logger.info(f"Start remove charge point (id={charge_point_id})")
+    async with get_contextual_session() as session:
+        await remove_charge_point(session, charge_point_id)
+        await session.commit()
