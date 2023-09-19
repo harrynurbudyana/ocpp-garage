@@ -15,3 +15,7 @@ export function listStations(arg) {
   let { search = "" } = arg || {};
   return request.get(`/${endpoint}?page=${page}&search=${search}`);
 }
+
+export function getStation(stationId) {
+  return request.get(`/${endpoint}/${stationId}`);
+}

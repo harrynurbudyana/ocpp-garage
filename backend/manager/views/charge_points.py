@@ -27,17 +27,27 @@ class CreateChargPointView(BaseModel):
     location: str | None = None
 
 
-class SimpleChargePoint(BaseModel):
+class ChargePoint(BaseModel):
     id: str
     description: str | None = None
     status: ChargePointStatus
     model: str
+    manufacturer: str
+    location: str | None = None
+    updated_at: datetime | None = None
+    connectors: Dict
+
+    class Config:
+        orm_mode = True
+
+class SimpleChargePoint(BaseModel):
+    id: str
+    status: ChargePointStatus
     location: str | None = None
     updated_at: datetime | None = None
 
     class Config:
         orm_mode = True
-
 
 class PaginatedChargePointsView(BaseModel):
     items: List[SimpleChargePoint]

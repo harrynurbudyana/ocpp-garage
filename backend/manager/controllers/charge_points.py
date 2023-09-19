@@ -11,7 +11,7 @@ from manager.services.charge_points import (
     remove_charge_point
 )
 from manager.utils import params_extractor, paginate
-from manager.views.charge_points import PaginatedChargePointsView, CreateChargPointView
+from manager.views.charge_points import PaginatedChargePointsView, CreateChargPointView, SimpleChargePoint, ChargePoint
 from manager.routers import AuthenticatedRouter
 
 
@@ -37,6 +37,17 @@ async def list_charge_points(
         )
         return PaginatedChargePointsView(items=[item[0] for item in items], pagination=pagination)
 
+
+@charge_points_router.get(
+    "/{charge_point_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=ChargePoint
+)
+async def retrieve_charge_point(
+        charge_point_id: str
+):
+    async with get_contextual_session() as session:
+        return await get_charge_point(session, charge_point_id)
 
 @charge_points_router.post(
     "/",

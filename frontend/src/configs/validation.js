@@ -132,6 +132,15 @@ export const rules = new (function () {
         return true;
       },
     ],
+    locationRules: [
+      ...this.common,
+      (value) => {
+        if (value?.length > this.maxAddressLength) {
+          return `Maximum ${this.maxAddressLength} characters required`;
+        }
+        return true;
+      },
+    ],
     commentRules: [
       (value) => {
         if (value?.length > this.maxCommentLength) {
