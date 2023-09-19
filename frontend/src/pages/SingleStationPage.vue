@@ -1,9 +1,9 @@
-<template>Dashboard</template>
+<template>Single station</template>
 
 <script setup>
 import { onMounted } from "vue";
 
-import { menuItems } from "@/menu/app-menu-items";
+import { menuItems } from "@/menu/station-menu-items";
 import { useStore } from "vuex";
 
 onMounted(() => {

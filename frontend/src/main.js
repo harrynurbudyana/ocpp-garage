@@ -6,6 +6,7 @@
 
 // Components
 import App from "./App.vue";
+import { VDataTable } from "vuetify/labs/VDataTable";
 
 // Composables
 import { createApp } from "vue";
@@ -18,11 +19,16 @@ import "@mdi/font/css/materialdesignicons.css";
 import router from "@/router";
 import store from "@/store";
 
-const vuetify = createVuetify();
+const vuetify = createVuetify({
+  components: {
+    VDataTable,
+  },
+});
 
 const app = createApp(App);
 app.use(vuetify);
 app.use(store);
+app.use(router);
 
 registerPlugins(app);
 

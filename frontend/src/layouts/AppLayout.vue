@@ -26,7 +26,7 @@
 
       <v-list density="compact" nav>
         <v-list-item
-          v-for="link in links"
+          v-for="link in getters.pageMenuItems"
           :key="link.name"
           :to="link.path"
           :value="link.key"
@@ -69,31 +69,4 @@ const rail = ref(false);
 const isActive = (name) => {
   return currentRoute.value.name === name;
 };
-
-const links = [
-  {
-    name: "Dashboard",
-    key: "dashboard",
-    path: "/",
-    icon: "mdi mdi-monitor-dashboard",
-  },
-  {
-    name: "Stations",
-    path: "/stations",
-    key: "stations",
-    icon: "mdi mdi-ev-station",
-  },
-  {
-    name: "Drivers",
-    path: "/drivers",
-    key: "drivers",
-    icon: "mdi mdi-card-account-details-outline",
-  },
-  {
-    name: "Transactions",
-    path: "/transactions",
-    key: "transactions",
-    icon: "mdi mdi-battery-charging-outline",
-  },
-];
 </script>

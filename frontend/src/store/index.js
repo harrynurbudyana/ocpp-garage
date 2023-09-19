@@ -2,6 +2,7 @@ import { createStore } from "vuex";
 import createPersistedState from "vuex-persistedstate";
 
 import auth from "@/store/modules/auth";
+import navigation from "@/store/modules/navigation";
 
 const getDefaultState = () => {
   return {
@@ -18,7 +19,7 @@ export default createStore({
       state.loading = true;
     },
     unsetGlobalLoading(state) {
-      state.loading = true;
+      state.loading = false;
     },
   },
   actions: {},
@@ -29,11 +30,12 @@ export default createStore({
   },
   modules: {
     auth,
+    navigation,
   },
   plugins: [
     createPersistedState({
       key: "usr.src.csms.data",
-      paths: ["auth"]
-    })
-  ]
+      paths: ["auth", "navigation"],
+    }),
+  ],
 });

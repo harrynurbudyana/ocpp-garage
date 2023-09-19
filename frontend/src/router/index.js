@@ -23,13 +23,21 @@ const routes = [
         path: "",
         name: "Dashboard",
         component: () =>
-          import(/* webpackChunkName: "home" */ "@/views/Home.vue"),
+          import(/* webpackChunkName: "home" */ "@/pages/DashboardPage"),
       },
       {
         path: "stations",
         name: "Stations",
         component: () =>
-          import(/* webpackChunkName: "home" */ "@/pages/StationsPage"),
+          import(/* webpackChunkName: "home" */ "@/pages/StationsPage.vue"),
+      },
+      {
+        path: "stations/:stationId",
+        name: "SingleStation",
+        component: () =>
+          import(
+            /* webpackChunkName: "home" */ "@/pages/SingleStationPage.vue"
+          ),
       },
       {
         path: "drivers",
