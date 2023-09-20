@@ -38,6 +38,9 @@ const routes = [
           import(
             /* webpackChunkName: "home" */ "@/pages/SingleStationPage.vue"
           ),
+        meta: {
+          hasBackButton: true,
+        },
       },
       {
         path: "drivers",

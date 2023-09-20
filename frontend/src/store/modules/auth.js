@@ -52,6 +52,10 @@ export default {
       return Promise.reject("Logout");
     },
 
+    logout() {
+      request.post("/logout");
+    },
+
     login({ commit }, credentials) {
       return request.post("/login", credentials).then((responseBody) => {
         if (responseBody) {

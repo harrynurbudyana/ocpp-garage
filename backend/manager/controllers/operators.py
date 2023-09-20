@@ -28,13 +28,14 @@ async def retrieve_operator(request: Request):
     response_model=ReadOperatorView
 )
 async def login(response: Response, data: LoginView):
+    error_message = "Invalid login or password"
     async with get_contextual_session() as session:
         operator = await get_operator(session, data.email)
         if not operator:
-            raise NotAuthenticated
+            raise NotAuthenticated(detail=error_message)
 
         if not pwd_context.verify(data.password, operator.password):
-            raise NotAuthenticated
+            raise NotAuthenticated(detail=error_message)
 
     token = await create_token(operator.id)
     response.set_cookie(cookie_name, token)
@@ -42,7 +43,7 @@ async def login(response: Response, data: LoginView):
 
 
 @operators_private_router.post("/logout")
-async def login():
+async def logout():
     raise NotAuthenticated
 
 

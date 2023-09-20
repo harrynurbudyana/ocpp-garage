@@ -34,6 +34,15 @@
           :prepend-icon="link.icon"
           :active="isActive(link.name)"
         ></v-list-item>
+
+        <v-list-item
+          v-if="isLoginAvailable()"
+          key="logout"
+          value="logout"
+          title="Logout"
+          prepend-icon="mdi mdi-logout"
+          @click="store.dispatch('logout')"
+        ></v-list-item>
       </v-list>
     </v-navigation-drawer>
 
@@ -59,12 +68,17 @@
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { ref } from "vue";
+import store from "@/store";
 
 const { currentRoute } = useRouter();
 const { getters } = useStore();
 
 const drawer = ref(true);
 const rail = ref(false);
+
+const isLoginAvailable = () => {
+  return !currentRoute.value?.meta?.hasBackButton;
+};
 
 const isActive = (name) => {
   return currentRoute.value.name === name;

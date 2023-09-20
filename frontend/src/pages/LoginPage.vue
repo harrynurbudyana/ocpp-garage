@@ -9,7 +9,7 @@
                 <v-col cols="12">
                   <v-text-field
                     :error="showError"
-                    :error-messages="errors.login"
+                    :error-messages="errors.email"
                     label="Login"
                     required
                     v-model="data.email"
@@ -28,6 +28,7 @@
                     density="compact"
                     variant="underlined"
                     validate-on="lazy"
+                    @input="clearError"
                   ></v-text-field>
                 </v-col>
               </v-row>
@@ -62,10 +63,18 @@ const showError = ref(false);
 
 const onSubmit = () => {
   loading.value = true;
-  store.dispatch("login", data.value).finally(() => {
-    loading.value = false;
-  });
+  store
+    .dispatch("login", data.value)
+    .catch(() => {
+      errors.value.email = "Invalid email or password";
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
-const clearError = () => {};
+const clearError = () => {
+  showError.value = false;
+  errors.value = {};
+};
 </script>
