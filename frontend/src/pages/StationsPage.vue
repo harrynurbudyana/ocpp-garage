@@ -34,8 +34,8 @@
                     color="blue-lighten-1"
                     class="ma-6 pa-2"
                     @click="openModal"
-                    >add</v-btn
-                  >
+                    >add
+                  </v-btn>
                 </v-col>
               </v-row>
             </template>
@@ -162,7 +162,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
 import { dateAgo } from "@/filters/date";
 import DataTable from "@/components/DataTable";
@@ -171,7 +171,7 @@ import router from "@/router";
 
 import { STATION_STATUS_COLOR } from "@/components/enums";
 import { usePagination } from "@/use/pagination";
-import { listStations, addStation } from "@/services/stations";
+import { addStation, listStations } from "@/services/stations";
 import { menuItems } from "@/menu/app-menu-items";
 
 const loading = ref(false);
@@ -234,14 +234,14 @@ const headers = [
     key: "id",
     align: "center",
     sortable: false,
-    width: "15%",
+    width: "25%",
   },
   {
     title: "Status",
     key: "status",
     align: "center",
     sortable: false,
-    width: "12%",
+    width: "20%",
   },
   {
     title: "Location",
