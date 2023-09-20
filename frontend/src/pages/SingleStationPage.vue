@@ -20,7 +20,7 @@
           </v-col>
           <v-col>
             <v-sheet align="right">
-              <v-btn variant="outlined" color="red" @click="openModal('delete')"
+              <v-btn variant="outlined" color="red" @click="openConfirm()"
                 >Delete
               </v-btn>
             </v-sheet>
@@ -173,51 +173,26 @@
     </v-container>
   </v-form>
 
-  <v-row justify="center">
-    <v-dialog v-model="deleteDialog" persistent width="auto">
-      <v-card>
-        <v-card-title class="text-center">
-          You can not discard this action.
-        </v-card-title>
-        <v-card-text class="text-center"> Are you sure?</v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="blue-darken-1"
-            variant="text"
-            @click="closeModal('delete')"
-          >
-            No
-          </v-btn>
-          <v-btn
-            color="red"
-            variant="text"
-            :loading="loading"
-            @click="removeStation(station.id)"
-          >
-            Yes
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-  </v-row>
+  <confirm-window :callback="() => removeStation(station.id)"></confirm-window>
 </template>
 
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import { STATION_STATUS_COLOR } from "@/components/enums";
-
-import { menuItems } from "@/menu/station-menu-items";
 import { useStore } from "vuex";
+import { useConfirm } from "@/use/dialogs";
+
 import { deleteStation, getStation, updateStation } from "@/services/stations";
+
+import { STATION_STATUS_COLOR } from "@/components/enums";
+import { menuItems } from "@/menu/station-menu-items";
 import { rules } from "@/configs/validation";
 
 import EmptyData from "@/components/EmptyData";
+import ConfirmWindow from "@/components/dialogs/ConfirmWindow";
 
 const loading = ref(false);
 const isValid = ref(false);
-const deleteDialog = ref(false);
 const editDialog = ref(false);
 const data = ref({});
 const errors = ref({});
@@ -225,6 +200,7 @@ const showError = ref(false);
 const station = ref();
 const router = useRouter();
 const { commit } = useStore();
+const { openConfirm } = useConfirm();
 
 const editStation = (stationId) => {
   loading.value = true;
@@ -247,9 +223,6 @@ const openModal = (type) => {
   if (type === "edit") {
     editDialog.value = true;
   }
-  if (type === "delete") {
-    deleteDialog.value = true;
-  }
 };
 
 const closeModal = (type) => {
@@ -258,20 +231,12 @@ const closeModal = (type) => {
     data.value = {};
     clearError();
   }
-  if (type === "delete") {
-    deleteDialog.value = false;
-  }
 };
 
 const removeStation = (stationId) => {
-  commit("setGlobalLoading");
-  deleteStation(stationId)
-    .then(() => {
-      router.push({ name: "Stations" });
-    })
-    .finally(() => {
-      commit("unsetGlobalLoading");
-    });
+  return deleteStation(stationId).then(() => {
+    router.push({ name: "Stations" });
+  });
 };
 
 const showArrows = () => {
