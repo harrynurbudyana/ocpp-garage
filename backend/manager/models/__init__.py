@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+from ocpp.v16.enums import ChargePointStatus
 from sqlalchemy import Column, String, ForeignKey, Enum, JSON, Integer, Sequence
 from sqlalchemy.orm import relationship
-from ocpp.v16.enums import ChargePointStatus
 
 from core.database import Model
 
@@ -37,7 +37,7 @@ class Driver(Person):
 class ChargePoint(Model):
     __tablename__ = "charge_points"
 
-    description = Column(String(48), nullable=True)
+    description = Column(String(124), nullable=True)
     status = Column(Enum(ChargePointStatus), default=ChargePointStatus.unavailable, index=True)
     manufacturer = Column(String, nullable=False)
     serial_number = Column(String, nullable=False, unique=True)

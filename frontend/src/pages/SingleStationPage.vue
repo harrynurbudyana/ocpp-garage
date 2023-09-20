@@ -7,34 +7,29 @@
   >
     <v-container>
       <v-card-actions>
-        <v-row align="end">
+        <v-row>
           <v-col>
-            <v-sheet>
+            <v-sheet align="left">
               <v-btn
                 variant="outlined"
                 color="blue-darken-1"
                 @click="openModal('edit')"
-                >Edit</v-btn
-              >
+                >Edit
+              </v-btn>
             </v-sheet>
           </v-col>
           <v-col>
-            <v-sheet>
-              <v-btn variant="outlined" color="grey-darken-1">Reset</v-btn>
-            </v-sheet>
-          </v-col>
-          <v-col>
-            <v-sheet>
+            <v-sheet align="right">
               <v-btn variant="outlined" color="red" @click="openModal('delete')"
-                >Delete</v-btn
-              >
+                >Delete
+              </v-btn>
             </v-sheet>
           </v-col>
         </v-row>
       </v-card-actions>
     </v-container>
     <v-card-item>
-      <v-card-title class="pt-4 mt-10 mb-3">
+      <v-card-title>
         <v-icon class="mdi mdi-ev-station"></v-icon>
         {{ station.location }}
       </v-card-title>
@@ -54,6 +49,19 @@
         </div>
       </v-card-text>
     </v-card-item>
+    <v-container>
+      <v-card-actions>
+        <v-row align="end">
+          <v-col></v-col>
+          <v-col>
+            <v-sheet>
+              <v-btn variant="outlined" color="grey-darken-1">Reset</v-btn>
+            </v-sheet>
+          </v-col>
+          <v-col></v-col>
+        </v-row>
+      </v-card-actions>
+    </v-container>
   </v-card>
 
   <v-carousel
@@ -70,8 +78,8 @@
       <v-card max-width="100%" class="elevation-20 text-center" height="100%">
         <v-card-title primary-title>
           <span class="mdi mdi-connection"></span>
-          Connector {{ connectorId }}</v-card-title
-        >
+          Connector {{ connectorId }}
+        </v-card-title>
         <v-card-subtitle class="mt-10 mb-10">
           <v-chip
             :color="
@@ -90,16 +98,16 @@
                 variant="outlined"
                 color="grey-darken-1"
                 @click="startRemoteTransaction(connectorId)"
-                >Start</v-btn
-              >
+                >Start
+              </v-btn>
             </v-col>
             <v-col>
               <v-btn
                 variant="outlined"
                 color="grey-darken-1"
                 @click="unlockConnector(connectorId)"
-                >Unlock</v-btn
-              >
+                >Unlock
+              </v-btn>
             </v-col>
           </v-row>
         </v-container>
@@ -171,7 +179,7 @@
         <v-card-title class="text-center">
           You can not discard this action.
         </v-card-title>
-        <v-card-text class="text-center"> Are you sure? </v-card-text>
+        <v-card-text class="text-center"> Are you sure?</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
@@ -202,7 +210,7 @@ import { STATION_STATUS_COLOR } from "@/components/enums";
 
 import { menuItems } from "@/menu/station-menu-items";
 import { useStore } from "vuex";
-import { getStation, deleteStation, updateStation } from "@/services/stations";
+import { deleteStation, getStation, updateStation } from "@/services/stations";
 import { rules } from "@/configs/validation";
 
 import EmptyData from "@/components/EmptyData";
@@ -290,3 +298,9 @@ onMounted(() => {
     });
 });
 </script>
+
+<style>
+.private-button {
+  width: 10%;
+}
+</style>
