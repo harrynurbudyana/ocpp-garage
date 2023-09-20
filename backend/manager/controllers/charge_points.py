@@ -8,10 +8,11 @@ from manager.services.charge_points import (
     get_charge_point,
     create_charge_point,
     build_charge_points_query,
-    remove_charge_point
+    remove_charge_point, update_charge_point
 )
 from manager.utils import params_extractor, paginate
-from manager.views.charge_points import PaginatedChargePointsView, CreateChargPointView, SimpleChargePoint, ChargePoint
+from manager.views.charge_points import PaginatedChargePointsView, CreateChargPointView, SimpleChargePoint, ChargePoint, \
+    UpdateChargPointView
 from manager.routers import AuthenticatedRouter
 
 
@@ -60,6 +61,21 @@ async def add_charge_point(
     async with get_contextual_session() as session:
         await create_charge_point(session, data)
         await session.commit()
+
+@charge_points_router.put(
+    "/{charge_point_id}",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=ChargePoint
+)
+async def edit_charge_point(
+        charge_point_id: str,
+        data: UpdateChargPointView
+):
+    logger.info(f"Start update charge point (data={data})")
+    async with get_contextual_session() as session:
+        await update_charge_point(session, charge_point_id, data)
+        await session.commit()
+        return await get_charge_point(session, charge_point_id)
 
 
 @charge_points_router.delete(

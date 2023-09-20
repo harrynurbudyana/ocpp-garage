@@ -27,6 +27,11 @@ class CreateChargPointView(BaseModel):
     location: str | None = None
 
 
+class UpdateChargPointView(BaseModel):
+    description: str | None = None
+    location: str | None = None
+
+
 class ChargePoint(BaseModel):
     id: str
     description: str | None = None

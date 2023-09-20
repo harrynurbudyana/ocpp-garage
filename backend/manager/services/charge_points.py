@@ -5,7 +5,7 @@ from sqlalchemy.sql import selectable
 
 import manager.models as models
 from manager.models import ChargePoint
-from manager.views.charge_points import CreateChargPointView
+from manager.views.charge_points import CreateChargPointView, UpdateChargPointView
 
 
 async def build_charge_points_query(search: str) -> selectable:
@@ -36,6 +36,7 @@ async def create_charge_point(session, data: CreateChargPointView):
     charge_point = ChargePoint(**data.dict())
     session.add(charge_point)
     return charge_point
+
 
 async def update_charge_point(
         session,

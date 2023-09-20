@@ -237,13 +237,6 @@ const headers = [
     width: "15%",
   },
   {
-    title: "Model",
-    key: "model",
-    align: "center",
-    sortable: false,
-    width: "20%",
-  },
-  {
     title: "Status",
     key: "status",
     align: "center",

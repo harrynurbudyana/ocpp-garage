@@ -19,3 +19,7 @@ export function listStations(arg) {
 export function getStation(stationId) {
   return request.get(`/${endpoint}/${stationId}`);
 }
+
+export function updateStation(stationId, data) {
+  return request.put(`/${endpoint}/${stationId}`, data);
+}
