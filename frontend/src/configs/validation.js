@@ -1,8 +1,6 @@
 export const rules = new (function () {
   this.maxCommentLength = 50;
-  this.maxAddressLength = 30;
-  this.maxNameLength = 20;
-  this.maxCityLength = 20;
+  this.maxAddressLength = 48;
 
   this.maxIdLength = 20;
   this.maxManufacturerLength = 15;

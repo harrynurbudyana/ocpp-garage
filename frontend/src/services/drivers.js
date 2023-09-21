@@ -23,3 +23,7 @@ export function getDriver(driverId) {
 export function updateDriver(driverId, data) {
   return request.put(`/${endpoint}/${driverId}`, data);
 }
+
+export function releaseStation({ driverId, stationId }) {
+  return request.delete(`/${endpoint}/${driverId}/charge_points/${stationId}`);
+}

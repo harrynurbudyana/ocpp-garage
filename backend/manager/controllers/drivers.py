@@ -10,7 +10,7 @@ from manager.services.drivers import (
     get_driver,
     create_driver,
     update_driver,
-    remove_driver
+    remove_driver, release_charge_point
 )
 from manager.utils import params_extractor, paginate
 from manager.views.drivers import (
@@ -94,4 +94,17 @@ async def delete_charge_point(
     logger.info(f"Start remove driver (driver_id={driver_id})")
     async with get_contextual_session() as session:
         await remove_driver(session, driver_id)
+        await session.commit()
+
+
+@drivers_router.delete(
+    "/{driver_id}/charge_points/{charge_point_id}",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+async def remove_charge_point(
+        driver_id: str,
+        charge_point_id: str
+):
+    async with get_contextual_session() as session:
+        await release_charge_point(session, driver_id, charge_point_id)
         await session.commit()

@@ -56,3 +56,10 @@ async def remove_driver(session, driver_id: str) -> None:
     query = delete(Driver) \
         .where(Driver.id == driver_id)
     await session.execute(query)
+
+
+async def release_charge_point(session, driver_id: str, charge_point_id: str):
+    await session.execute(update(ChargePoint) \
+                          .where(ChargePoint.driver_id == driver_id,
+                                 ChargePoint.id == charge_point_id) \
+                          .values({"driver_id": None}))

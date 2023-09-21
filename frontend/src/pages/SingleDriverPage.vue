@@ -84,6 +84,22 @@
           </p>
         </v-chip>
       </template>
+      <template v-slot:item.action="{ item }">
+        <v-hover v-slot="{ isHovering, props }" open-delay="100">
+          <v-btn
+            icon
+            size="small"
+            density="compact"
+            :elevation="isHovering ? 12 : 2"
+            :class="{ 'on-hover': isHovering }"
+            :loading="loading"
+            v-bind="props"
+            @click="unbindStation(item)"
+          >
+            <v-icon color="deep-orange-lighten-3">mdi-trash-can-outline</v-icon>
+          </v-btn>
+        </v-hover>
+      </template>
     </data-table>
   </v-card>
   <v-form>
@@ -143,7 +159,12 @@ import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { useConfirm } from "@/use/dialogs";
 
-import { deleteDriver, getDriver, updateDriver } from "@/services/drivers";
+import {
+  deleteDriver,
+  getDriver,
+  releaseStation,
+  updateDriver,
+} from "@/services/drivers";
 import { listSimpleStations } from "@/services/stations";
 import { menuItems } from "@/menu/driver-menu-items";
 import { DRIVERS_STATUS, STATION_STATUS_COLOR } from "@/components/enums";
@@ -192,6 +213,20 @@ const bindStation = () => {
     .finally(() => {
       loading.value = false;
       closeModal();
+    });
+};
+
+const unbindStation = (item) => {
+  loading.value = true;
+  releaseStation({ driverId: driver.value.id, stationId: item.columns.id })
+    .then(() => {
+      console.log(driver.value);
+      driver.value.charge_points = driver.value.charge_points.filter(
+        (i) => i.id !== item.columns.id
+      );
+    })
+    .finally(() => {
+      loading.value = false;
     });
 };
 
