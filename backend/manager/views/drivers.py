@@ -19,6 +19,7 @@ class UpdateDriverView(BaseModel):
     last_name: str | None = None
     address: str | None = None
     charge_point_id: str | None = None
+    is_active: bool | None = None
 
 
 class SimpleDriverView(BaseModel):
@@ -27,6 +28,7 @@ class SimpleDriverView(BaseModel):
     first_name: str
     last_name: str
     address: str
+    is_active: bool
 
     class Config:
         orm_mode = True
@@ -38,6 +40,7 @@ class DriverView(BaseModel):
     first_name: str
     last_name: str
     address: str
+    is_active: bool
     charge_points: List[SimpleChargePoint]
 
     class Config:

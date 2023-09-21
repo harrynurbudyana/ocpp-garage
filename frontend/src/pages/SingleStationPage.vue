@@ -11,6 +11,7 @@
           <v-col>
             <v-sheet align="left">
               <v-btn
+                :active="!loading"
                 variant="outlined"
                 color="blue-darken-1"
                 @click="openModal('edit')"
@@ -20,7 +21,11 @@
           </v-col>
           <v-col>
             <v-sheet align="right">
-              <v-btn variant="outlined" color="red" @click="openConfirm()"
+              <v-btn
+                :active="!loading"
+                variant="outlined"
+                color="red"
+                @click="openConfirm()"
                 >Delete
               </v-btn>
             </v-sheet>
@@ -55,7 +60,9 @@
           <v-col></v-col>
           <v-col>
             <v-sheet>
-              <v-btn variant="outlined" color="grey-darken-1">Reset</v-btn>
+              <v-btn :active="!loading" variant="outlined" color="grey-darken-1"
+                >Reset
+              </v-btn>
             </v-sheet>
           </v-col>
           <v-col></v-col>
@@ -95,6 +102,7 @@
           <v-row align="end" style="height: 170px">
             <v-col>
               <v-btn
+                :active="!loading"
                 variant="outlined"
                 color="grey-darken-1"
                 @click="startRemoteTransaction(connectorId)"
@@ -103,6 +111,7 @@
             </v-col>
             <v-col>
               <v-btn
+                :active="!loading"
                 variant="outlined"
                 color="grey-darken-1"
                 @click="unlockConnector(connectorId)"
@@ -263,9 +272,3 @@ onMounted(() => {
     });
 });
 </script>
-
-<style>
-.private-button {
-  width: 10%;
-}
-</style>

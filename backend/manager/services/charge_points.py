@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+from typing import List
+
 from sqlalchemy import select, update, func, or_, String, delete
 from sqlalchemy.sql import selectable
 
 import manager.models as models
 from manager.models import ChargePoint
-from manager.views.charge_points import CreateChargPointView, UpdateChargPointView
+from manager.views.charge_points import CreateChargPointView
 
 
 async def build_charge_points_query(search: str) -> selectable:
@@ -47,7 +49,15 @@ async def update_charge_point(
                           .where(ChargePoint.id == charge_point_id) \
                           .values(**data.dict(exclude_unset=True)))
 
+
 async def remove_charge_point(session, charge_point_id: str) -> None:
-        query = delete(ChargePoint) \
-            .where(ChargePoint.id == charge_point_id)
-        await session.execute(query)
+    query = delete(ChargePoint) \
+        .where(ChargePoint.id == charge_point_id)
+    await session.execute(query)
+
+
+async def list_simple_charge_points(session) -> List[ChargePoint]:
+    query = select(ChargePoint).where(ChargePoint.driver_id.is_(None)) \
+        .with_only_columns(ChargePoint.id, ChargePoint.location, ChargePoint.status)
+    result = await session.execute(query)
+    return result.unique().fetchall()

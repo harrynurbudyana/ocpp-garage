@@ -14,6 +14,10 @@ export const rules = new (function () {
 
   this.minLength = 3;
 
+  this.maxEmailLength = 48;
+  this.maxFirstNameLength = 24;
+  this.maxLastNameLength = 24;
+
   this.common = [
     (value) => {
       return value ? true : "field is required.";
@@ -104,21 +108,30 @@ export const rules = new (function () {
     ],
   };
 
-  this.location = {
-    nameRules: [
+  this.driver = {
+    emailRules: [
       ...this.common,
       (value) => {
-        if (value?.length > this.maxNameLength) {
-          return `Maximum ${this.maxNameLength} characters required`;
+        if (value?.length > this.maxEmailLength) {
+          return `Maximum ${this.maxEmailLength} characters required`;
         }
         return true;
       },
     ],
-    cityRules: [
+    firstNameRules: [
       ...this.common,
       (value) => {
-        if (value?.length > this.maxCityLength) {
-          return `Maximum ${this.maxCityLength} characters required`;
+        if (value?.length > this.maxFirstNameLength) {
+          return `Maximum ${this.maxFirstNameLength} characters required`;
+        }
+        return true;
+      },
+    ],
+    lastNameRules: [
+      ...this.common,
+      (value) => {
+        if (value?.length > this.maxLastNameLength) {
+          return `Maximum ${this.maxLastNameLength} characters required`;
         }
         return true;
       },
@@ -128,23 +141,6 @@ export const rules = new (function () {
       (value) => {
         if (value?.length > this.maxAddressLength) {
           return `Maximum ${this.maxAddressLength} characters required`;
-        }
-        return true;
-      },
-    ],
-    locationRules: [
-      ...this.common,
-      (value) => {
-        if (value?.length > this.maxAddressLength) {
-          return `Maximum ${this.maxAddressLength} characters required`;
-        }
-        return true;
-      },
-    ],
-    commentRules: [
-      (value) => {
-        if (value?.length > this.maxCommentLength) {
-          return `Maximum ${this.maxCommentLength} characters required`;
         }
         return true;
       },

@@ -16,6 +16,10 @@ export function listStations(arg) {
   return request.get(`/${endpoint}?page=${page}&search=${search}`);
 }
 
+export function listSimpleStations() {
+  return request.get(`/${endpoint}/autocomplete`);
+}
+
 export function getStation(stationId) {
   return request.get(`/${endpoint}/${stationId}`);
 }

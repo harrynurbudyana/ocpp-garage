@@ -15,7 +15,7 @@ export const menuItems = [
     name: "Drivers",
     path: "/drivers",
     key: "drivers",
-    icon: "mdi mdi-card-account-details-outline",
+    icon: "mdi mdi-account-circle",
   },
   {
     name: "Transactions",

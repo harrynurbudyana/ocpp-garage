@@ -1,24 +1,35 @@
-from typing import Tuple
+from typing import Tuple, List
 
 from fastapi import status, Depends
 from loguru import logger
 
 from core.database import get_contextual_session
+from manager.models import ChargePoint
 from manager.routers import AuthenticatedRouter
 from manager.services.charge_points import (
     get_charge_point,
     create_charge_point,
     build_charge_points_query,
-    remove_charge_point, update_charge_point
+    remove_charge_point, update_charge_point, list_simple_charge_points
 )
 from manager.utils import params_extractor, paginate
 from manager.views.charge_points import PaginatedChargePointsView, CreateChargPointView, ChargePointView, \
-    UpdateChargPointView
+    UpdateChargPointView, SimpleChargePoint
 
 charge_points_router = AuthenticatedRouter(
     prefix="/charge_points",
     tags=["charge_points"]
 )
+
+
+@charge_points_router.get(
+    "/autocomplete",
+    status_code=status.HTTP_200_OK,
+    response_model=List[SimpleChargePoint]
+)
+async def retrieve_simple_charge_points() -> List[ChargePoint]:
+    async with get_contextual_session() as session:
+        return await list_simple_charge_points(session)
 
 
 @charge_points_router.get(

@@ -49,6 +49,15 @@ const routes = [
           import(/* webpackChunkName: "home" */ "@/pages/DriversPage"),
       },
       {
+        path: "drivers/:driverId",
+        name: "SingleDriver",
+        component: () =>
+          import(/* webpackChunkName: "home" */ "@/pages/SingleDriverPage.vue"),
+        meta: {
+          hasBackButton: true,
+        },
+      },
+      {
         path: "transactions",
         name: "Transactions",
         component: () =>

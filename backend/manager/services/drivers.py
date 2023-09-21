@@ -3,7 +3,7 @@ from __future__ import annotations
 from sqlalchemy import select, update, func, or_, String, delete
 from sqlalchemy.sql import selectable
 
-from manager.models import Driver
+from manager.models import Driver, ChargePoint
 from manager.services.charge_points import update_charge_point
 from manager.views.charge_points import UpdateChargPointView
 from manager.views.drivers import CreateDriverView, UpdateDriverView
@@ -50,6 +50,9 @@ async def update_driver(
 
 
 async def remove_driver(session, driver_id: str) -> None:
+    await session.execute(update(ChargePoint) \
+                          .where(ChargePoint.driver_id == driver_id) \
+                          .values({"driver_id": None}))
     query = delete(Driver) \
         .where(Driver.id == driver_id)
     await session.execute(query)

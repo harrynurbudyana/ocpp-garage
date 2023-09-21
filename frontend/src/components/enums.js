@@ -29,3 +29,8 @@ export const TRANSACTION_STATUS_COLOR = {
   in_progress: "#0ee018",
   completed: "#7e817d",
 };
+
+export const DRIVERS_STATUS = {
+  true: "#0ee018",
+  false: "#DC184CFF",
+};
