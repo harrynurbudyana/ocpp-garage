@@ -11,9 +11,9 @@ class Person(Model):
     __abstract__ = True
 
     email = Column(String(48), nullable=False, unique=True)
-    first_name = Column(String(24), nullable=True, unique=False)
-    last_name = Column(String(24), nullable=True, unique=False)
-    address = Column(String(48), nullable=True, unique=False)
+    first_name = Column(String(24), nullable=False, unique=False)
+    last_name = Column(String(24), nullable=False, unique=False)
+    address = Column(String(48), nullable=False, unique=False)
 
 
 class Operator(Person):

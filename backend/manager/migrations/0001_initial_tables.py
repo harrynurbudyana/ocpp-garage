@@ -21,9 +21,9 @@ def upgrade() -> None:
     op.execute(CreateSequence(Sequence('transaction_id_seq')))
     op.create_table('drivers',
                     sa.Column('email', sa.String(length=48), nullable=False),
-                    sa.Column('first_name', sa.String(length=24), nullable=True),
-                    sa.Column('last_name', sa.String(length=24), nullable=True),
-                    sa.Column('address', sa.String(length=48), nullable=True),
+                    sa.Column('first_name', sa.String(length=24), nullable=False),
+                    sa.Column('last_name', sa.String(length=24), nullable=False),
+                    sa.Column('address', sa.String(length=48), nullable=False),
                     sa.Column('billing_requisites', sa.JSON(), nullable=True),
                     sa.Column('id', sa.String(), nullable=False),
                     sa.Column('created_at', sa.DateTime(), nullable=True),

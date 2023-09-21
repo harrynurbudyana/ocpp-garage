@@ -3,8 +3,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Dict
 
-from pydantic import BaseModel
 from ocpp.v16.enums import ChargePointStatus
+from pydantic import BaseModel
 
 from manager.views import PaginationView
 
@@ -28,11 +28,12 @@ class CreateChargPointView(BaseModel):
 
 
 class UpdateChargPointView(BaseModel):
+    driver_id: str | None = None
     description: str | None = None
     location: str | None = None
 
 
-class ChargePoint(BaseModel):
+class ChargePointView(BaseModel):
     id: str
     description: str | None = None
     status: ChargePointStatus
@@ -45,6 +46,7 @@ class ChargePoint(BaseModel):
     class Config:
         orm_mode = True
 
+
 class SimpleChargePoint(BaseModel):
     id: str
     status: ChargePointStatus
@@ -53,6 +55,7 @@ class SimpleChargePoint(BaseModel):
 
     class Config:
         orm_mode = True
+
 
 class PaginatedChargePointsView(BaseModel):
     items: List[SimpleChargePoint]

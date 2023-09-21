@@ -4,6 +4,7 @@ from fastapi import status, Depends
 from loguru import logger
 
 from core.database import get_contextual_session
+from manager.routers import AuthenticatedRouter
 from manager.services.charge_points import (
     get_charge_point,
     create_charge_point,
@@ -11,10 +12,8 @@ from manager.services.charge_points import (
     remove_charge_point, update_charge_point
 )
 from manager.utils import params_extractor, paginate
-from manager.views.charge_points import PaginatedChargePointsView, CreateChargPointView, SimpleChargePoint, ChargePoint, \
+from manager.views.charge_points import PaginatedChargePointsView, CreateChargPointView, ChargePointView, \
     UpdateChargPointView
-from manager.routers import AuthenticatedRouter
-
 
 charge_points_router = AuthenticatedRouter(
     prefix="/charge_points",
@@ -42,13 +41,14 @@ async def list_charge_points(
 @charge_points_router.get(
     "/{charge_point_id}",
     status_code=status.HTTP_200_OK,
-    response_model=ChargePoint
+    response_model=ChargePointView
 )
 async def retrieve_charge_point(
         charge_point_id: str
 ):
     async with get_contextual_session() as session:
         return await get_charge_point(session, charge_point_id)
+
 
 @charge_points_router.post(
     "/",
@@ -62,10 +62,11 @@ async def add_charge_point(
         await create_charge_point(session, data)
         await session.commit()
 
+
 @charge_points_router.put(
     "/{charge_point_id}",
     status_code=status.HTTP_202_ACCEPTED,
-    response_model=ChargePoint
+    response_model=ChargePointView
 )
 async def edit_charge_point(
         charge_point_id: str,
