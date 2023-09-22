@@ -123,7 +123,7 @@
                 variant="text"
                 @click="sendData"
                 :loading="loading"
-                :disabled="!isValid"
+                :disabled="!isValid || loading"
               >
                 Add
               </v-btn>

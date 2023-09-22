@@ -93,6 +93,7 @@
             :elevation="isHovering ? 12 : 2"
             :class="{ 'on-hover': isHovering }"
             :loading="loading"
+            :disabled="loading"
             v-bind="props"
             @click="unbindStation(item)"
           >
@@ -140,7 +141,7 @@
                 variant="text"
                 @click="bindStation"
                 :loading="loading"
-                :disabled="!data.charge_point_id && !loading"
+                :disabled="!data.charge_point_id || loading"
               >
                 Add
               </v-btn>
