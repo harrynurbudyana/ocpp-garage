@@ -222,7 +222,7 @@ const headers = [
     key: "address",
     align: "left",
     sortable: true,
-    width: "20%",
+    width: "30%",
   },
   {
     title: "Status",
