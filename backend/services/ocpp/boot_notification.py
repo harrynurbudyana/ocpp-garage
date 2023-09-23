@@ -1,4 +1,4 @@
-from ocpp.v16.enums import RegistrationStatusType
+from ocpp.v16.enums import RegistrationStatus
 from pyocpp_contrib.v16.views.events import BootNotificationEvent
 from pyocpp_contrib.v16.views.tasks import BootNotificationResponse
 
@@ -14,5 +14,5 @@ async def process_boot_notification(
         charge_point_id=event.charge_point_id,
         current_time=get_utc_as_string(),
         interval=20,
-        status=RegistrationStatusType.accepted
+        status=RegistrationStatus.accepted
     )
