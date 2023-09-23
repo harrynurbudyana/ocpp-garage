@@ -15,7 +15,7 @@
                 variant="outlined"
                 :color="driver.is_active ? 'blue-darken-1' : 'red'"
                 @click="manageDriver()"
-                >{{ driver.is_active ? "Block" : "Retrieve" }}
+                >{{ driver.is_active ? "Block" : "Recover" }}
               </v-btn>
             </v-sheet>
           </v-col>
