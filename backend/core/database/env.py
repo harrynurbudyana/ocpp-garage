@@ -6,7 +6,7 @@ from sqlalchemy import pool
 
 from core.database import Base
 from core.settings import DATABASE_SYNC_URL
-from manager.models import Driver, ChargePoint, Transaction, Operator
+from models import Driver, ChargePoint, Transaction, Operator
 
 __all__ = [Driver, ChargePoint, Transaction, Operator]
 
