@@ -1,11 +1,11 @@
 from typing import Tuple, List
 
-from fastapi import status, Depends
+from fastapi import status, Depends, HTTPException
 from loguru import logger
 
 from core.database import get_contextual_session
 from models import ChargePoint
-from routers import AuthenticatedRouter
+from routers import AuthenticatedRouter, AnonymousRouter
 from services.charge_points import (
     get_charge_point,
     create_charge_point,
@@ -20,6 +20,20 @@ charge_points_router = AuthenticatedRouter(
     prefix="/charge_points",
     tags=["charge_points"]
 )
+
+anonymous_charge_points_router = AnonymousRouter()
+
+
+@anonymous_charge_points_router.post(
+    "/charge_points/{charge_point_id}",
+    status_code=status.HTTP_200_OK
+)
+async def authenticate(charge_point_id: str):
+    logger.info(f"Start authenticate charge point (id={charge_point_id})")
+    async with get_contextual_session() as session:
+        charge_point = await get_charge_point(session, charge_point_id)
+        if not charge_point:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
 
 @charge_points_router.get(
