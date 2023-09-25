@@ -57,7 +57,10 @@ services:
   
   manager:
     container_name: csms-manager
-    build: .
+    build:
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: "${GITHUB_TOKEN}"
     volumes:
       - ./backend:/usr/src/csms/backend
     ports:
