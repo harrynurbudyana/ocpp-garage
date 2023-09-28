@@ -1,3 +1,7 @@
+from dataclasses import asdict
+
+from ocpp.v16.datatypes import IdTagInfo
+from ocpp.v16.enums import AuthorizationStatus
 from pyocpp_contrib.v16.views.events import StopTransactionEvent
 from pyocpp_contrib.v16.views.tasks import StopTransactionResponse
 
@@ -18,5 +22,5 @@ async def process_stop_transaction(
     return StopTransactionResponse(
         message_id=event.message_id,
         charge_point_id=event.charge_point_id,
-        id_tag_info={}
+        id_tag_info=asdict(IdTagInfo(status=AuthorizationStatus.accepted))
     )

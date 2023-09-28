@@ -11,13 +11,15 @@ from models import ChargePoint
 from views.charge_points import CreateChargPointView, ConnectorView
 
 
-async def update_connectors(session, event: StatusNotificationEvent) -> Dict:
+async def update_connectors(session, event: StatusNotificationEvent):
     payload = event.payload
     charge_point = await get_charge_point(session, event.charge_point_id)
-    if payload.connector_id == 1:
-        charge_point.connectors = {payload.connector_id: ConnectorView(status=payload.status).dict()}
-    if payload.connector_id > 1:
-        charge_point.connectors[payload.connector_id] = ConnectorView(status=payload.status).dict()
+    if payload.connector_id == 0:
+        charge_point.connectors = {}
+        charge_point.status = payload.status
+    else:
+        charge_point.connectors.update({payload.connector_id: ConnectorView(status=payload.status).dict()})
+
     session.add(charge_point)
 
 

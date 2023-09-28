@@ -7,12 +7,10 @@ from views import PaginationView
 
 
 class CreateTransactionView(BaseModel):
-    city: str
-    vehicle: str
-    address: str
+    driver: str
+    meter_start: int
     meter_start: int
     charge_point: str
-    account_id: str
 
 
 class UpdateTransactionView(BaseModel):
