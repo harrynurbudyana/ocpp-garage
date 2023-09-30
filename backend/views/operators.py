@@ -1,12 +1,12 @@
 from pydantic import BaseModel
 
 
-
 class CreateOperatorView(BaseModel):
     email: str
     password: str
-    first_name: str | None = None
-    last_name: str | None = None
+    first_name: str
+    last_name: str
+    address: str
 
 
 class LoginView(BaseModel):

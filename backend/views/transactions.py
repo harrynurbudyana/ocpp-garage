@@ -11,6 +11,7 @@ class CreateTransactionView(BaseModel):
     meter_start: int
     meter_start: int
     charge_point: str
+    connector: int
 
 
 class UpdateTransactionView(BaseModel):

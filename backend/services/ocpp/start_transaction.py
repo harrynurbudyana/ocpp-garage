@@ -21,6 +21,7 @@ async def process_start_transaction(
         driver=charge_point.driver.email,
         meter_start=event.payload.meter_start,
         charge_point=charge_point.id,
+        connector=event.payload.connector_id
     )
     transaction = await create_transaction(session, view)
     await session.flush()
