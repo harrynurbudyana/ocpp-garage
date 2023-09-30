@@ -108,7 +108,9 @@
                 :disabled="loading"
                 variant="outlined"
                 color="grey-darken-1"
-                @click="startRemoteTransaction(connectorId)"
+                @click="
+                  startRemoteTransaction({ stationId: station.id, connectorId })
+                "
                 >Start
               </v-btn>
             </v-col>
@@ -195,6 +197,7 @@ import { useStore } from "vuex";
 import { useConfirm } from "@/use/dialogs";
 
 import { deleteStation, getStation, updateStation } from "@/services/stations";
+import { remoteStartTransaction } from "@/services/transactions";
 
 import { STATION_STATUS_COLOR } from "@/components/enums";
 import { menuItems } from "@/menu/station-menu-items";
@@ -255,8 +258,12 @@ const showArrows = () => {
   return Object.keys(station.value.connectors).length > 1;
 };
 
-const startRemoteTransaction = (connectorId) => {
-  console.log("StartRemoteTransaction: ", connectorId);
+const startRemoteTransaction = ({ stationId, connectorId }) => {
+  console.log("StartRemoteTransaction: ", stationId, connectorId);
+  loading.value = true;
+  remoteStartTransaction({ stationId, connectorId }).finally(() => {
+    loading.value = false;
+  });
 };
 
 const unlockConnector = (connectorId) => {
