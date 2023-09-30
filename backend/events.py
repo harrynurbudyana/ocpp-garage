@@ -1,9 +1,10 @@
 from copy import deepcopy
 from functools import wraps
 from typing import Callable, Union
+from uuid import uuid4
 
 from loguru import logger
-from ocpp.v16.enums import Action, ChargePointStatus
+from ocpp.v16.enums import Action, ChargePointStatus, ConfigurationKey
 from pyocpp_contrib.enums import ConnectionAction
 from pyocpp_contrib.queue.publisher import publish
 from pyocpp_contrib.v16.views.events import (
@@ -17,6 +18,7 @@ from pyocpp_contrib.v16.views.events import (
     StopTransactionEvent,
     MeterValuesEvent
 )
+from pyocpp_contrib.v16.views.tasks import ChangeConfigurationRequest
 
 from core.database import get_contextual_session
 from services.charge_points import update_charge_point
@@ -90,6 +92,18 @@ async def process_event(event: Union[
             await update_charge_point(session, charge_point_id=event.charge_point_id, data=data)
 
         if task:
+            await publish(task.json(), to=task.exchange, priority=task.priority)
+
+        # The charge point will immediately start a transaction for the idTag given in the RemoteStartTransaction.req message
+        if event.action is Action.BootNotification:
+            task = ChangeConfigurationRequest(
+                message_id=str(uuid4()),
+                charge_point_id=event.charge_point_id,
+                key=ConfigurationKey.authorize_remote_tx_requests,
+                # the Charge Point will not first try to authorize the idTag
+                value=False
+            )
+            logger.info(f"Start changing configuration (task={task})")
             await publish(task.json(), to=task.exchange, priority=task.priority)
 
         await session.commit()
