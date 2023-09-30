@@ -20,12 +20,11 @@ class UpdateTransactionView(BaseModel):
 
 class Transaction(BaseModel):
     id: str
-    city: str
-    vehicle: str
-    address: str
     meter_start: int
     meter_stop: int | None = None
     charge_point: str
+    driver: str
+    connector: int
     created_at: datetime
     updated_at: datetime | None = None
 
