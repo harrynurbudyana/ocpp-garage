@@ -1,10 +1,9 @@
 from copy import deepcopy
 from functools import wraps
 from typing import Callable, Union
-from uuid import uuid4
 
 from loguru import logger
-from ocpp.v16.enums import Action, ChargePointStatus, ConfigurationKey
+from ocpp.v16.enums import Action, ChargePointStatus
 from pyocpp_contrib.enums import ConnectionAction
 from pyocpp_contrib.queue.publisher import publish
 from pyocpp_contrib.v16.views.events import (
@@ -18,12 +17,12 @@ from pyocpp_contrib.v16.views.events import (
     StopTransactionCallEvent,
     MeterValuesCallEvent
 )
-from pyocpp_contrib.v16.views.tasks import ChangeConfigurationCallTask
 
 from core.database import get_contextual_session
 from services.charge_points import update_charge_point
 from services.ocpp.authorize import process_authorize
 from services.ocpp.boot_notification import process_boot_notification
+from services.ocpp.change_configuration import init_configuration
 from services.ocpp.heartbeat import process_heartbeat
 from services.ocpp.meter_values import process_meter_values
 from services.ocpp.security_event_notification import process_security_event_notification
@@ -94,16 +93,8 @@ async def process_event(event: Union[
         if task:
             await publish(task.json(), to=task.exchange, priority=task.priority)
 
-        # The charge point will immediately start a transaction for the idTag given in the RemoteStartTransaction.req message
         if event.action is Action.BootNotification:
-            task = ChangeConfigurationCallTask(
-                message_id=str(uuid4()),
-                charge_point_id=event.charge_point_id,
-                key=ConfigurationKey.authorize_remote_tx_requests,
-                # the Charge Point will not first try to authorize the idTag
-                value=False
-            )
-            logger.info(f"Start changing configuration (task={task})")
+            task = await init_configuration(event.charge_point_id)
             await publish(task.json(), to=task.exchange, priority=task.priority)
 
         await session.commit()

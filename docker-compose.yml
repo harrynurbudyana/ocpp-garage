@@ -39,21 +39,21 @@ services:
       - app-network
 
 
-    ws_server-thnxel:
-      container_name: ws_server-thnxel
-      image: heroyooki/charge_point_node:latest
-      restart: always
-      ports:
-        - "${WS_SERVER_PORT}:${WS_SERVER_PORT}"
-      env_file:
-        - .env
-      command: >
-        sh -c "cd /usr/src/app && python main.py"
-      depends_on:
-        rabbitmq-thnxel:
-          condition: service_healthy
-      networks:
-        - app-network
+  ws_server-thnxel:
+    container_name: ws_server-thnxel
+    image: heroyooki/charge_point_node:latest
+    restart: always
+    ports:
+      - "${WS_SERVER_PORT}:${WS_SERVER_PORT}"
+    env_file:
+      - .env
+    command: >
+      sh -c "cd /usr/src/app && python main.py"
+    depends_on:
+      rabbitmq-thnxel:
+        condition: service_healthy
+    networks:
+      - app-network
   
   manager-thnxel:
     container_name: csms-manager-thnxel
