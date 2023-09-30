@@ -61,4 +61,5 @@ class Transaction(Model):
     meter_start = Column(Integer, nullable=False)
     meter_stop = Column(Integer, nullable=True)
     charge_point = Column(String, nullable=False)
+    connector = Column(Integer, nullable=False)
     transaction_id = Column(Integer, transaction_id_seq, server_default=transaction_id_seq.next_value())

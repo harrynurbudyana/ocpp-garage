@@ -1,15 +1,15 @@
 version: "3.0"
 
 services:
-  rabbitmq:
+  rabbitmq-thnxel:
     image: rabbitmq:3.12.0-management
     restart: always
-    container_name: csms-rabbitmq
+    container_name: csms-rabbitmq-thnxel
     env_file:
       - .env
     ports:
-      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
-      - "${RABBITMQ_UI_PORT}:${RABBITMQ_UI_PORT}"
+      - "5673:${RABBITMQ_PORT}"
+      - "15673:${RABBITMQ_UI_PORT}"
     environment:
       RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
       RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASS}"
@@ -18,16 +18,16 @@ services:
     networks:
       - app-network
 
-  db:
+  db-thnxel:
     image: postgres:15.3-bullseye
     restart: always
-    container_name: csms-db
+    container_name: csms-db-thnxel
     volumes:
       - ./data/postgres:/data
     env_file:
       - .env
     ports:
-      - "${DB_PORT}:${DB_PORT}"
+      - "5433:${DB_PORT}"
     environment:
       POSTGRES_USER: "${DB_USER}"
       POSTGRES_PASSWORD: "${DB_PASSWORD}"
@@ -39,8 +39,8 @@ services:
       - app-network
 
 
-  ws_server:
-    container_name: ws_server
+  ws_server-thnxel:
+    container_name: ws_server-thnxel
     image: heroyooki/charge_point_node:latest
     restart: always
     ports:
@@ -50,13 +50,13 @@ services:
     command: >
       sh -c "cd /usr/src/app && python main.py"
     depends_on:
-      rabbitmq:
+      rabbitmq-thnxel:
         condition: service_healthy
     networks:
       - app-network
   
-  manager:
-    container_name: csms-manager
+  manager-thnxel:
+    container_name: csms-manager-thnxel
     build:
       dockerfile: Dockerfile
       args:
@@ -74,15 +74,15 @@ services:
       sh -c "cd /usr/src/csms/backend && alembic upgrade head &&
              uvicorn main:app --host 0.0.0.0 --port ${HTTP_SERVER_PORT} --reload"
     depends_on:
-      rabbitmq:
+      rabbitmq-thnxel:
         condition: service_healthy
-      db:
+      db-thnxel:
         condition: service_healthy
     healthcheck:
       test: "exit 0"
 
-  frontend:
-    container_name: frontend
+  frontend-thnxel:
+    container_name: frontend-thnxel
     restart: always
     image: node:18.17-bullseye
     volumes:
@@ -95,17 +95,17 @@ services:
       sh -c "cd /usr/src/csms/frontend && 
              yarn install && yarn dev --port ${UI_SERVER_PORT} --host 0.0.0.0"
     depends_on:
-      manager:
+      manager-thnxel:
         condition: service_healthy
 
-  nginx:
+  nginx-thnxel:
     image: nginx:1.24.0-bullseye
     ports:
       - "80:80"
     volumes:
       - ./conf:/etc/nginx/conf.d
     depends_on:
-      - frontend
+      - frontend-thnxel
     networks:
       - app-network
 
