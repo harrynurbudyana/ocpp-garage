@@ -8,17 +8,17 @@ from ocpp.v16.enums import Action, ChargePointStatus, ConfigurationKey
 from pyocpp_contrib.enums import ConnectionAction
 from pyocpp_contrib.queue.publisher import publish
 from pyocpp_contrib.v16.views.events import (
-    SecurityEventNotificationEvent,
-    StatusNotificationEvent,
-    BootNotificationEvent,
-    HeartbeatEvent,
     LostConnectionEvent,
-    AuthorizeEvent,
-    StartTransactionEvent,
-    StopTransactionEvent,
-    MeterValuesEvent
+    SecurityEventNotificationCallEvent,
+    StatusNotificationCallEvent,
+    BootNotificationCallEvent,
+    HeartbeatCallEvent,
+    AuthorizeCallEvent,
+    StartTransactionCallEvent,
+    StopTransactionCallEvent,
+    MeterValuesCallEvent
 )
-from pyocpp_contrib.v16.views.tasks import ChangeConfigurationRequest
+from pyocpp_contrib.v16.views.tasks import ChangeConfigurationCallTask
 
 from core.database import get_contextual_session
 from services.charge_points import update_charge_point
@@ -40,14 +40,14 @@ def prepare_event(func) -> Callable:
 
         event = {
             ConnectionAction.lost_connection: LostConnectionEvent,
-            Action.StatusNotification: StatusNotificationEvent,
-            Action.BootNotification: BootNotificationEvent,
-            Action.Heartbeat: HeartbeatEvent,
-            Action.SecurityEventNotification: SecurityEventNotificationEvent,
-            Action.Authorize: AuthorizeEvent,
-            Action.StartTransaction: StartTransactionEvent,
-            Action.StopTransaction: StopTransactionEvent,
-            Action.MeterValues: MeterValuesEvent
+            Action.StatusNotification: StatusNotificationCallEvent,
+            Action.BootNotification: BootNotificationCallEvent,
+            Action.Heartbeat: HeartbeatCallEvent,
+            Action.SecurityEventNotification: SecurityEventNotificationCallEvent,
+            Action.Authorize: AuthorizeCallEvent,
+            Action.StartTransaction: StartTransactionCallEvent,
+            Action.StopTransaction: StopTransactionCallEvent,
+            Action.MeterValues: MeterValuesCallEvent
         }[data["action"]](**data)
         return await func(event)
 
@@ -57,14 +57,14 @@ def prepare_event(func) -> Callable:
 @prepare_event
 async def process_event(event: Union[
     LostConnectionEvent,
-    StatusNotificationEvent,
-    BootNotificationEvent,
-    HeartbeatEvent,
-    SecurityEventNotificationEvent,
-    AuthorizeEvent,
-    StartTransactionEvent,
-    StopTransactionEvent,
-    MeterValuesEvent
+    StatusNotificationCallEvent,
+    BootNotificationCallEvent,
+    HeartbeatCallEvent,
+    SecurityEventNotificationCallEvent,
+    AuthorizeCallEvent,
+    StartTransactionCallEvent,
+    StopTransactionCallEvent,
+    MeterValuesCallEvent
 ]):
     task = None
 
@@ -96,7 +96,7 @@ async def process_event(event: Union[
 
         # The charge point will immediately start a transaction for the idTag given in the RemoteStartTransaction.req message
         if event.action is Action.BootNotification:
-            task = ChangeConfigurationRequest(
+            task = ChangeConfigurationCallTask(
                 message_id=str(uuid4()),
                 charge_point_id=event.charge_point_id,
                 key=ConfigurationKey.authorize_remote_tx_requests,

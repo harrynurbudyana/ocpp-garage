@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
-from pyocpp_contrib.v16.views.events import StatusNotificationEvent
+from pyocpp_contrib.v16.views.events import StatusNotificationCallEvent
 from sqlalchemy import select, update, func, or_, String, delete
 from sqlalchemy.sql import selectable
 
@@ -11,7 +11,7 @@ from models import ChargePoint
 from views.charge_points import CreateChargPointView, ConnectorView
 
 
-async def update_connectors(session, event: StatusNotificationEvent):
+async def update_connectors(session, event: StatusNotificationCallEvent):
     payload = event.payload
     charge_point = await get_charge_point(session, event.charge_point_id)
     if payload.connector_id == 0:
