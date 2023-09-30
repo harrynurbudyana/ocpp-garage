@@ -29,29 +29,12 @@ async def update_transaction(
     )
 
 
-async def get_transaction(
-        session: AsyncSession,
-        transaction_id: int
-) -> models.Transaction:
-    result = await session \
-        .execute(select(models.Transaction) \
-                 .where(models.Transaction.transaction_id == transaction_id))
-    return result.scalars().first()
-
-
-async def build_transactions_query(account: models.Account, search: str) -> selectable:
-    criterias = [
-        models.Transaction.account_id == account.id,
-    ]
+async def build_transactions_query(search: str) -> selectable:
     query = select(models.Transaction)
-    for criteria in criterias:
-        query = query.where(criteria)
     query = query.order_by(models.Transaction.transaction_id.desc())
     if search:
         query = query.where(or_(
-            func.lower(models.Transaction.city).contains(func.lower(search)),
-            func.lower(models.Transaction.address).contains(func.lower(search)),
-            func.cast(models.Transaction.vehicle, String).ilike(f"{search}%"),
+            func.lower(models.Transaction.driver).contains(func.lower(search)),
             func.cast(models.Transaction.charge_point, String).ilike(f"{search}%"),
         ))
     return query
