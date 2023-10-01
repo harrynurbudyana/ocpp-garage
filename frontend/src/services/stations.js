@@ -31,3 +31,7 @@ export function updateStation(stationId, data) {
 export function updateConnector({ stationId, connectorId }) {
   return request.put(`/${endpoint}/${stationId}/connectors/${connectorId}`);
 }
+
+export function softResetStation(stationId) {
+  return request.patch(`/${endpoint}/${stationId}`);
+}

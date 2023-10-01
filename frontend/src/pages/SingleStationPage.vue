@@ -64,6 +64,7 @@
                 :disabled="loading"
                 variant="outlined"
                 color="grey-darken-1"
+                @click="resetStation(station.id)"
                 >Reset
               </v-btn>
             </v-sheet>
@@ -202,6 +203,7 @@ import { useConfirm } from "@/use/dialogs";
 import {
   deleteStation,
   getStation,
+  softResetStation,
   updateConnector,
   updateStation,
 } from "@/services/stations";
@@ -276,6 +278,13 @@ const startRemoteTransaction = (data) => {
 const unlockConnector = (data) => {
   loading.value = true;
   updateConnector(data).finally(() => {
+    loading.value = false;
+  });
+};
+
+const resetStation = (stationId) => {
+  loading.value = true;
+  softResetStation(stationId).finally(() => {
     loading.value = false;
   });
 };

@@ -13,6 +13,7 @@ from services.charge_points import (
     build_charge_points_query,
     remove_charge_point, update_charge_point, list_simple_charge_points
 )
+from services.ocpp.reset import process_reset
 from services.ocpp.unlock_connector import process_unlock_connector
 from utils import params_extractor, paginate
 from views.charge_points import PaginatedChargePointsView, CreateChargPointView, ChargePointView, \
@@ -129,6 +130,12 @@ async def unlock_connector(
 ):
     task = await process_unlock_connector(charge_point_id, connector_id)
     await publish(task.json(), to=task.exchange, priority=task.priority)
-    
 
 
+@charge_points_router.patch(
+    "/{charge_point_id}",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+async def reset(charge_point_id: str):
+    task = await process_reset(charge_point_id)
+    await publish(task.json(), to=task.exchange, priority=task.priority)
