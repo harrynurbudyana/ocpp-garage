@@ -122,7 +122,7 @@
                 :disabled="loading"
                 variant="outlined"
                 color="grey-darken-1"
-                @click="unlockConnector(connectorId)"
+                @click="unlockConnector({ stationId: station.id, connectorId })"
                 >Unlock
               </v-btn>
             </v-col>
@@ -199,7 +199,12 @@ import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { useConfirm } from "@/use/dialogs";
 
-import { deleteStation, getStation, updateStation } from "@/services/stations";
+import {
+  deleteStation,
+  getStation,
+  updateConnector,
+  updateStation,
+} from "@/services/stations";
 import { remoteStartTransaction } from "@/services/transactions";
 
 import { STATION_STATUS_COLOR } from "@/components/enums";
@@ -268,8 +273,11 @@ const startRemoteTransaction = (data) => {
   });
 };
 
-const unlockConnector = (connectorId) => {
-  console.log("UnlockConnector: ", connectorId);
+const unlockConnector = (data) => {
+  loading.value = true;
+  updateConnector(data).finally(() => {
+    loading.value = false;
+  });
 };
 
 onMounted(() => {

@@ -2,6 +2,7 @@ from typing import Tuple, List
 
 from fastapi import status, Depends, HTTPException
 from loguru import logger
+from pyocpp_contrib.queue.publisher import publish
 
 from core.database import get_contextual_session
 from models import ChargePoint
@@ -12,6 +13,7 @@ from services.charge_points import (
     build_charge_points_query,
     remove_charge_point, update_charge_point, list_simple_charge_points
 )
+from services.ocpp.unlock_connector import process_unlock_connector
 from utils import params_extractor, paginate
 from views.charge_points import PaginatedChargePointsView, CreateChargPointView, ChargePointView, \
     UpdateChargPointView, SimpleChargePoint
@@ -115,3 +117,18 @@ async def delete_charge_point(
     async with get_contextual_session() as session:
         await remove_charge_point(session, charge_point_id)
         await session.commit()
+
+
+@charge_points_router.put(
+    "/{charge_point_id}/connectors/{connector_id}",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+async def unlock_connector(
+        charge_point_id: str,
+        connector_id: int
+):
+    task = await process_unlock_connector(charge_point_id, connector_id)
+    await publish(task.json(), to=task.exchange, priority=task.priority)
+    
+
+

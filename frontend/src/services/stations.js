@@ -27,3 +27,7 @@ export function getStation(stationId) {
 export function updateStation(stationId, data) {
   return request.put(`/${endpoint}/${stationId}`, data);
 }
+
+export function updateConnector({ stationId, connectorId }) {
+  return request.put(`/${endpoint}/${stationId}/connectors/${connectorId}`);
+}
