@@ -31,6 +31,25 @@
                 <v-col class="d-flex justify-end mb-6 mt-3"></v-col>
               </v-row>
             </template>
+            <template v-slot:item.action="{ item }">
+              <v-hover v-slot="{ isHovering, props }" open-delay="100">
+                <v-btn
+                  v-if="isStopStransactionAllowed(item)"
+                  icon
+                  size="small"
+                  density="compact"
+                  :elevation="isHovering ? 12 : 2"
+                  :class="{ 'on-hover': isHovering }"
+                  v-bind="props"
+                  @click="() => stopTransaction(item)"
+                >
+                  <v-tooltip activator="parent" location="end"
+                    >Stop transaction
+                  </v-tooltip>
+                  <v-icon color="deep-orange-lighten-3">mdi mdi-cancel</v-icon>
+                </v-btn>
+              </v-hover>
+            </template>
           </data-table>
         </v-sheet>
       </v-col>
@@ -44,13 +63,24 @@ import { useStore } from "vuex";
 import DataTable from "@/components/DataTable";
 
 import { usePagination } from "@/use/pagination";
-import { listTransactions } from "@/services/transactions";
+import {
+  listTransactions,
+  remoteStopTransaction,
+} from "@/services/transactions";
 import { menuItems } from "@/menu/app-menu-items";
 import { dateAgo } from "@/filters/date";
 
 const { currentPage, lastPage, items, search } = usePagination({
   itemsLoader: listTransactions,
 });
+
+const isStopStransactionAllowed = (item) => {
+  return !item.selectable.meter_stop;
+};
+
+const stopTransaction = (item) => {
+  remoteStopTransaction(item.key);
+};
 
 onMounted(() => {
   const { commit } = useStore();
@@ -102,6 +132,13 @@ const headers = [
     sortable: false,
     value: (v) => v.meter_stop - v.meter_start,
     key: "consumed",
+  },
+  {
+    title: "Action",
+    align: "left",
+    width: "15%",
+    sortable: false,
+    key: "action",
   },
 ];
 </script>

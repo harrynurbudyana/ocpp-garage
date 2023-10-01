@@ -29,6 +29,12 @@ async def update_transaction(
     )
 
 
+async def get_transaction(session, transaction_id: str | int) -> models.Transaction | None:
+    attr = models.Transaction.transaction_id if isinstance(transaction_id, int) else models.Transaction.id
+    query = await session.execute(select(models.Transaction).where(attr == transaction_id))
+    return query.scalars().first()
+
+
 async def build_transactions_query(search: str) -> selectable:
     query = select(models.Transaction)
     query = query.order_by(models.Transaction.transaction_id.desc())

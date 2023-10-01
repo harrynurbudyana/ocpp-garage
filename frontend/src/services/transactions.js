@@ -11,3 +11,7 @@ export function listTransactions(arg) {
 export function remoteStartTransaction(data) {
   return request.post(`/${endpoint}`, data);
 }
+
+export function remoteStopTransaction(transactionId) {
+  return request.put(`/${endpoint}/${transactionId}`);
+}

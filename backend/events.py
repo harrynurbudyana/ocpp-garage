@@ -15,7 +15,16 @@ from pyocpp_contrib.v16.views.events import (
     AuthorizeCallEvent,
     StartTransactionCallEvent,
     StopTransactionCallEvent,
-    MeterValuesCallEvent
+    MeterValuesCallEvent,
+    ClearCacheCallResultEvent,
+    ChangeConfigurationCallResultEvent,
+    ChangeAvailabilityCallResultEvent,
+    DataTransferCallResultEvent,
+    GetConfigurationCallResultEvent,
+    RemoteStartTransactionCallResultEvent,
+    RemoteStopTransactionCallResultEvent,
+    ResetCallResultEvent,
+    UnlockConnectorCallResultEvent
 )
 
 from core.database import get_contextual_session
@@ -46,7 +55,16 @@ def prepare_event(func) -> Callable:
             Action.Authorize: AuthorizeCallEvent,
             Action.StartTransaction: StartTransactionCallEvent,
             Action.StopTransaction: StopTransactionCallEvent,
-            Action.MeterValues: MeterValuesCallEvent
+            Action.MeterValues: MeterValuesCallEvent,
+            Action.ClearCache: ClearCacheCallResultEvent,
+            Action.ChangeConfiguration: ChangeConfigurationCallResultEvent,
+            Action.ChangeAvailability: ChangeAvailabilityCallResultEvent,
+            Action.DataTransfer: DataTransferCallResultEvent,
+            Action.GetConfiguration: GetConfigurationCallResultEvent,
+            Action.RemoteStartTransaction: RemoteStartTransactionCallResultEvent,
+            Action.RemoteStopTransaction: RemoteStopTransactionCallResultEvent,
+            Action.Reset: ResetCallResultEvent,
+            Action.UnlockConnector: UnlockConnectorCallResultEvent
         }[data["action"]](**data)
         return await func(event)
 
@@ -63,7 +81,16 @@ async def process_event(event: Union[
     AuthorizeCallEvent,
     StartTransactionCallEvent,
     StopTransactionCallEvent,
-    MeterValuesCallEvent
+    MeterValuesCallEvent,
+    ClearCacheCallResultEvent,
+    ChangeConfigurationCallResultEvent,
+    ChangeAvailabilityCallResultEvent,
+    DataTransferCallResultEvent,
+    GetConfigurationCallResultEvent,
+    RemoteStartTransactionCallResultEvent,
+    RemoteStopTransactionCallResultEvent,
+    ResetCallResultEvent,
+    UnlockConnectorCallResultEvent
 ]):
     task = None
 

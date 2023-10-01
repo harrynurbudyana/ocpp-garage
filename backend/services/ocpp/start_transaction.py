@@ -1,12 +1,13 @@
+from copy import deepcopy
 from dataclasses import asdict
 
 from loguru import logger
 from ocpp.v16.call_result import StartTransactionPayload
 from ocpp.v16.datatypes import IdTagInfo
-from ocpp.v16.enums import AuthorizationStatus
-
+from ocpp.v16.enums import AuthorizationStatus, ChargePointStatus
 from pyocpp_contrib.v16.views.events import StartTransactionCallEvent
 from pyocpp_contrib.v16.views.tasks import StartTransactionCallResultTask
+
 from services.charge_points import get_charge_point
 from services.transactions import create_transaction
 from views.transactions import CreateTransactionView
@@ -18,6 +19,11 @@ async def process_start_transaction(
 ) -> StartTransactionCallResultTask:
     logger.info(f"Start process StartTransaction (event={event})")
     charge_point = await get_charge_point(session, event.charge_point_id)
+    # Update connectors status
+    connectors = deepcopy(charge_point.connectors)
+    connectors[str(event.payload.connector_id)]["status"] = ChargePointStatus.charging
+    charge_point.connectors.update(connectors)
+    # create transaction
     view = CreateTransactionView(
         driver=charge_point.driver.email,
         meter_start=event.payload.meter_start,
