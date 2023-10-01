@@ -9,9 +9,14 @@ export const EVENT_NAMES = {
 };
 
 export const STATION_STATUS = {
-  available: "available",
-  unavailable: "unavailable",
-  faulted: "faulted",
+  available: "Available",
+  unavailable: "Unavailable",
+  faulted: "Faulted",
+  preparing: "Preparing",
+  charging: "Charging",
+  suspendedEVSE: "SuspendedEVSE",
+  suspendedEV: "SuspendedEV",
+  finishing: "Finishing",
 };
 
 export const TRANSACTION_STATUS = {
@@ -20,9 +25,11 @@ export const TRANSACTION_STATUS = {
 };
 
 export const STATION_STATUS_COLOR = {
-  available: "#0ee018",
+  available: "#8cef91",
   unavailable: "#7e817d",
   faulted: "#DC184CFF",
+  preparing: "#efc909",
+  charging: "#0ccaec",
 };
 
 export const TRANSACTION_STATUS_COLOR = {

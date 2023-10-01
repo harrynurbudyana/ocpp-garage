@@ -40,12 +40,15 @@ async def remote_start_transaction(
         data: InitTransactionView,
         request: Request
 ):
-    task = await process_remote_start_transaction(
-        data.charge_point_id,
-        data.connector_id,
-        request.state.operator.id
-    )
-    await publish(task.json(), to=task.exchange, priority=task.priority)
+    async with get_contextual_session() as session:
+        task = await process_remote_start_transaction(
+            session,
+            data.charge_point_id,
+            data.connector_id,
+            request.state.operator.id
+        )
+        await session.commit()
+        await publish(task.json(), to=task.exchange, priority=task.priority)
 
 
 @transactions_router.put(

@@ -28,7 +28,7 @@ from pyocpp_contrib.v16.views.events import (
 )
 
 from core.database import get_contextual_session
-from services.charge_points import update_charge_point
+from services.charge_points import update_charge_point, reset_connectors
 from services.ocpp.authorize import process_authorize
 from services.ocpp.boot_notification import process_boot_notification
 from services.ocpp.change_configuration import init_configuration
@@ -116,6 +116,7 @@ async def process_event(event: Union[
         if event.action is ConnectionAction.lost_connection:
             data = ChargePointUpdateStatusView(status=ChargePointStatus.unavailable)
             await update_charge_point(session, charge_point_id=event.charge_point_id, data=data)
+            await reset_connectors(session, event.charge_point_id)
 
         if task:
             await publish(task.json(), to=task.exchange, priority=task.priority)

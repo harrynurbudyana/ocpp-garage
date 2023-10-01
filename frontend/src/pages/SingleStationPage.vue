@@ -11,7 +11,7 @@
           <v-col>
             <v-sheet align="left">
               <v-btn
-                :disabled="loading"
+                :disabled="loading || !isEditAllowed(station)"
                 variant="outlined"
                 color="blue-darken-1"
                 @click="openModal('edit')"
@@ -22,7 +22,7 @@
           <v-col>
             <v-sheet align="right">
               <v-btn
-                :disabled="loading"
+                :disabled="loading || !isEditAllowed(station)"
                 variant="outlined"
                 color="red"
                 @click="openConfirm()"
@@ -40,7 +40,7 @@
       </v-card-title>
 
       <v-card-text class="mb-10">
-        <v-chip :color="STATION_STATUS_COLOR[station.status]">
+        <v-chip :color="STATION_STATUS_COLOR[station.status.toLowerCase()]">
           <p class="text-medium-emphasis">
             {{ station.status }}
           </p>
@@ -61,7 +61,7 @@
           <v-col>
             <v-sheet>
               <v-btn
-                :disabled="loading"
+                :disabled="loading || !isResetAvailable(station)"
                 variant="outlined"
                 color="grey-darken-1"
                 @click="resetStation(station.id)"
@@ -94,7 +94,9 @@
         <v-card-subtitle class="mt-10 mb-10">
           <v-chip
             :color="
-              STATION_STATUS_COLOR[station.connectors[connectorId].status]
+              STATION_STATUS_COLOR[
+                station.connectors[connectorId].status.toLowerCase()
+              ]
             "
           >
             <p class="text-medium-emphasis">
@@ -106,7 +108,11 @@
           <v-row align="end" style="height: 170px">
             <v-col>
               <v-btn
-                :disabled="loading"
+                :disabled="
+                  loading ||
+                  station.connectors[connectorId].status !==
+                    STATION_STATUS.available
+                "
                 variant="outlined"
                 color="grey-darken-1"
                 @click="
@@ -209,7 +215,7 @@ import {
 } from "@/services/stations";
 import { remoteStartTransaction } from "@/services/transactions";
 
-import { STATION_STATUS_COLOR } from "@/components/enums";
+import { STATION_STATUS, STATION_STATUS_COLOR } from "@/components/enums";
 import { menuItems } from "@/menu/station-menu-items";
 import { rules } from "@/configs/validation";
 
@@ -270,9 +276,15 @@ const showArrows = () => {
 
 const startRemoteTransaction = (data) => {
   loading.value = true;
-  remoteStartTransaction(data).finally(() => {
-    loading.value = false;
-  });
+  remoteStartTransaction(data)
+    .then(() => {
+      getStation(station.value.id).then(
+        (response) => (station.value = response)
+      );
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 const unlockConnector = (data) => {
@@ -287,6 +299,32 @@ const resetStation = (stationId) => {
   softResetStation(stationId).finally(() => {
     loading.value = false;
   });
+};
+
+const isEditAllowed = (station) => {
+  return (
+    station.status.toLowerCase() === STATION_STATUS.unavailable.toLowerCase()
+  );
+};
+
+const isAvailable = (station) => {
+  for (let key of Object.keys(station.connectors)) {
+    if (
+      station.connectors[key].status.toLowerCase() !==
+      STATION_STATUS.available.toLowerCase()
+    ) {
+      return false;
+    }
+  }
+  return true;
+};
+
+const isResetAvailable = (station) => {
+  if (Object.keys(station.connectors).length > 0) {
+    return isAvailable(station);
+  } else {
+    return false;
+  }
 };
 
 onMounted(() => {

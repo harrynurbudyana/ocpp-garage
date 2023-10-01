@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import List
 
+from ocpp.v16.enums import ChargePointStatus
 from pyocpp_contrib.v16.views.events import StatusNotificationCallEvent
 from sqlalchemy import select, update, func, or_, String, delete
 from sqlalchemy.sql import selectable
@@ -21,6 +23,14 @@ async def update_connectors(session, event: StatusNotificationCallEvent):
         charge_point.connectors.update({payload.connector_id: ConnectorView(status=payload.status).dict()})
 
     session.add(charge_point)
+
+
+async def reset_connectors(session, charge_point_id: str):
+    charge_point = await get_charge_point(session, charge_point_id)
+    connectors = deepcopy(charge_point.connectors)
+    for key in connectors:
+        connectors[key]["status"] = ChargePointStatus.unavailable
+    charge_point.connectors.update(connectors)
 
 
 async def build_charge_points_query(search: str) -> selectable:
