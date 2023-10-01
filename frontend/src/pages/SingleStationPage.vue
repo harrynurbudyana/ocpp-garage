@@ -109,7 +109,10 @@
                 variant="outlined"
                 color="grey-darken-1"
                 @click="
-                  startRemoteTransaction({ stationId: station.id, connectorId })
+                  startRemoteTransaction({
+                    charge_point_id: station.id,
+                    connector_id: connectorId,
+                  })
                 "
                 >Start
               </v-btn>
@@ -258,10 +261,9 @@ const showArrows = () => {
   return Object.keys(station.value.connectors).length > 1;
 };
 
-const startRemoteTransaction = ({ stationId, connectorId }) => {
-  console.log("StartRemoteTransaction: ", stationId, connectorId);
+const startRemoteTransaction = (data) => {
   loading.value = true;
-  remoteStartTransaction({ stationId, connectorId }).finally(() => {
+  remoteStartTransaction(data).finally(() => {
     loading.value = false;
   });
 };

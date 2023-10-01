@@ -8,6 +8,6 @@ export function listTransactions(arg) {
   return request.get(`/${endpoint}?page=${page}&search=${search}`);
 }
 
-export function remoteStartTransaction({ stationId, connectorId }) {
-  return request.post(`/${endpoint}/${stationId}/connectors/${connectorId}`);
+export function remoteStartTransaction(data) {
+  return request.post(`/${endpoint}`, data);
 }
