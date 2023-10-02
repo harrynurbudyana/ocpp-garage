@@ -61,11 +61,20 @@
           <v-col>
             <v-sheet>
               <v-btn
-                :disabled="loading || !isResetAvailable(station)"
+                :disabled="
+                  loading || !isResetAvailable(station) || !progressReset
+                "
                 variant="outlined"
                 color="grey-darken-1"
                 @click="resetStation(station.id)"
-                >Reset
+              >
+                <v-progress-circular
+                  size="20"
+                  color="#0ee018"
+                  v-model="progressReset"
+                  class="mr-2"
+                ></v-progress-circular>
+                Reset
               </v-btn>
             </v-sheet>
           </v-col>
@@ -121,16 +130,30 @@
                     connector_id: connectorId,
                   })
                 "
-                >Start
+              >
+                <v-progress-circular
+                  size="20"
+                  color="#0ee018"
+                  v-model="progressStart"
+                  class="mr-2"
+                ></v-progress-circular>
+                Start
               </v-btn>
             </v-col>
             <v-col>
               <v-btn
-                :disabled="loading || !isAvailable(station)"
+                :disabled="loading || !isAvailable(station) || !progressUnlock"
                 variant="outlined"
                 color="grey-darken-1"
                 @click="unlockConnector({ stationId: station.id, connectorId })"
-                >Unlock
+              >
+                <v-progress-circular
+                  size="20"
+                  color="#0ee018"
+                  v-model="progressUnlock"
+                  class="mr-2"
+                ></v-progress-circular>
+                Unlock
               </v-btn>
             </v-col>
           </v-row>
@@ -222,6 +245,9 @@ import { rules } from "@/configs/validation";
 import EmptyData from "@/components/EmptyData";
 import ConfirmWindow from "@/components/dialogs/ConfirmWindow";
 
+const progressStart = ref(100);
+const progressReset = ref(100);
+const progressUnlock = ref(100);
 const loading = ref(false);
 const isValid = ref(false);
 const editDialog = ref(false);
@@ -284,6 +310,10 @@ const startRemoteTransaction = (data) => {
     })
     .finally(() => {
       loading.value = false;
+      progressStart.value = 0;
+      setTimeout(() => {
+        progressStart.value = 100;
+      }, 3000);
     });
 };
 
@@ -291,6 +321,10 @@ const unlockConnector = (data) => {
   loading.value = true;
   updateConnector(data).finally(() => {
     loading.value = false;
+    progressUnlock.value = 0;
+    setTimeout(() => {
+      progressUnlock.value = 100;
+    }, 3000);
   });
 };
 
@@ -298,6 +332,10 @@ const resetStation = (stationId) => {
   loading.value = true;
   softResetStation(stationId).finally(() => {
     loading.value = false;
+    progressReset.value = 0;
+    setTimeout(() => {
+      progressReset.value = 100;
+    }, 3000);
   });
 };
 
