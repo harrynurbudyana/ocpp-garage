@@ -126,7 +126,7 @@
             </v-col>
             <v-col>
               <v-btn
-                :disabled="loading"
+                :disabled="loading || !isAvailable(station)"
                 variant="outlined"
                 color="grey-darken-1"
                 @click="unlockConnector({ stationId: station.id, connectorId })"
