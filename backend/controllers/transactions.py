@@ -8,7 +8,7 @@ from core.database import get_contextual_session
 from routers import AuthenticatedRouter
 from services.ocpp.remote_start_transaction import process_remote_start_transaction
 from services.ocpp.remote_stop_transaction import process_remote_stop_transaction
-from services.transactions import build_transactions_query, get_transaction
+from services.transactions import build_transactions_query
 from utils import params_extractor, paginate
 from views.transactions import PaginatedTransactionsView, InitTransactionView
 
@@ -55,11 +55,11 @@ async def remote_start_transaction(
     "/{transaction_uuid}",
     status_code=status.HTTP_204_NO_CONTENT
 )
-async def remote_start_transaction(transaction_uuid: str):
+async def remote_stop_transaction(transaction_uuid: str):
     async with get_contextual_session() as session:
-        transaction = await get_transaction(session, transaction_uuid)
         task = await process_remote_stop_transaction(
-            transaction.charge_point,
-            transaction.transaction_id
+            session,
+            transaction_uuid
         )
         await publish(task.json(), to=task.exchange, priority=task.priority)
+        await session.commit()

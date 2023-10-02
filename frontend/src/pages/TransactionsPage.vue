@@ -50,6 +50,16 @@
                 </v-btn>
               </v-hover>
             </template>
+            <template v-slot:item.status="{ item }">
+              <v-chip :color="TRANSACTIONS_STATUS_COLOR[item.columns.status]">
+                <v-tooltip activator="parent" location="end"
+                  >{{ TRANSACTIONS_MAPPPER[item.columns.status] }}
+                </v-tooltip>
+                <p class="text-medium-emphasis">
+                  <span class="mdi mdi-progress-clock"></span>
+                </p>
+              </v-chip>
+            </template>
           </data-table>
         </v-sheet>
       </v-col>
@@ -62,6 +72,11 @@ import { onMounted } from "vue";
 import { useStore } from "vuex";
 import DataTable from "@/components/DataTable";
 
+import {
+  TRANSACTIONS_MAPPPER,
+  TRANSACTIONS_STATUS,
+  TRANSACTIONS_STATUS_COLOR,
+} from "@/components/enums";
 import { usePagination } from "@/use/pagination";
 import {
   listTransactions,
@@ -70,16 +85,18 @@ import {
 import { menuItems } from "@/menu/app-menu-items";
 import { dateAgo } from "@/filters/date";
 
-const { currentPage, lastPage, items, search } = usePagination({
+const { currentPage, lastPage, fetchData, items, search } = usePagination({
   itemsLoader: listTransactions,
 });
 
 const isStopStransactionAllowed = (item) => {
-  return !item.selectable.meter_stop;
+  return item.selectable.status === TRANSACTIONS_STATUS.in_progress;
 };
 
 const stopTransaction = (item) => {
-  remoteStopTransaction(item.key);
+  remoteStopTransaction(item.key).finally(() => {
+    fetchData();
+  });
 };
 
 onMounted(() => {
@@ -93,14 +110,14 @@ const headers = [
     key: "driver",
     align: "center",
     sortable: false,
-    width: "20%",
+    width: "15%",
   },
   {
     title: "Station",
     key: "charge_point",
     align: "center",
     sortable: false,
-    width: "20%",
+    width: "15%",
   },
   {
     title: "Connector",
@@ -113,14 +130,14 @@ const headers = [
     title: "Started at",
     key: "created_at",
     align: "center",
-    width: "20%",
+    width: "15%",
     sortable: false,
     value: (v) => dateAgo(v.created_at),
   },
   {
     title: "Stopped at",
     align: "center",
-    width: "20%",
+    width: "15%",
     sortable: false,
     key: "updated_at",
     value: (v) => dateAgo(v.updated_at),
@@ -134,9 +151,16 @@ const headers = [
     key: "consumed",
   },
   {
+    title: "Status",
+    key: "status",
+    align: "center",
+    sortable: false,
+    width: "10%",
+  },
+  {
     title: "Action",
     align: "left",
-    width: "15%",
+    width: "10%",
     sortable: false,
     key: "action",
   },

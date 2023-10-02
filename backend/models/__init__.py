@@ -6,6 +6,7 @@ from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import relationship
 
 from core.database import Model
+from core.fields import TransactionStatus
 
 
 class Person(Model):
@@ -63,3 +64,4 @@ class Transaction(Model):
     charge_point = Column(String, nullable=False)
     connector = Column(Integer, nullable=False)
     transaction_id = Column(Integer, transaction_id_seq, server_default=transaction_id_seq.next_value())
+    status = Column(Enum(TransactionStatus), default=TransactionStatus.in_progress)

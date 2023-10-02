@@ -122,8 +122,9 @@ async def process_event(event: Union[
             await publish(task.json(), to=task.exchange, priority=task.priority)
 
         if event.action is Action.BootNotification:
-            task = await init_configuration(event.charge_point_id)
-            await publish(task.json(), to=task.exchange, priority=task.priority)
+            tasks = await init_configuration(event.charge_point_id)
+            for task in tasks:
+                await publish(task.json(), to=task.exchange, priority=task.priority)
 
         await session.commit()
         logger.info(f"Successfully completed process event={event}")

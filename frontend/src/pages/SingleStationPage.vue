@@ -110,8 +110,8 @@
               <v-btn
                 :disabled="
                   loading ||
-                  station.connectors[connectorId].status !==
-                    STATION_STATUS.available
+                  station.connectors[connectorId].status.toLowerCase() !==
+                    STATION_STATUS.available.toLowerCase()
                 "
                 variant="outlined"
                 color="grey-darken-1"

@@ -3,6 +3,7 @@ from typing import List
 
 from pydantic import BaseModel
 
+from core.fields import TransactionStatus
 from views import PaginationView
 
 
@@ -30,6 +31,7 @@ class Transaction(BaseModel):
     charge_point: str
     driver: str
     connector: int
+    status: TransactionStatus
     created_at: datetime
     updated_at: datetime | None = None
 
