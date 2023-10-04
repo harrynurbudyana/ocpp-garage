@@ -10,7 +10,7 @@ from sqlalchemy.sql import selectable
 
 import models as models
 from models import ChargePoint
-from views.charge_points import CreateChargPointView, ConnectorView
+from views.charge_points import CreateChargPointView, ConnectorView, UpdateChargPointView
 
 
 async def update_connectors(session, event: StatusNotificationCallEvent):
@@ -31,6 +31,13 @@ async def reset_connectors(session, charge_point_id: str):
     for key in connectors:
         connectors[key]["status"] = ChargePointStatus.unavailable
     charge_point.connectors.update(connectors)
+
+
+async def reset_charge_points(session):
+    charge_points = await list_simple_charge_points(session, all=True)
+    for charge_point in charge_points:
+        await update_charge_point(session, charge_point.id, UpdateChargPointView(status=ChargePointStatus.unavailable))
+        await reset_connectors(session, charge_point.id)
 
 
 async def build_charge_points_query(search: str) -> selectable:

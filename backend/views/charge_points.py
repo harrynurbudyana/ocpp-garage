@@ -31,6 +31,7 @@ class UpdateChargPointView(BaseModel):
     driver_id: str | None = None
     description: str | None = None
     location: str | None = None
+    status: ChargePointStatus | None = None
 
 
 class ChargePointView(BaseModel):

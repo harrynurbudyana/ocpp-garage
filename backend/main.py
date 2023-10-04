@@ -12,7 +12,7 @@ from controllers.operators import operators_public_router, operators_private_rou
 from controllers.transactions import transactions_router
 from core.database import get_contextual_session
 from events import process_event
-from services.charge_points import list_simple_charge_points
+from services.charge_points import list_simple_charge_points, reset_charge_points
 from services.ocpp.change_availability import process_change_availability
 
 background_tasks = set()
@@ -30,6 +30,8 @@ async def startup():
     # Its possible that the manager does not work but standalone charge point nodes do.
     # Thus, everytime we start manager, we need to sync charge points statuses
     async with get_contextual_session() as session:
+        await reset_charge_points(session)
+        await session.commit()
         charge_points = await list_simple_charge_points(session, all=True)
         for charge_point in charge_points:
             task = await process_change_availability(
