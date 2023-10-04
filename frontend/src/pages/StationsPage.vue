@@ -162,7 +162,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { useStore } from "vuex";
 import { dateAgo } from "@/filters/date";
 import DataTable from "@/components/DataTable";
@@ -173,7 +173,9 @@ import { STATION_STATUS_COLOR } from "@/components/enums";
 import { usePagination } from "@/use/pagination";
 import { addStation, listStations } from "@/services/stations";
 import { menuItems } from "@/menu/app-menu-items";
+import { watchInterval } from "@/configs";
 
+var interval = null;
 const loading = ref(false);
 const isValid = ref(false);
 const dialog = ref(false);
@@ -226,6 +228,13 @@ const sendData = () => {
 onMounted(() => {
   const { commit } = useStore();
   commit("setPageMenuItems", menuItems);
+  interval = setInterval(() => {
+    fetchData();
+  }, watchInterval);
+});
+
+onUnmounted(() => {
+  clearInterval(interval);
 });
 
 const headers = [

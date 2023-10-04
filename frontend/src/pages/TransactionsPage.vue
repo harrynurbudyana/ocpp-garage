@@ -68,7 +68,7 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, onUnmounted } from "vue";
 import { useStore } from "vuex";
 import DataTable from "@/components/DataTable";
 
@@ -84,6 +84,9 @@ import {
 } from "@/services/transactions";
 import { menuItems } from "@/menu/app-menu-items";
 import { dateAgo } from "@/filters/date";
+import { watchInterval } from "@/configs";
+
+var interval = null;
 
 const { currentPage, lastPage, fetchData, items, search } = usePagination({
   itemsLoader: listTransactions,
@@ -102,6 +105,13 @@ const stopTransaction = (item) => {
 onMounted(() => {
   const { commit } = useStore();
   commit("setPageMenuItems", menuItems);
+  interval = setInterval(() => {
+    fetchData();
+  }, watchInterval);
+});
+
+onUnmounted(() => {
+  clearInterval(interval);
 });
 
 const headers = [

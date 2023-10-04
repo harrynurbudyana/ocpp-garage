@@ -85,7 +85,7 @@
   </v-card>
 
   <v-carousel
-    v-if="station"
+    v-if="station && Object.keys(station.connectors).length"
     height="400"
     class="mt-3 elevation-20"
     :show-arrows="showArrows()"
@@ -224,7 +224,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { useConfirm } from "@/use/dialogs";
@@ -241,10 +241,12 @@ import { remoteStartTransaction } from "@/services/transactions";
 import { STATION_STATUS, STATION_STATUS_COLOR } from "@/components/enums";
 import { menuItems } from "@/menu/station-menu-items";
 import { rules } from "@/configs/validation";
+import { recoverButtonAfter, watchInterval } from "@/configs";
 
 import EmptyData from "@/components/EmptyData";
 import ConfirmWindow from "@/components/dialogs/ConfirmWindow";
 
+var interval = null;
 const progressStart = ref(100);
 const progressReset = ref(100);
 const progressUnlock = ref(100);
@@ -300,6 +302,12 @@ const showArrows = () => {
   return Object.keys(station.value.connectors).length > 1;
 };
 
+const recoverButton = (model) => {
+  setTimeout(() => {
+    model.value = 100;
+  }, recoverButtonAfter);
+};
+
 const startRemoteTransaction = (data) => {
   loading.value = true;
   remoteStartTransaction(data)
@@ -311,9 +319,7 @@ const startRemoteTransaction = (data) => {
     .finally(() => {
       loading.value = false;
       progressStart.value = 0;
-      setTimeout(() => {
-        progressStart.value = 100;
-      }, 3000);
+      recoverButton(progressStart);
     });
 };
 
@@ -322,9 +328,7 @@ const unlockConnector = (data) => {
   updateConnector(data).finally(() => {
     loading.value = false;
     progressUnlock.value = 0;
-    setTimeout(() => {
-      progressUnlock.value = 100;
-    }, 3000);
+    recoverButton(progressUnlock);
   });
 };
 
@@ -333,9 +337,7 @@ const resetStation = (stationId) => {
   softResetStation(stationId).finally(() => {
     loading.value = false;
     progressReset.value = 0;
-    setTimeout(() => {
-      progressReset.value = 100;
-    }, 3000);
+    recoverButton(progressReset);
   });
 };
 
@@ -375,5 +377,14 @@ onMounted(() => {
     .finally(() => {
       commit("unsetGlobalLoading");
     });
+  interval = setInterval(() => {
+    getStation(router.currentRoute.value.params.stationId).then((response) => {
+      station.value = response;
+    });
+  }, watchInterval);
+});
+
+onUnmounted(() => {
+  clearInterval(interval);
 });
 </script>
