@@ -79,8 +79,10 @@ async def remove_charge_point(session, charge_point_id: str) -> None:
     await session.execute(query)
 
 
-async def list_simple_charge_points(session) -> List[ChargePoint]:
-    query = select(ChargePoint).where(ChargePoint.driver_id.is_(None)) \
-        .with_only_columns(ChargePoint.id, ChargePoint.location, ChargePoint.status)
+async def list_simple_charge_points(session, all=False) -> List[ChargePoint]:
+    query = select(ChargePoint)
+    if not all:
+        query = query.where(ChargePoint.driver_id.is_(None))
+    query = query.with_only_columns(ChargePoint.id, ChargePoint.location, ChargePoint.status, ChargePoint.connectors)
     result = await session.execute(query)
-    return result.unique().fetchall()
+    return result.fetchall()
