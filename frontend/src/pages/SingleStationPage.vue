@@ -85,41 +85,38 @@
   </v-card>
 
   <v-carousel
-    v-if="station && Object.keys(station.connectors).length"
+    v-if="station && station.connectors.length"
     height="400"
     class="mt-3 elevation-20"
     :show-arrows="showArrows()"
     hide-delimiters
   >
-    <v-carousel-item
-      v-for="(connectorId, i) in Object.keys(station.connectors)"
-      :key="i"
-    >
+    <v-carousel-item v-for="(connector, i) in station.connectors" :key="i">
       <v-card max-width="100%" class="elevation-20 text-center" height="100%">
         <v-card-title primary-title>
           <span class="mdi mdi-connection"></span>
-          Connector {{ connectorId }}
+          Connector {{ connector.connector_id }}
         </v-card-title>
         <v-card-subtitle class="mt-10 mb-10">
-          <v-chip
-            :color="
-              STATION_STATUS_COLOR[
-                station.connectors[connectorId].status.toLowerCase()
-              ]
-            "
-          >
+          <v-chip :color="STATION_STATUS_COLOR[connector.status.toLowerCase()]">
             <p class="text-medium-emphasis">
-              {{ station.connectors[connectorId].status }}
+              {{ connector.status }}
             </p>
           </v-chip>
         </v-card-subtitle>
+        <v-chip color="red">
+          <p v-if="connector.error_code" class="text-medium-emphasis">
+            {{ connector.error_code }}
+          </p>
+        </v-chip>
+
         <v-container>
           <v-row align="end" style="height: 170px">
             <v-col>
               <v-btn
                 :disabled="
                   loading ||
-                  station.connectors[connectorId].status.toLowerCase() !==
+                  connector.status.toLowerCase() !==
                     STATION_STATUS.available.toLowerCase()
                 "
                 variant="outlined"
@@ -127,7 +124,7 @@
                 @click="
                   startRemoteTransaction({
                     charge_point_id: station.id,
-                    connector_id: connectorId,
+                    connector_id: connector.connector_id,
                   })
                 "
               >
@@ -145,7 +142,12 @@
                 :disabled="loading || !isAvailable(station) || !progressUnlock"
                 variant="outlined"
                 color="grey-darken-1"
-                @click="unlockConnector({ stationId: station.id, connectorId })"
+                @click="
+                  unlockConnector({
+                    stationId: station.id,
+                    connectorId: connector.connector_id,
+                  })
+                "
               >
                 <v-progress-circular
                   size="20"

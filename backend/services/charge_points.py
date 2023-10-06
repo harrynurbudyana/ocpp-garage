@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from copy import deepcopy
+from dataclasses import asdict
 from typing import List
 
+from ocpp.v16.call import StatusNotificationPayload
 from ocpp.v16.enums import ChargePointStatus
 from pyocpp_contrib.v16.views.events import StatusNotificationCallEvent
 from sqlalchemy import select, update, func, or_, String, delete
@@ -10,27 +12,33 @@ from sqlalchemy.sql import selectable
 
 import models as models
 from models import ChargePoint
-from views.charge_points import CreateChargPointView, ConnectorView, UpdateChargPointView
+from views.charge_points import CreateChargPointView, UpdateChargPointView
 
 
 async def update_connectors(session, event: StatusNotificationCallEvent):
-    payload = event.payload
     charge_point = await get_charge_point(session, event.charge_point_id)
-    if payload.connector_id == 0:
-        charge_point.connectors = {}
-        charge_point.status = payload.status
+    connectors = deepcopy(charge_point.connectors)
+    if not event.payload.connector_id:
+        charge_point.status = event.payload.status
     else:
-        charge_point.connectors.update({payload.connector_id: ConnectorView(status=payload.status).dict()})
+        for idx, data in enumerate(connectors):
+            connector = StatusNotificationPayload(**data)
+            if connector.connector_id == event.payload.connector_id:
+                connectors[idx].update(asdict(event.payload))
+                break
+        else:
+            connectors.append(asdict(event.payload))
 
+    charge_point.connectors = connectors
     session.add(charge_point)
 
 
 async def reset_connectors(session, charge_point_id: str):
     charge_point = await get_charge_point(session, charge_point_id)
     connectors = deepcopy(charge_point.connectors)
-    for key in connectors:
-        connectors[key]["status"] = ChargePointStatus.unavailable
-    charge_point.connectors.update(connectors)
+    for conn in connectors:
+        conn["status"] = ChargePointStatus.unavailable
+    charge_point.connectors = connectors
 
 
 async def reset_charge_points(session):

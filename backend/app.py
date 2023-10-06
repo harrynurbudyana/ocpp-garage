@@ -27,5 +27,9 @@ async def refresh_auth_token(request: Request, call_next):
     if HTTPStatus(response.status_code) is HTTPStatus.UNAUTHORIZED:
         response.delete_cookie(cookie_name)
     else:
-        await refresh_token(request, response)
+        # Don't refresh cookies for periodic requests from the frontend
+        if request.query_params.get("periodic"):
+            pass
+        else:
+            await refresh_token(request, response)
     return response

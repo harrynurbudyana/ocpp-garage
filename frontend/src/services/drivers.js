@@ -7,13 +7,12 @@ export function deleteDriver(driverId) {
 }
 
 export function addDriver(data) {
-  return request.post(`/${endpoint}`, data);
+  return request.post(`/${endpoint}/`, data);
 }
 
-export function listDrivers(arg) {
-  let { page = 1 } = arg || {};
-  let { search = "" } = arg || {};
-  return request.get(`/${endpoint}?page=${page}&search=${search}`);
+export function listDrivers(params) {
+  let searchParams = new URLSearchParams(params);
+  return request.get(`/${endpoint}/?${searchParams.toString()}`);
 }
 
 export function getDriver(driverId) {
@@ -25,5 +24,5 @@ export function updateDriver(driverId, data) {
 }
 
 export function releaseStation({ driverId, stationId }) {
-  return request.delete(`/${endpoint}/${driverId}/charge_points/${stationId}`);
+  return request.delete(`/${endpoint}/${driverId}/charge_points/${stationId}/`);
 }

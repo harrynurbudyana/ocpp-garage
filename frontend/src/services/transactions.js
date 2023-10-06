@@ -2,14 +2,13 @@ import { request } from "@/api";
 
 const endpoint = "transactions";
 
-export function listTransactions(arg) {
-  let { page = 1 } = arg || {};
-  let { search = "" } = arg || {};
-  return request.get(`/${endpoint}?page=${page}&search=${search}`);
+export function listTransactions(params) {
+  let searchParams = new URLSearchParams(params);
+  return request.get(`/${endpoint}/?${searchParams.toString()}`);
 }
 
 export function remoteStartTransaction(data) {
-  return request.post(`/${endpoint}`, data);
+  return request.post(`/${endpoint}/`, data);
 }
 
 export function remoteStopTransaction(transactionId) {

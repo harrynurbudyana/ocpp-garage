@@ -48,8 +48,6 @@ export default {
 
     silentLogout({ commit }) {
       _processSuccessfulLogout(commit);
-
-      return Promise.reject("Logout");
     },
 
     logout() {

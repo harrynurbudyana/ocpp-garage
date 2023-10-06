@@ -59,7 +59,7 @@ def upgrade() -> None:
                     sa.Column('serial_number', sa.String(), nullable=False),
                     sa.Column('location', sa.String(), nullable=True),
                     sa.Column('model', sa.String(), nullable=False),
-                    sa.Column('connectors', sa.JSON(), nullable=True),
+                    sa.Column('connectors', sa.ARRAY(sa.JSON()), nullable=True),
                     sa.Column('driver_id', sa.String(), nullable=True),
                     sa.Column('id', sa.String(), nullable=False),
                     sa.Column('created_at', sa.DateTime(), nullable=True),

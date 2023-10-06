@@ -120,7 +120,6 @@ async def process_event(event: Union[
 
         if task:
             await publish(task.json(), to=task.exchange, priority=task.priority)
-
         if event.action is Action.BootNotification:
             tasks = await init_configuration(event.charge_point_id)
             for task in tasks:

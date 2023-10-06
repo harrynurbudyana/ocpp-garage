@@ -1,4 +1,4 @@
-import { watch, ref } from "vue";
+import { ref, watch } from "vue";
 import { useStore } from "vuex";
 import { rules } from "@/configs/validation";
 
@@ -10,18 +10,20 @@ export function usePagination({ itemsLoader }) {
   const { commit } = useStore();
   let timeout = null;
 
-  const fetchData = () => {
+  const fetchData = (args) => {
     commit("setGlobalLoading");
-    itemsLoader({ page: currentPage.value, search: search.value }).then(
-      (response) => {
-        if (!response.items.length && currentPage.value > 1) {
-          currentPage.value--;
-        }
-        items.value = response.items;
-        lastPage.value = response.pagination.last_page;
-        commit("unsetGlobalLoading");
-      }
+    let query = Object.assign(
+      { page: currentPage.value, search: search.value },
+      args || {}
     );
+    itemsLoader(query).then((response) => {
+      if (!response.items.length && currentPage.value > 1) {
+        currentPage.value--;
+      }
+      items.value = response.items;
+      lastPage.value = response.pagination.last_page;
+      commit("unsetGlobalLoading");
+    });
   };
   fetchData();
   watch(currentPage, () => fetchData());

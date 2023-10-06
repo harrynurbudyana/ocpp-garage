@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from ocpp.v16.enums import ChargePointStatus
-from sqlalchemy import Column, String, ForeignKey, Enum, JSON, Integer, Sequence
-from sqlalchemy.ext.mutable import MutableDict
+from sqlalchemy import Column, String, ForeignKey, Enum, ARRAY, JSON, Integer, Sequence
+from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import relationship
 
 from core.database import Model
@@ -45,7 +45,7 @@ class ChargePoint(Model):
     serial_number = Column(String, nullable=False, unique=True)
     location = Column(String, nullable=True)
     model = Column(String, nullable=False)
-    connectors = Column(MutableDict.as_mutable(JSON), default=dict())
+    connectors = Column(MutableList.as_mutable(ARRAY(JSON)), default=list())
 
     driver_id = Column(String, ForeignKey("drivers.id"), nullable=True)
     driver = relationship("Driver", back_populates="charge_points", lazy="joined")

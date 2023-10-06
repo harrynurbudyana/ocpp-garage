@@ -1,5 +1,6 @@
 import asyncio
 
+from ocpp.v16.call import StatusNotificationPayload
 from ocpp.v16.enums import AvailabilityType
 from pyocpp_contrib.queue.consumer import start_consume
 from pyocpp_contrib.queue.publisher import publish
@@ -42,11 +43,12 @@ async def startup():
             )
             await publish(task.json(), to=task.exchange, priority=task.priority)
             # Iterate over connectors.
-            for connector_id in charge_point.connectors:
+            for data in charge_point.connectors:
+                connector = StatusNotificationPayload(**data)
                 task = await process_change_availability(
                     charge_point_id=charge_point.id,
                     # zero means whole station
-                    connector_id=connector_id,
+                    connector_id=connector.connector_id,
                     type=AvailabilityType.operative
                 )
                 await publish(task.json(), to=task.exchange, priority=task.priority)

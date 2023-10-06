@@ -7,17 +7,16 @@ export function deleteStation(stationId) {
 }
 
 export function addStation(data) {
-  return request.post(`/${endpoint}`, data);
+  return request.post(`/${endpoint}/`, data);
 }
 
-export function listStations(arg) {
-  let { page = 1 } = arg || {};
-  let { search = "" } = arg || {};
-  return request.get(`/${endpoint}?page=${page}&search=${search}`);
+export function listStations(params) {
+  let searchParams = new URLSearchParams(params);
+  return request.get(`/${endpoint}/?${searchParams.toString()}`);
 }
 
 export function listSimpleStations() {
-  return request.get(`/${endpoint}/autocomplete`);
+  return request.get(`/${endpoint}/autocomplete/`);
 }
 
 export function getStation(stationId) {

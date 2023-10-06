@@ -3,14 +3,11 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Dict
 
+from ocpp.v16.call import StatusNotificationPayload
 from ocpp.v16.enums import ChargePointStatus
 from pydantic import BaseModel
 
 from views import PaginationView
-
-
-class ConnectorView(BaseModel):
-    status: ChargePointStatus
 
 
 class ChargePointUpdateStatusView(BaseModel):
@@ -42,7 +39,7 @@ class ChargePointView(BaseModel):
     manufacturer: str
     location: str | None = None
     updated_at: datetime | None = None
-    connectors: Dict
+    connectors: List[StatusNotificationPayload]
 
     class Config:
         orm_mode = True

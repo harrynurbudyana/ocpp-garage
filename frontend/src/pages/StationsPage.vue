@@ -229,7 +229,7 @@ onMounted(() => {
   const { commit } = useStore();
   commit("setPageMenuItems", menuItems);
   interval = setInterval(() => {
-    fetchData();
+    fetchData({ periodic: 1 });
   }, watchInterval);
 });
 
