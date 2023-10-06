@@ -1,11 +1,9 @@
-from copy import deepcopy
 from uuid import uuid4
 
 from ocpp.v16.call import RemoteStartTransactionPayload
 from ocpp.v16.enums import ChargePointStatus
 from pyocpp_contrib.v16.views.tasks import RemoteStartTransactionCallTask
 
-from exceptions import Forbidden
 from services.charge_points import get_charge_point
 
 
@@ -16,12 +14,7 @@ async def process_remote_start_transaction(
         id_tag: str
 ):
     charge_point = await get_charge_point(session, charge_point_id)
-    if not ChargePointStatus(charge_point.connectors[str(connector_id)]["status"]) is ChargePointStatus.available:
-        raise Forbidden
-
-    connectors = deepcopy(charge_point.connectors)
-    connectors[str(connector_id)]["status"] = ChargePointStatus.preparing
-    charge_point.connectors.update(connectors)
+    charge_point.update_connector(session, connector_id, dict(status=ChargePointStatus.preparing))
 
     payload = RemoteStartTransactionPayload(
         connector_id=connector_id,

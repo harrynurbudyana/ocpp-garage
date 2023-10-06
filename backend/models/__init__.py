@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from typing import Dict
+
+from ocpp.v16.call import StatusNotificationPayload
 from ocpp.v16.enums import ChargePointStatus
 from sqlalchemy import Column, String, ForeignKey, Enum, ARRAY, JSON, Integer, Sequence
 from sqlalchemy.ext.mutable import MutableList
@@ -49,6 +52,15 @@ class ChargePoint(Model):
 
     driver_id = Column(String, ForeignKey("drivers.id"), nullable=True)
     driver = relationship("Driver", back_populates="charge_points", lazy="joined")
+
+    def update_connector(self, session, connector_id: int, payload: Dict) -> bool:
+        for idx, data in enumerate(self.connectors):
+            connector = StatusNotificationPayload(**data)
+            if connector.connector_id == connector_id:
+                self.connectors[idx].update(payload)
+                session.add(self)
+                return True
+        return False
 
     def __repr__(self):
         return f"ChargePoint (id={self.id}, status={self.status}, location={self.location})"

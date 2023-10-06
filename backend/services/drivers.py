@@ -9,6 +9,10 @@ from views.charge_points import UpdateChargPointView
 from views.drivers import CreateDriverView, UpdateDriverView
 
 
+async def is_driver_authorized(driver: Driver):
+    return driver.is_active
+
+
 async def build_drivers_query(search: str) -> selectable:
     query = select(Driver)
     query = query.order_by(Driver.updated_at.asc())

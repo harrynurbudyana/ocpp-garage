@@ -112,7 +112,6 @@ async def process_event(event: Union[
             task = await process_status_notification(session, deepcopy(event))
         if event.action is Action.Heartbeat:
             task = await process_heartbeat(session, deepcopy(event))
-
         if event.action is ConnectionAction.lost_connection:
             data = ChargePointUpdateStatusView(status=ChargePointStatus.unavailable)
             await update_charge_point(session, charge_point_id=event.charge_point_id, data=data)
@@ -120,6 +119,7 @@ async def process_event(event: Union[
 
         if task:
             await publish(task.json(), to=task.exchange, priority=task.priority)
+
         if event.action is Action.BootNotification:
             tasks = await init_configuration(event.charge_point_id)
             for task in tasks:

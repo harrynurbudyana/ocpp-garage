@@ -1,4 +1,3 @@
-from copy import deepcopy
 from dataclasses import asdict
 
 from ocpp.v16.call_result import StopTransactionPayload
@@ -26,9 +25,11 @@ async def process_stop_transaction(
     transaction = await get_transaction(session, event.payload.transaction_id)
     transaction.status = TransactionStatus.completed
     charge_point = await get_charge_point(session, event.charge_point_id)
-    connectors = deepcopy(charge_point.connectors)
-    connectors[str(transaction.connector)]["status"] = ChargePointStatus.available
-    charge_point.connectors.update(connectors)
+    charge_point.update_connector(
+        session,
+        transaction.connector,
+        dict(status=ChargePointStatus.available)
+    )
 
     payload = StopTransactionPayload(
         id_tag_info=asdict(IdTagInfo(status=AuthorizationStatus.accepted))
