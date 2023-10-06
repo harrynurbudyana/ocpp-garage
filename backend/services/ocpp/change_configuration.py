@@ -1,7 +1,7 @@
 from typing import List
 
 from ocpp.v16.call import ChangeConfigurationPayload
-from ocpp.v16.enums import ConfigurationKey
+from ocpp.v16.enums import ConfigurationKey, Measurand
 from pyocpp_contrib.v16.views.tasks import ChangeConfigurationCallTask
 
 
@@ -23,6 +23,15 @@ async def init_configuration(charge_point_id: str) -> List[ChangeConfigurationCa
             # transaction will be stopped once connector disconnected
             # will prevent sabotage acts top stop the energy flow by unplugging not locked cables on EV side.
             value=True
+        ),
+        ChangeConfigurationPayload(
+            key=ConfigurationKey.meter_value_sample_interval,
+            value=60 * 5  # 5 minutes
+        ),
+        ChangeConfigurationPayload(
+            key=ConfigurationKey.meter_values_sampled_data,
+            # Energy imported by EV (Wh or kWh)
+            value=Measurand.energy_active_import_register
         )
     ]
     return [
