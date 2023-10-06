@@ -18,9 +18,9 @@ class ChargePointUpdateStatusView(BaseModel):
 class CreateChargPointView(BaseModel):
     id: str
     description: str | None = None
-    manufacturer: str
-    serial_number: str
-    model: str
+    vendor: str | None = None
+    serial_number: str | None = None
+    model: str | None = None
     location: str | None = None
 
 
@@ -35,8 +35,8 @@ class ChargePointView(BaseModel):
     id: str
     description: str | None = None
     status: ChargePointStatus
-    model: str
-    manufacturer: str
+    model: str | None = None
+    vendor: str | None = None
     location: str | None = None
     updated_at: datetime | None = None
     connectors: List[StatusNotificationPayload]

@@ -88,42 +88,6 @@
                   </v-col>
                   <v-col cols="12">
                     <v-text-field
-                      :rules="rules.station.manufacturerRules"
-                      label="Manufacturer"
-                      required
-                      v-model="data.manufacturer"
-                      density="compact"
-                      variant="underlined"
-                      validate-on="lazy blur"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      :rules="rules.station.serialNumberRules"
-                      :error="showError && errors.serial_number"
-                      :error-messages="errors.serial_number"
-                      label="Serial Number"
-                      required
-                      v-model="data.serial_number"
-                      density="compact"
-                      variant="underlined"
-                      validate-on="lazy blur"
-                      @input="clearError"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      :rules="rules.station.modelRules"
-                      label="Model"
-                      required
-                      v-model="data.model"
-                      density="compact"
-                      variant="underlined"
-                      validate-on="lazy blur"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
                       :rules="rules.station.commentRules"
                       label="Description"
                       v-model="data.description"

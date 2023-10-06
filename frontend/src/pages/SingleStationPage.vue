@@ -47,7 +47,7 @@
         </v-chip>
         <div>
           <div class="text-h6 mb-1">
-            {{ station.manufacturer }} / {{ station.model }}
+            {{ station.vendor }} / {{ station.model }}
           </div>
           <div class="text-overline mb-1">{{ station.id }}</div>
           <div class="text-caption">{{ station.description }}</div>

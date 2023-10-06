@@ -41,10 +41,10 @@ class ChargePoint(Model):
 
     description = Column(String(124), nullable=True)
     status = Column(Enum(ChargePointStatus), default=ChargePointStatus.unavailable, index=True)
-    manufacturer = Column(String, nullable=False)
-    serial_number = Column(String, nullable=False, unique=True)
+    vendor = Column(String, nullable=True)
+    serial_number = Column(String, nullable=True)
     location = Column(String, nullable=True)
-    model = Column(String, nullable=False)
+    model = Column(String, nullable=True)
     connectors = Column(MutableList.as_mutable(ARRAY(JSON)), default=list())
 
     driver_id = Column(String, ForeignKey("drivers.id"), nullable=True)
