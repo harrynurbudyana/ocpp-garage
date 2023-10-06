@@ -21,7 +21,6 @@ async def process_remote_start_transaction(
         id_tag=id_tag
     )
     return RemoteStartTransactionCallTask(
-        message_id=str(uuid4()),
         charge_point_id=charge_point_id,
         payload=payload
     )

@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 from ocpp.v16.call import ChangeAvailabilityPayload
 from ocpp.v16.enums import AvailabilityType
 from pyocpp_contrib.v16.views.tasks import ChangeAvailabilityCallTask
@@ -12,7 +10,6 @@ async def process_change_availability(
 ) -> ChangeAvailabilityCallTask:
     payload = ChangeAvailabilityPayload(connector_id=connector_id, type=type)
     return ChangeAvailabilityCallTask(
-        message_id=str(uuid4()),
         charge_point_id=charge_point_id,
         payload=payload
     )

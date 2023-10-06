@@ -1,5 +1,4 @@
 from typing import List
-from uuid import uuid4
 
 from ocpp.v16.call import ChangeConfigurationPayload
 from ocpp.v16.enums import ConfigurationKey
@@ -28,7 +27,6 @@ async def init_configuration(charge_point_id: str) -> List[ChangeConfigurationCa
     ]
     return [
         ChangeConfigurationCallTask(
-            message_id=str(uuid4()),
             charge_point_id=charge_point_id,
             payload=payload
         ) for payload in tasks]
