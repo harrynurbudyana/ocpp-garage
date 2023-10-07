@@ -1,12 +1,14 @@
 from typing import List
 
 from ocpp.v16.call import ChangeConfigurationPayload
+from ocpp.v16.enums import Action
 from ocpp.v16.enums import ConfigurationKey, Measurand
-from pyocpp_contrib.v16.views.tasks import ChangeConfigurationCallTask
+from pyocpp_contrib.decorators import send_call
 
 
-async def init_configuration(charge_point_id: str) -> List[ChangeConfigurationCallTask]:
-    tasks = [
+@send_call(Action.ChangeConfiguration)
+async def init_configuration(charge_point_id: str) -> List[ChangeConfigurationPayload]:
+    return [
         ChangeConfigurationPayload(
             # The charge point will immediately start a transaction for the idTag given in the RemoteStartTransaction.req message
             key=ConfigurationKey.authorize_remote_tx_requests,
@@ -34,8 +36,3 @@ async def init_configuration(charge_point_id: str) -> List[ChangeConfigurationCa
             value=Measurand.energy_active_import_register
         )
     ]
-    return [
-        ChangeConfigurationCallTask(
-            charge_point_id=charge_point_id,
-            payload=payload
-        ) for payload in tasks]

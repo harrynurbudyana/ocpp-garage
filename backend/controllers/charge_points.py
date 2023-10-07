@@ -2,7 +2,6 @@ from typing import Tuple, List
 
 from fastapi import status, Depends, HTTPException
 from loguru import logger
-from pyocpp_contrib.queue.publisher import publish
 
 from core.database import get_contextual_session
 from models import ChargePoint
@@ -128,8 +127,10 @@ async def unlock_connector(
         charge_point_id: str,
         connector_id: int
 ):
-    task = await process_unlock_connector(charge_point_id, connector_id)
-    await publish(task.json(), to=task.exchange, priority=task.priority)
+    await process_unlock_connector(
+        charge_point_id=charge_point_id,
+        connector_id=connector_id
+    )
 
 
 @charge_points_router.patch(
@@ -137,5 +138,4 @@ async def unlock_connector(
     status_code=status.HTTP_204_NO_CONTENT
 )
 async def reset(charge_point_id: str):
-    task = await process_reset(charge_point_id)
-    await publish(task.json(), to=task.exchange, priority=task.priority)
+    await process_reset(charge_point_id=charge_point_id)

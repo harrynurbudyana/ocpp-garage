@@ -35,10 +35,7 @@ async def update_connectors(session, event: StatusNotificationCallEvent):
 
 async def reset_connectors(session, charge_point_id: str):
     charge_point = await get_charge_point(session, charge_point_id)
-    connectors = deepcopy(charge_point.connectors)
-    for conn in connectors:
-        conn["status"] = ChargePointStatus.unavailable
-    charge_point.connectors = connectors
+    charge_point.connectors.clear()
 
 
 async def reset_charge_points(session):

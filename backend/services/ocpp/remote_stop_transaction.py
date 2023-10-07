@@ -1,15 +1,16 @@
 from ocpp.v16.call import RemoteStopTransactionPayload
-from pyocpp_contrib.v16.views.tasks import RemoteStopTransactionCallTask
+from ocpp.v16.enums import Action
+from pyocpp_contrib.decorators import send_call
 
 from core.fields import TransactionStatus
-from services.transactions import get_transaction
+from models import Transaction
 
 
-async def process_remote_stop_transaction(session, transaction_uuid: str):
-    transaction = await get_transaction(session, transaction_uuid)
+@send_call(Action.RemoteStopTransaction)
+async def process_remote_stop_transaction(
+        session,
+        charge_point_id: str,
+        transaction: Transaction
+) -> RemoteStopTransactionPayload:
     transaction.status = TransactionStatus.pending
-    payload = RemoteStopTransactionPayload(transaction_id=transaction.transaction_id)
-    return RemoteStopTransactionCallTask(
-        charge_point_id=transaction.charge_point,
-        payload=payload
-    )
+    return RemoteStopTransactionPayload(transaction_id=transaction.transaction_id)

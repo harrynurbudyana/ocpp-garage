@@ -3,9 +3,9 @@ from dataclasses import asdict
 from loguru import logger
 from ocpp.v16.call_result import StartTransactionPayload
 from ocpp.v16.datatypes import IdTagInfo
+from ocpp.v16.enums import Action
 from ocpp.v16.enums import AuthorizationStatus, ChargePointStatus
-from pyocpp_contrib.v16.views.events import StartTransactionCallEvent
-from pyocpp_contrib.v16.views.tasks import StartTransactionCallResultTask
+from pyocpp_contrib.decorators import response_call_result
 
 from services.charge_points import get_charge_point
 from services.drivers import is_driver_authorized
@@ -13,10 +13,8 @@ from services.transactions import create_transaction
 from views.transactions import CreateTransactionView
 
 
-async def process_start_transaction(
-        session,
-        event: StartTransactionCallEvent
-) -> StartTransactionCallResultTask:
+@response_call_result(Action.StartTransaction)
+async def process_start_transaction(session, event) -> StartTransactionPayload:
     logger.info(f"Start process StartTransaction (event={event})")
     charge_point = await get_charge_point(session, event.charge_point_id)
 
@@ -41,12 +39,7 @@ async def process_start_transaction(
             dict(status=ChargePointStatus.charging)
         )
 
-    payload = StartTransactionPayload(
+    return StartTransactionPayload(
         transaction_id=transaction.transaction_id,
         id_tag_info=asdict(IdTagInfo(status=status))
-    )
-    return StartTransactionCallResultTask(
-        message_id=event.message_id,
-        charge_point_id=event.charge_point_id,
-        payload=payload
     )

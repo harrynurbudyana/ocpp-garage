@@ -16,5 +16,6 @@ ENV PYTHONUNBUFFERED 1
 ARG GITHUB_TOKEN
 ENV GITHUB_TOKEN=$GITHUB_TOKEN
 
-RUN pip install git+https://heroyooki:${GITHUB_TOKEN}@github.com/heroyooki/pyocpp_contrib.git
+
+RUN pip install --no-cache git+https://heroyooki:${GITHUB_TOKEN}@github.com/heroyooki/pyocpp_contrib.git
 RUN pip install -r backend/requirements.txt --upgrade pip

@@ -1,14 +1,13 @@
 from typing import Tuple
 
 from fastapi import Depends, Request
-from pyocpp_contrib.queue.publisher import publish
 from starlette import status
 
 from core.database import get_contextual_session
 from routers import AuthenticatedRouter
 from services.ocpp.remote_start_transaction import process_remote_start_transaction
 from services.ocpp.remote_stop_transaction import process_remote_stop_transaction
-from services.transactions import build_transactions_query
+from services.transactions import build_transactions_query, get_transaction
 from utils import params_extractor, paginate
 from views.transactions import PaginatedTransactionsView, InitTransactionView
 
@@ -41,14 +40,13 @@ async def remote_start_transaction(
         request: Request
 ):
     async with get_contextual_session() as session:
-        task = await process_remote_start_transaction(
+        await process_remote_start_transaction(
             session,
-            data.charge_point_id,
-            data.connector_id,
-            request.state.operator.id
+            charge_point_id=data.charge_point_id,
+            connector_id=data.connector_id,
+            id_tag=request.state.operator.id
         )
         await session.commit()
-        await publish(task.json(), to=task.exchange, priority=task.priority)
 
 
 @transactions_router.put(
@@ -57,9 +55,10 @@ async def remote_start_transaction(
 )
 async def remote_stop_transaction(transaction_uuid: str):
     async with get_contextual_session() as session:
-        task = await process_remote_stop_transaction(
+        transaction = await get_transaction(session, transaction_uuid)
+        await process_remote_stop_transaction(
             session,
-            transaction_uuid
+            transaction.charge_point,
+            transaction
         )
-        await publish(task.json(), to=task.exchange, priority=task.priority)
         await session.commit()
