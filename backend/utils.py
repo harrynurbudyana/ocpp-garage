@@ -1,4 +1,5 @@
 from typing import Tuple, List
+from uuid import uuid4
 
 import arrow
 import math
@@ -41,3 +42,7 @@ async def paginate(
 
 def now():
     return arrow.utcnow()
+
+
+def generate_message_id() -> str:
+    return str(uuid4())

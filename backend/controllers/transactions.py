@@ -5,8 +5,8 @@ from starlette import status
 
 from core.database import get_contextual_session
 from routers import AuthenticatedRouter
-from services.ocpp.remote_start_transaction import process_remote_start_transaction
-from services.ocpp.remote_stop_transaction import process_remote_stop_transaction
+from services.ocpp.remote_start_transaction import process_remote_start_transaction_call
+from services.ocpp.remote_stop_transaction import process_remote_stop_transaction_call
 from services.transactions import build_transactions_query, get_transaction
 from utils import params_extractor, paginate
 from views.transactions import PaginatedTransactionsView, InitTransactionView
@@ -40,7 +40,7 @@ async def remote_start_transaction(
         request: Request
 ):
     async with get_contextual_session() as session:
-        await process_remote_start_transaction(
+        await process_remote_start_transaction_call(
             session,
             charge_point_id=data.charge_point_id,
             connector_id=data.connector_id,
@@ -56,9 +56,9 @@ async def remote_start_transaction(
 async def remote_stop_transaction(transaction_uuid: str):
     async with get_contextual_session() as session:
         transaction = await get_transaction(session, transaction_uuid)
-        await process_remote_stop_transaction(
+        await process_remote_stop_transaction_call(
             session,
-            transaction.charge_point,
-            transaction
+            charge_point_id=transaction.charge_point,
+            transaction=transaction
         )
         await session.commit()

@@ -117,7 +117,8 @@
                 :disabled="
                   loading ||
                   connector.status.toLowerCase() !==
-                    STATION_STATUS.available.toLowerCase()
+                    STATION_STATUS.available.toLowerCase() ||
+                  !progressReset
                 "
                 variant="outlined"
                 color="grey-darken-1"
@@ -139,7 +140,12 @@
             </v-col>
             <v-col>
               <v-btn
-                :disabled="loading || !isAvailable(station) || !progressUnlock"
+                :disabled="
+                  loading ||
+                  !isAvailable(station) ||
+                  !progressUnlock ||
+                  !progressReset
+                "
                 variant="outlined"
                 color="grey-darken-1"
                 @click="
@@ -163,6 +169,7 @@
       </v-card>
     </v-carousel-item>
   </v-carousel>
+  <empty-data v-else></empty-data>
 
   <empty-data v-if="!station"></empty-data>
 
@@ -243,7 +250,7 @@ import { remoteStartTransaction } from "@/services/transactions";
 import { STATION_STATUS, STATION_STATUS_COLOR } from "@/components/enums";
 import { menuItems } from "@/menu/station-menu-items";
 import { rules } from "@/configs/validation";
-import { recoverButtonAfter, watchInterval } from "@/configs";
+import { watchInterval } from "@/configs";
 
 import EmptyData from "@/components/EmptyData";
 import ConfirmWindow from "@/components/dialogs/ConfirmWindow";
@@ -307,7 +314,7 @@ const showArrows = () => {
 const recoverButton = (model) => {
   setTimeout(() => {
     model.value = 100;
-  }, recoverButtonAfter);
+  }, watchInterval * 2);
 };
 
 const startRemoteTransaction = (data) => {

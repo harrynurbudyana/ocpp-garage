@@ -4,9 +4,9 @@ from ocpp.v16.call_result import StopTransactionPayload
 from ocpp.v16.datatypes import IdTagInfo
 from ocpp.v16.enums import Action
 from ocpp.v16.enums import AuthorizationStatus, ChargePointStatus
-from pyocpp_contrib.decorators import response_call_result
 
 from core.fields import TransactionStatus
+from pyocpp_contrib.decorators import response_call_result
 from services.charge_points import get_charge_point
 from services.transactions import update_transaction, get_transaction
 from views.transactions import UpdateTransactionView
@@ -23,7 +23,7 @@ async def process_stop_transaction(session, event) -> StopTransactionPayload:
     transaction = await get_transaction(session, event.payload.transaction_id)
     transaction.status = TransactionStatus.completed
     charge_point = await get_charge_point(session, event.charge_point_id)
-    charge_point.update_connector(
+    await charge_point.update_connector(
         session,
         transaction.connector,
         dict(status=ChargePointStatus.available)

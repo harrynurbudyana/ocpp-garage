@@ -5,8 +5,8 @@ from ocpp.v16.call_result import StartTransactionPayload
 from ocpp.v16.datatypes import IdTagInfo
 from ocpp.v16.enums import Action
 from ocpp.v16.enums import AuthorizationStatus, ChargePointStatus
-from pyocpp_contrib.decorators import response_call_result
 
+from pyocpp_contrib.decorators import response_call_result
 from services.charge_points import get_charge_point
 from services.drivers import is_driver_authorized
 from services.transactions import create_transaction
@@ -33,7 +33,7 @@ async def process_start_transaction(session, event) -> StartTransactionPayload:
         status = AuthorizationStatus.blocked
 
     if status is AuthorizationStatus.accepted:
-        charge_point.update_connector(
+        await charge_point.update_connector(
             session,
             event.payload.connector_id,
             dict(status=ChargePointStatus.charging)

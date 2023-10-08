@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import Dict
 
 from ocpp.v16.call import StatusNotificationPayload
@@ -53,11 +54,13 @@ class ChargePoint(Model):
     driver_id = Column(String, ForeignKey("drivers.id"), nullable=True)
     driver = relationship("Driver", back_populates="charge_points", lazy="joined")
 
-    def update_connector(self, session, connector_id: int, payload: Dict) -> bool:
-        for idx, data in enumerate(self.connectors):
+    async def update_connector(self, session, connector_id: int, payload: Dict) -> bool:
+        connectors = deepcopy(self.connectors)
+        for idx, data in enumerate(connectors):
             connector = StatusNotificationPayload(**data)
             if connector.connector_id == connector_id:
-                self.connectors[idx].update(payload)
+                connectors[idx].update(payload)
+                self.connectors = connectors
                 session.add(self)
                 return True
         return False
