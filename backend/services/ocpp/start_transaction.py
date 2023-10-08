@@ -15,7 +15,7 @@ from views.transactions import CreateTransactionView
 
 @response_call_result(Action.StartTransaction)
 async def process_start_transaction(session, event) -> StartTransactionPayload:
-    logger.info(f"Start process StartTransaction (event={event})")
+    logger.info(f"StartTransaction -> | start process call event (event={event})")
     charge_point = await get_charge_point(session, event.charge_point_id)
 
     # It is a good practice to always create transaction
@@ -27,9 +27,13 @@ async def process_start_transaction(session, event) -> StartTransactionPayload:
     )
     transaction = await create_transaction(session, view)
     await session.flush()
+    logger.info(
+        f"StartTransaction -> | created new transaction with data={view} (charge_point_id={charge_point.id}, transaction={transaction})")
 
     status = AuthorizationStatus.accepted
     if not await is_driver_authorized(charge_point.driver):
+        logger.error(
+            f"StartTransaction -> | refused charging due to inactive driver (charge_point_id={charge_point.id}, driver={charge_point.driver})")
         status = AuthorizationStatus.blocked
 
     if status is AuthorizationStatus.accepted:
@@ -38,8 +42,13 @@ async def process_start_transaction(session, event) -> StartTransactionPayload:
             event.payload.connector_id,
             dict(status=ChargePointStatus.charging)
         )
+        logger.info(
+            f"StartTransaction -> | allowed charging (charge_point_id={charge_point.id}, driver={charge_point.driver}, connectors={charge_point.connectors})")
 
-    return StartTransactionPayload(
+    payload = StartTransactionPayload(
         transaction_id=transaction.transaction_id,
         id_tag_info=asdict(IdTagInfo(status=status))
     )
+    logger.info(
+        f"StartTransaction -> | prepared payload={payload}, charge_point_id={charge_point.id}, driver={charge_point.driver}")
+    return payload

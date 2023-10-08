@@ -6,4 +6,4 @@
 
 ### Create initial operator
 
-- ```$ docker exec -it csms-manager-thnxel python backend/commands/create_operator.py --email <email> --password <password>```
+- ```$ docker exec -it csms-manager-thnxel python backend/commands/create_operator.py --email <email> --password <password> --fname <first name> --lname <last name> --address <address>```

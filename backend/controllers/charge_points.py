@@ -31,10 +31,11 @@ anonymous_charge_points_router = AnonymousRouter()
     status_code=status.HTTP_200_OK
 )
 async def authenticate(charge_point_id: str):
-    logger.info(f"Start authenticate charge point (id={charge_point_id})")
+    logger.info(f"Start authenticate charge point (charge_point_id={charge_point_id})")
     async with get_contextual_session() as session:
         charge_point = await get_charge_point(session, charge_point_id)
         if not charge_point:
+            logger.error(f"Could not authenticate charge_point (charge_point_id={charge_point_id})")
             raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
 
@@ -99,7 +100,7 @@ async def edit_charge_point(
         charge_point_id: str,
         data: UpdateChargPointView
 ):
-    logger.info(f"Start update charge point (data={data})")
+    logger.info(f"Start update charge point (data={data}, charge_point_id={charge_point_id})")
     async with get_contextual_session() as session:
         await update_charge_point(session, charge_point_id, data)
         await session.commit()
@@ -113,7 +114,7 @@ async def edit_charge_point(
 async def delete_charge_point(
         charge_point_id: str
 ):
-    logger.info(f"Start remove charge point (id={charge_point_id})")
+    logger.info(f"Start remove charge point (charge_point_id={charge_point_id})")
     async with get_contextual_session() as session:
         await remove_charge_point(session, charge_point_id)
         await session.commit()
@@ -127,6 +128,8 @@ async def unlock_connector(
         charge_point_id: str,
         connector_id: int
 ):
+    logger.info(
+        f"UnlockConnector -> | start process call request (charge_point_id={charge_point_id}, connector_id={connector_id})")
     await process_unlock_connector(
         charge_point_id=charge_point_id,
         connector_id=connector_id
@@ -138,4 +141,5 @@ async def unlock_connector(
     status_code=status.HTTP_204_NO_CONTENT
 )
 async def reset(charge_point_id: str):
+    logger.info(f"Reset -> | start process call request (charge_point_id={charge_point_id})")
     await process_reset(charge_point_id=charge_point_id)

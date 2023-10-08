@@ -1,8 +1,8 @@
+from loguru import logger
 from ocpp.v16.call import ChangeAvailabilityPayload
-from ocpp.v16.enums import AvailabilityType, Action, AvailabilityStatus, ChargePointStatus
-from pyocpp_contrib.decorators import send_call, contextable, use_context
+from ocpp.v16.enums import AvailabilityType, Action
 
-from services.charge_points import get_charge_point
+from pyocpp_contrib.decorators import send_call, contextable, use_context
 
 
 @contextable
@@ -12,7 +12,9 @@ async def process_change_availability(
         connector_id: int,
         type: AvailabilityType
 ) -> ChangeAvailabilityPayload:
-    return ChangeAvailabilityPayload(connector_id=connector_id, type=type)
+    payload = ChangeAvailabilityPayload(connector_id=connector_id, type=type)
+    logger.info(f"ChangeAvailability -> | prepared payload (charge_point_id={charge_point_id} payload={payload})")
+    return payload
 
 
 @use_context
@@ -21,31 +23,4 @@ async def process_change_availability_call_result(
         event,
         context: ChangeAvailabilityPayload | None = None
 ):
-    charge_point = await get_charge_point(session, event.charge_point_id)
-
-    status = AvailabilityStatus(event.payload.status)
-    if status is AvailabilityStatus.accepted and context:
-        if not context.connector_id:
-            charge_point.status = ChargePointStatus.available
-        else:
-            charge_point.update_connector(
-                session,
-                context.connector_id,
-                dict(status=ChargePointStatus.available)
-            )
-    if status is AvailabilityStatus.scheduled:
-        if context.connector_id and context:
-            charge_point.update_connector(
-                session,
-                context.connector_id,
-                dict(status=ChargePointStatus.charging)
-            )
-    if status is AvailabilityStatus.rejected:
-        if not context.connector_id and context:
-            charge_point.status = ChargePointStatus.unavailable
-        else:
-            charge_point.update_connector(
-                session,
-                context.connector_id,
-                dict(status=ChargePointStatus.unavailable)
-            )
+    logger.info(f"<- ChangeAvailability | start process call result response (event={event}, context={context})")

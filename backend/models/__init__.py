@@ -21,6 +21,9 @@ class Person(Model):
     last_name = Column(String(24), nullable=False, unique=False)
     address = Column(String(48), nullable=False, unique=False)
 
+    def __repr__(self) -> str:
+        return f"Driver: {self.id}, {self.email}"
+
 
 class Operator(Person):
     __tablename__ = "operators"
@@ -35,9 +38,6 @@ class Driver(Person):
     charge_points = relationship("ChargePoint",
                                  back_populates="driver",
                                  lazy="joined")
-
-    def __repr__(self) -> str:
-        return f"Driver: {self.id}, {self.login}"
 
 
 class ChargePoint(Model):
@@ -80,3 +80,6 @@ class Transaction(Model):
     connector = Column(Integer, nullable=False)
     transaction_id = Column(Integer, transaction_id_seq, server_default=transaction_id_seq.next_value())
     status = Column(Enum(TransactionStatus), default=TransactionStatus.in_progress)
+
+    def __repr__(self):
+        return f"Transaction (id={self.id}, charge_point={self.charge_point}, transaction_id={self.transaction_id}, status={self.status})"

@@ -105,6 +105,7 @@ async def remove_charge_point(
         driver_id: str,
         charge_point_id: str
 ):
+    logger.info(f"Releasing drivers charge point (driver_id={driver_id}, charge_point_id={charge_point_id})")
     async with get_contextual_session() as session:
         await release_charge_point(session, driver_id, charge_point_id)
         await session.commit()

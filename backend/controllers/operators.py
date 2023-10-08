@@ -1,6 +1,7 @@
 import http
 
 from fastapi import Response, Request
+from loguru import logger
 
 from core.database import get_contextual_session
 from exceptions import NotAuthenticated
@@ -27,6 +28,7 @@ async def retrieve_operator(request: Request):
     response_model=ReadOperatorView
 )
 async def login(response: Response, data: LoginView):
+    logger.info(f"Start login (user={data.email})")
     error_message = "Invalid login or password"
     async with get_contextual_session() as session:
         operator = await get_operator(session, data.email)
@@ -43,4 +45,5 @@ async def login(response: Response, data: LoginView):
 
 @operators_private_router.post("/logout")
 async def logout():
+    logger.info(f"Start logout.")
     raise NotAuthenticated

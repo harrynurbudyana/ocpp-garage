@@ -15,11 +15,19 @@ async def process_remote_start_transaction_call(
         id_tag: str
 ) -> RemoteStartTransactionPayload:
     charge_point = await get_charge_point(session, charge_point_id)
-    await charge_point.update_connector(session, connector_id, dict(status=ChargePointStatus.preparing))
-    return RemoteStartTransactionPayload(
+    logger.info(
+        f"RemoteStartTransaction -> | Found charge point (charge_point_id={charge_point_id}, connector_id={connector_id}, id_tag={id_tag})")
+    data = dict(status=ChargePointStatus.preparing)
+    await charge_point.update_connector(session, connector_id, data)
+    logger.info(
+        f"RemoteStartTransaction -> | Updated connector with data={data} (charge_point_id={charge_point_id}, connector_id={connector_id}, id_tag={id_tag})")
+    payload = RemoteStartTransactionPayload(
         connector_id=connector_id,
         id_tag=id_tag
     )
+    logger.info(
+        f"RemoteStartTransaction -> | Prepared payload={payload} (charge_point_id={charge_point_id}, connector_id={connector_id}, id_tag={id_tag})")
+    return payload
 
 
 @use_context
@@ -28,4 +36,4 @@ async def process_remote_start_transaction_call_result(
         event,
         context: RemoteStartTransactionPayload | None = None
 ):
-    logger.info(f"Start process RemoteStartTransaction response from the station (event={event}, context={context}.)")
+    logger.info(f"<- RemoteStartTransaction | Start process call result response (event={event}, context={context}.)")

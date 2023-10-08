@@ -1,6 +1,7 @@
 from typing import Tuple
 
 from fastapi import Depends, Request
+from loguru import logger
 from starlette import status
 
 from core.database import get_contextual_session
@@ -39,6 +40,7 @@ async def remote_start_transaction(
         data: InitTransactionView,
         request: Request
 ):
+    logger.info(f"RemoteStartTransaction -> | Start process call request (data={data})")
     async with get_contextual_session() as session:
         await process_remote_start_transaction_call(
             session,
@@ -56,6 +58,7 @@ async def remote_start_transaction(
 async def remote_stop_transaction(transaction_uuid: str):
     async with get_contextual_session() as session:
         transaction = await get_transaction(session, transaction_uuid)
+        logger.info(f"RemoteStopTransaction -> | Start process call request (transaction={transaction})")
         await process_remote_stop_transaction_call(
             session,
             charge_point_id=transaction.charge_point,
