@@ -1,7 +1,7 @@
 <template>
   <v-card
     max-width="100%"
-    class="elevation-20 text-center"
+    class="text-center elevation-4"
     height="430"
     v-if="station"
   >
@@ -87,12 +87,12 @@
   <v-carousel
     v-if="station && station.connectors.length"
     height="400"
-    class="mt-3 elevation-20"
+    class="mt-3 elevation-4"
     :show-arrows="showArrows()"
     hide-delimiters
   >
     <v-carousel-item v-for="(connector, i) in station.connectors" :key="i">
-      <v-card max-width="100%" class="elevation-20 text-center" height="100%">
+      <v-card max-width="100%" class="text-center" height="100%">
         <v-card-title primary-title>
           <span class="mdi mdi-connection"></span>
           Connector {{ connector.connector_id }}

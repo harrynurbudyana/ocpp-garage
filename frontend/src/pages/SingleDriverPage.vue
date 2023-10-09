@@ -1,7 +1,7 @@
 <template>
   <v-card
     max-width="100%"
-    class="elevation-20 text-center"
+    class="text-center elevation-4"
     height="330"
     v-if="driver"
   >
@@ -51,7 +51,7 @@
   </v-card>
   <v-card
     max-width="100%"
-    class="elevation-20 text-center mt-3"
+    class="text-center mt-3 elevation-4"
     height="500"
     v-if="driver"
   >

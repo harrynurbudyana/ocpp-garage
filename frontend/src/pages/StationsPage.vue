@@ -2,7 +2,7 @@
   <v-container>
     <v-row>
       <v-col cols="12" sm="12">
-        <v-sheet min-height="90vh">
+        <v-sheet min-height="80vh">
           <data-table
             title="Stations"
             :items="items"
@@ -14,7 +14,7 @@
           >
             <template v-slot:title="{ title }">
               <v-row>
-                <v-col>
+                <v-col md="5">
                   <v-card-item class="ma-6 pa-2">
                     <v-text-field
                       label="Id, Status, Location or Driver"
@@ -26,7 +26,7 @@
                     </v-text-field>
                   </v-card-item>
                 </v-col>
-                <v-col class="d-flex justify-center mb-6">
+                <v-col class="d-flex justify-left mb-6">
                   <v-card-item>{{ title }}</v-card-item>
                 </v-col>
                 <v-col class="d-flex justify-end mb-6 mt-3">

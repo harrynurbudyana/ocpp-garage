@@ -53,9 +53,15 @@
       ></v-progress-linear>
       <v-container>
         <v-row>
-          <v-col cols="12" sm="12">
-            <v-sheet min-height="90vh">
+          <v-col cols="12" md="10">
+            <v-sheet height="90vh" rounded="lg" class="elevation-4">
               <router-view></router-view>
+            </v-sheet>
+          </v-col>
+
+          <v-col cols="12" md="2">
+            <v-sheet rounded="lg" height="80vh" class="elevation-4">
+              <!--  -->
             </v-sheet>
           </v-col>
         </v-row>
