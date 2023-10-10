@@ -109,6 +109,12 @@ services:
     networks:
       - app-network
 
+  redis-thnxel:
+    container_name: redis-thnxel
+    image: redis:4-buster
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge

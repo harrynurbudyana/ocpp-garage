@@ -3,6 +3,7 @@ import asyncio
 from loguru import logger
 
 from app import app
+from controllers.actions import actions_router
 from controllers.charge_points import charge_points_router, anonymous_charge_points_router
 from controllers.drivers import drivers_router
 from controllers.operators import operators_public_router, operators_private_router
@@ -26,6 +27,7 @@ async def startup():
     background_tasks.add(task)
 
 
+app.include_router(actions_router)
 app.include_router(transactions_router)
 app.include_router(anonymous_charge_points_router)
 app.include_router(drivers_router)

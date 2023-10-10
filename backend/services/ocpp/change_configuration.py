@@ -1,5 +1,3 @@
-from typing import List
-
 from ocpp.v16.call import ChangeConfigurationPayload
 from ocpp.v16.enums import Action
 from ocpp.v16.enums import ConfigurationKey, Measurand
@@ -37,5 +35,9 @@ configuration = [
 
 
 @send_call(Action.ChangeConfiguration)
-async def init_configuration(charge_point_id: str) -> List[ChangeConfigurationPayload]:
+async def process_change_configration_call(
+        configuration: ChangeConfigurationPayload,
+        charge_point_id: str,
+        message_id: str
+) -> ChangeConfigurationPayload:
     return configuration

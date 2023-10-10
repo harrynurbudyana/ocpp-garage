@@ -207,7 +207,7 @@ const headers = [
     key: "id",
     align: "center",
     sortable: false,
-    width: "25%",
+    width: "30%",
   },
   {
     title: "Status",
@@ -226,17 +226,10 @@ const headers = [
   {
     title: "Last activity",
     key: "updated_at",
-    align: "center",
-    sortable: true,
-    value: (v) => dateAgo(v.updated_at),
-    width: "20%",
-  },
-  {
-    title: "",
-    align: "left",
-    width: "8%",
+    align: "right",
     sortable: false,
-    key: "action",
+    value: (v) => dateAgo(v.updated_at),
+    width: "15%",
   },
 ];
 </script>

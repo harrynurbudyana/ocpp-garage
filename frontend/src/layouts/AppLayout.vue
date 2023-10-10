@@ -53,15 +53,50 @@
       ></v-progress-linear>
       <v-container>
         <v-row>
-          <v-col cols="12" md="10">
+          <v-col cols="12" md="9">
             <v-sheet height="90vh" rounded="lg" class="elevation-4">
               <router-view></router-view>
             </v-sheet>
           </v-col>
 
-          <v-col cols="12" md="2">
-            <v-sheet rounded="lg" height="80vh" class="elevation-4">
-              <!--  -->
+          <v-col cols="12" md="3">
+            <v-sheet rounded="lg" height="90vh" class="elevation-4">
+              <v-container>
+                <v-card
+                  v-for="(action, i) in actions.slice(0, MAX_ACTIONS_LENGTH)"
+                  width="100%"
+                  density="compact"
+                  variant="flat"
+                  class="pt-1"
+                >
+                  <template v-slot:prepend>
+                    <v-chip :color="ACTION_STATUS_COLOR[action.status]">
+                      <v-tooltip activator="parent" location="end"
+                        >{{
+                          {
+                            pending: "pending",
+                            completed: "success",
+                            faulted: "faulted",
+                          }[action.status]
+                        }}
+                      </v-tooltip>
+                      <v-icon size="x-small">
+                        {{ ACTION_ICON[action.status] }}
+                      </v-icon>
+                    </v-chip>
+                  </template>
+                  <template v-slot:title>
+                    <span class="text-caption">{{ action.body }}</span>
+                  </template>
+
+                  <template v-slot:subtitle>
+                    <span class="text-caption"
+                      >station: {{ action.charge_point_id }}</span
+                    >
+                  </template>
+                  <v-divider v-if="i < MAX_ACTIONS_LENGTH - 1"></v-divider>
+                </v-card>
+              </v-container>
             </v-sheet>
           </v-col>
         </v-row>
@@ -73,14 +108,26 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import store from "@/store";
+import { listActions } from "@/services/actions";
+import { ACTION_STATUS_COLOR } from "@/components/enums";
+
+const MAX_ACTIONS_LENGTH = 11;
 
 const { currentRoute } = useRouter();
 const { getters } = useStore();
 
+var interval = null;
 const drawer = ref(true);
 const rail = ref(false);
+const actions = ref([]);
+
+const ACTION_ICON = {
+  pending: "mdi mdi-clock-time-seven-outline",
+  completed: "mdi mdi-check",
+  faulted: "mdi mdi-close-circle-outline",
+};
 
 const isLoginAvailable = () => {
   return !currentRoute.value?.meta?.hasBackButton;
@@ -89,4 +136,16 @@ const isLoginAvailable = () => {
 const isActive = (name) => {
   return currentRoute.value.name === name;
 };
+
+onMounted(() => {
+  interval = setInterval(() => {
+    listActions({ periodic: 1 }).then((response) => (actions.value = response));
+  }, 2000);
+});
+
+onUnmounted(() => {
+  clearInterval(interval);
+});
 </script>
+
+<style scoped></style>

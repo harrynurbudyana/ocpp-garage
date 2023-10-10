@@ -5,6 +5,7 @@ from loguru import logger
 from starlette import status
 
 from core.database import get_contextual_session
+from pyocpp_contrib.decorators import message_id_generator
 from routers import AuthenticatedRouter
 from services.ocpp.remote_start_transaction import process_remote_start_transaction_call
 from services.ocpp.remote_stop_transaction import process_remote_stop_transaction_call
@@ -46,7 +47,8 @@ async def remote_start_transaction(
             session,
             charge_point_id=data.charge_point_id,
             connector_id=data.connector_id,
-            id_tag=request.state.operator.id
+            id_tag=request.state.operator.id,
+            message_id=message_id_generator()
         )
         await session.commit()
 
@@ -62,6 +64,7 @@ async def remote_stop_transaction(transaction_uuid: str):
         await process_remote_stop_transaction_call(
             session,
             charge_point_id=transaction.charge_point,
-            transaction=transaction
+            transaction=transaction,
+            message_id=message_id_generator()
         )
         await session.commit()

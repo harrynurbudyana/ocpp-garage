@@ -4,13 +4,13 @@ from loguru import logger
 from ocpp.v16.enums import Action, ChargePointStatus
 
 from core.database import get_contextual_session
-from pyocpp_contrib.decorators import prepare_event
+from pyocpp_contrib.decorators import prepare_event, message_id_generator
 from pyocpp_contrib.enums import ConnectionAction
 from services.charge_points import update_charge_point, reset_connectors
 from services.ocpp.authorize import process_authorize
 from services.ocpp.boot_notification import process_boot_notification
 from services.ocpp.change_availability import process_change_availability_call_result
-from services.ocpp.change_configuration import init_configuration
+from services.ocpp.change_configuration import process_change_configration_call, configuration
 from services.ocpp.heartbeat import process_heartbeat
 from services.ocpp.meter_values import process_meter_values
 from services.ocpp.remote_start_transaction import process_remote_start_transaction_call_result
@@ -47,7 +47,12 @@ async def process_event(event):
             await process_security_event_notification(session, deepcopy(event))
         if event.action is Action.BootNotification:
             await process_boot_notification(session, deepcopy(event))
-            await init_configuration(charge_point_id=event.charge_point_id)
+            for config in configuration:
+                await process_change_configration_call(
+                    config,
+                    charge_point_id=event.charge_point_id,
+                    message_id=message_id_generator()
+                )
         if event.action is Action.StatusNotification:
             await process_status_notification(session, deepcopy(event))
         if event.action is Action.Heartbeat:

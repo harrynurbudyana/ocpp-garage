@@ -10,7 +10,8 @@ from pyocpp_contrib.decorators import send_call, contextable, use_context
 async def process_change_availability(
         charge_point_id: str,
         connector_id: int,
-        type: AvailabilityType
+        type: AvailabilityType,
+        message_id: str
 ) -> ChangeAvailabilityPayload:
     payload = ChangeAvailabilityPayload(connector_id=connector_id, type=type)
     logger.info(f"ChangeAvailability -> | prepared payload (charge_point_id={charge_point_id} payload={payload})")

@@ -5,6 +5,7 @@ from loguru import logger
 
 from core.database import get_contextual_session
 from models import ChargePoint
+from pyocpp_contrib.decorators import message_id_generator
 from routers import AuthenticatedRouter, AnonymousRouter
 from services.charge_points import (
     get_charge_point,
@@ -132,7 +133,8 @@ async def unlock_connector(
         f"UnlockConnector -> | start process call request (charge_point_id={charge_point_id}, connector_id={connector_id})")
     await process_unlock_connector(
         charge_point_id=charge_point_id,
-        connector_id=connector_id
+        connector_id=connector_id,
+        message_id=message_id_generator()
     )
 
 
@@ -142,4 +144,4 @@ async def unlock_connector(
 )
 async def reset(charge_point_id: str):
     logger.info(f"Reset -> | start process call request (charge_point_id={charge_point_id})")
-    await process_reset(charge_point_id=charge_point_id)
+    await process_reset(charge_point_id=charge_point_id, message_id=message_id_generator())

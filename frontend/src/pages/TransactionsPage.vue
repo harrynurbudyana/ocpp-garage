@@ -55,9 +55,8 @@
                 <v-tooltip activator="parent" location="end"
                   >{{ TRANSACTIONS_MAPPPER[item.columns.status] }}
                 </v-tooltip>
-                <p class="text-medium-emphasis">
-                  <span class="mdi mdi-progress-clock"></span>
-                </p>
+                <v-icon size="x-small" class="mdi mdi-battery-charging-high">
+                </v-icon>
               </v-chip>
             </template>
           </data-table>

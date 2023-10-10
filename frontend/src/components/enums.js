@@ -44,3 +44,9 @@ export const TRANSACTIONS_STATUS = {
   completed: "completed",
   faulted: "faulted",
 };
+
+export const ACTION_STATUS_COLOR = {
+  pending: "#efc909",
+  completed: "#0ee018",
+  faulted: "#DC184CFF",
+};

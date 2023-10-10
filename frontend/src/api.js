@@ -30,7 +30,7 @@ export function request(
     url,
     method: "get",
     data,
-    ...options
+    ...options,
   })
     .then((response) => {
       return raw ? response : response?.data;
@@ -47,7 +47,7 @@ export function request(
       }
 
       if (status === 401) {
-        return store.dispatch("silentLogout");
+        store.dispatch("silentLogout");
       }
 
       throw err;

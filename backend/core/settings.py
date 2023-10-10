@@ -12,6 +12,8 @@ DB_PORT = int(os.environ["DB_PORT"])
 DB_USER = os.environ["DB_USER"]
 DB_HOST = os.environ["DB_HOST"]
 
+REDIS_HOST = os.environ["REDIS_HOST"]
+
 DATABASE_ASYNC_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 DATABASE_SYNC_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
 
