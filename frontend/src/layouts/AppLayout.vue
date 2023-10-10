@@ -70,20 +70,21 @@
                   class="pt-1"
                 >
                   <template v-slot:prepend>
-                    <v-chip :color="ACTION_STATUS_COLOR[action.status]">
-                      <v-tooltip activator="parent" location="end"
-                        >{{
-                          {
-                            pending: "pending",
-                            completed: "success",
-                            faulted: "faulted",
-                          }[action.status]
-                        }}
-                      </v-tooltip>
-                      <v-icon size="x-small">
-                        {{ ACTION_ICON[action.status] }}
-                      </v-icon>
-                    </v-chip>
+                    <v-tooltip activator="parent" location="end"
+                      >{{
+                        {
+                          pending: "pending",
+                          completed: "success",
+                          faulted: "faulted",
+                        }[action.status]
+                      }}
+                    </v-tooltip>
+                    <v-icon
+                      size="x-small"
+                      :color="ACTION_STATUS_COLOR[action.status]"
+                    >
+                      {{ ACTION_ICON[action.status] }}
+                    </v-icon>
                   </template>
                   <template v-slot:title>
                     <span class="text-caption">{{ action.body }}</span>
@@ -126,7 +127,7 @@ const actions = ref([]);
 const ACTION_ICON = {
   pending: "mdi mdi-clock-time-seven-outline",
   completed: "mdi mdi-check",
-  faulted: "mdi mdi-close-circle-outline",
+  faulted: "mdi mdi-cancel",
 };
 
 const isLoginAvailable = () => {

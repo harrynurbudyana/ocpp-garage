@@ -212,14 +212,14 @@ const headers = [
   {
     title: "Status",
     key: "status",
-    align: "right",
+    align: "center",
     sortable: false,
     width: "20%",
   },
   {
     title: "Location",
     key: "location",
-    align: "right",
+    align: "center",
     sortable: false,
     width: "20%",
   },

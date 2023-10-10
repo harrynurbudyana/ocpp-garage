@@ -212,7 +212,7 @@ const headers = [
   {
     title: "Name",
     key: "first_name",
-    align: "right",
+    align: "center",
     sortable: false,
     value: (v) => `${v.first_name} ${v.last_name}`,
     width: "20%",
@@ -220,7 +220,7 @@ const headers = [
   {
     title: "Address",
     key: "address",
-    align: "right",
+    align: "center",
     sortable: true,
     width: "40%",
   },
