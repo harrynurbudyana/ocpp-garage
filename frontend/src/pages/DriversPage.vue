@@ -215,14 +215,14 @@ const headers = [
     align: "right",
     sortable: false,
     value: (v) => `${v.first_name} ${v.last_name}`,
-    width: "30%",
+    width: "20%",
   },
   {
     title: "Address",
     key: "address",
     align: "right",
     sortable: true,
-    width: "30%",
+    width: "40%",
   },
   {
     title: "Status",

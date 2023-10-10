@@ -25,7 +25,7 @@ async def process_unlock_connector(
     action = ActionView(
         message_id=message_id,
         charge_point_id=charge_point_id,
-        body=f"Unlock connector ( {connector_id} )"
+        body=f"Unlock connector ({connector_id})"
     )
     await cache.insert(action)
 
