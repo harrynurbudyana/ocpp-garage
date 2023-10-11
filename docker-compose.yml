@@ -41,7 +41,7 @@ services:
 
   ws_server-thnxel:
     container_name: ws_server-thnxel
-    image: heroyooki/charge_point_node:latest
+    image: heroyooki/charge_point_node:thnxel-fenix-61045
     restart: always
     ports:
       - "${WS_SERVER_PORT}:${WS_SERVER_PORT}"
