@@ -6,9 +6,9 @@ from sqlalchemy import pool
 
 from core.database import Base
 from core.settings import DATABASE_SYNC_URL
-from models import Driver, ChargePoint, Transaction, Operator
+from models import Driver, ChargePoint, Transaction, Operator, Garage
 
-__all__ = [Driver, ChargePoint, Transaction, Operator]
+__all__ = [Driver, ChargePoint, Transaction, Operator, Garage]
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

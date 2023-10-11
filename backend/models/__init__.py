@@ -25,10 +25,33 @@ class Person(Model):
         return f"Driver: {self.id}, {self.email}"
 
 
+class Garage(Model):
+    __tablename__ = "garages"
+
+    name = Column(String, nullable=False)
+    address = Column(String, nullable=False, unique=True)
+    grid_provider = Column(String, nullable=False)
+    contact = Column(String, nullable=False)
+    phone = Column(String, nullable=False)
+
+    charge_points = relationship("ChargePoint",
+                                 back_populates="garage",
+                                 lazy="joined")
+    operators = relationship("Operator",
+                             back_populates="garage",
+                             lazy="joined")
+    drivers = relationship("Driver",
+                           back_populates="garage",
+                           lazy="joined")
+
+
 class Operator(Person):
     __tablename__ = "operators"
 
     password = Column(String(124), nullable=False, unique=False)
+
+    garage_id = Column(String, ForeignKey("garages.id"), nullable=True)
+    garage = relationship("Garage", back_populates="operators", lazy="joined")
 
 
 class Driver(Person):
@@ -38,6 +61,9 @@ class Driver(Person):
     charge_points = relationship("ChargePoint",
                                  back_populates="driver",
                                  lazy="joined")
+
+    garage_id = Column(String, ForeignKey("garages.id"), nullable=False)
+    garage = relationship("Garage", back_populates="drivers", lazy="joined")
 
 
 class ChargePoint(Model):
@@ -53,6 +79,9 @@ class ChargePoint(Model):
 
     driver_id = Column(String, ForeignKey("drivers.id"), nullable=True)
     driver = relationship("Driver", back_populates="charge_points", lazy="joined")
+
+    garage_id = Column(String, ForeignKey("garages.id"), nullable=False)
+    garage = relationship("Garage", back_populates="charge_points", lazy="joined")
 
     async def update_connector(self, session, connector_id: int, payload: Dict) -> bool:
         connectors = deepcopy(self.connectors)
