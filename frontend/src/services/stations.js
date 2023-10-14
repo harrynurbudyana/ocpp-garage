@@ -4,11 +4,13 @@ import { useRoute } from "vue-router";
 const endpoint = "charge_points";
 
 export function deleteStation(stationId) {
-  return request.delete(`/${endpoint}/${stationId}`);
+  const { params } = useRoute();
+  return request.delete(`/${params.garageId}/${endpoint}/${stationId}`);
 }
 
 export function addStation(data) {
-  return request.post(`/${endpoint}/`, data);
+  const { params } = useRoute();
+  return request.post(`/${params.garageId}/${endpoint}/`, data);
 }
 
 export function listStations(queryParams) {
@@ -20,21 +22,28 @@ export function listStations(queryParams) {
 }
 
 export function listSimpleStations() {
-  return request.get(`/${endpoint}/autocomplete/`);
+  const { params } = useRoute();
+  return request.get(`/${params.garageId}/${endpoint}/autocomplete/`);
 }
 
 export function getStation(stationId) {
-  return request.get(`/${endpoint}/${stationId}`);
+  const { params } = useRoute();
+  return request.get(`/${params.garageId}/${endpoint}/${stationId}`);
 }
 
 export function updateStation(stationId, data) {
-  return request.put(`/${endpoint}/${stationId}`, data);
+  const { params } = useRoute();
+  return request.put(`/${params.garageId}/${endpoint}/${stationId}`, data);
 }
 
 export function updateConnector({ stationId, connectorId }) {
-  return request.put(`/${endpoint}/${stationId}/connectors/${connectorId}`);
+  const { params } = useRoute();
+  return request.put(
+    `/${params.garageId}/${endpoint}/${stationId}/connectors/${connectorId}`
+  );
 }
 
 export function softResetStation(stationId) {
-  return request.patch(`/${endpoint}/${stationId}`);
+  const { params } = useRoute();
+  return request.patch(`/${params.garageId}/${endpoint}/${stationId}`);
 }
