@@ -11,23 +11,20 @@ export const menuItems = [
     key: "stations",
     icon: "mdi mdi-ev-station",
     isActive: ({ currentGarage }) => !!currentGarage,
-    getPath: ({ currentGarage }) =>
-      currentGarage ? `/${currentGarage.id}/stations` : "",
+    getPath: ({ currentGarage }) => `/${currentGarage?.id}/stations`,
   },
   {
     name: "Drivers",
     key: "drivers",
     icon: "mdi mdi-account-circle",
     isActive: ({ currentGarage }) => !!currentGarage,
-    getPath: ({ currentGarage }) =>
-      currentGarage ? `/${currentGarage.id}/drivers` : "",
+    getPath: ({ currentGarage }) => `/${currentGarage?.id}/drivers`,
   },
   {
     name: "Transactions",
     key: "transactions",
     icon: "mdi mdi-battery-charging-high",
     isActive: ({ currentGarage }) => !!currentGarage,
-    getPath: ({ currentGarage }) =>
-      currentGarage ? `/${currentGarage.id}/transactions` : "",
+    getPath: ({ currentGarage }) => `/${currentGarage?.id}/transactions`,
   },
 ];

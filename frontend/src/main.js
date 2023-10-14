@@ -31,10 +31,4 @@ app.use(store);
 app.use(router);
 
 registerPlugins(app);
-
-store
-  .dispatch("initAction", { isPublicPage: router.currentRoute.meta?.public })
-  .then(() => {
-    app.mount("#app");
-    return app;
-  });
+app.mount("#app");

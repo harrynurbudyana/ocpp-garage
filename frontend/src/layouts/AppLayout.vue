@@ -138,7 +138,7 @@ import { ACTION_STATUS_COLOR } from "@/components/enums";
 const MAX_ACTIONS_LENGTH = 11;
 
 const { currentRoute } = useRouter();
-const { getters, commit } = useStore();
+const { getters, dispatch } = useStore();
 
 var interval = null;
 const drawer = ref(true);
@@ -156,6 +156,7 @@ const isActive = (name) => {
 };
 
 onMounted(() => {
+  dispatch("initAction");
   interval = setInterval(() => {
     listActions({ periodic: 1 }).then((response) => (actions.value = response));
   }, 2000);
