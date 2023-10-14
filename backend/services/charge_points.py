@@ -6,12 +6,12 @@ from typing import List
 
 from ocpp.v16.call import StatusNotificationPayload
 from ocpp.v16.enums import ChargePointStatus
-from pyocpp_contrib.v16.views.events import StatusNotificationCallEvent
 from sqlalchemy import select, update, func, or_, String, delete
 from sqlalchemy.sql import selectable
 
 import models as models
 from models import ChargePoint
+from pyocpp_contrib.v16.views.events import StatusNotificationCallEvent
 from views.charge_points import CreateChargPointView, UpdateChargPointView
 
 
@@ -45,10 +45,12 @@ async def reset_charge_points(session):
         await reset_connectors(session, charge_point.id)
 
 
-async def build_charge_points_query(search: str) -> selectable:
+async def build_charge_points_query(search: str, extra_criterias: List | None = None) -> selectable:
     criterias = [
         ChargePoint.is_active.is_(True)
     ]
+    if extra_criterias:
+        criterias.extend(extra_criterias)
     query = select(ChargePoint).outerjoin(models.Driver)
     for criteria in criterias:
         query = query.where(criteria)
@@ -64,37 +66,51 @@ async def build_charge_points_query(search: str) -> selectable:
     return query
 
 
-async def get_charge_point(session, charge_point_id) -> ChargePoint | None:
-    result = await session.execute(select(ChargePoint).where(ChargePoint.id == charge_point_id))
+async def get_charge_point(session, garage_id, charge_point_id) -> ChargePoint | None:
+    query = select(ChargePoint).where(ChargePoint.id == charge_point_id)
+    if garage_id:
+        query = query.where(ChargePoint.garage_id == garage_id)
+    result = await session.execute(query)
     return result.scalars().first()
 
 
-async def create_charge_point(session, data: CreateChargPointView):
-    charge_point = ChargePoint(**data.dict())
+async def create_charge_point(session, garage_id: str, data: CreateChargPointView):
+    charge_point = ChargePoint(garage_id=garage_id, **data.dict())
     session.add(charge_point)
     return charge_point
 
 
 async def update_charge_point(
         session,
+        garage_id: str,
         charge_point_id: str,
         data
 ) -> None:
     await session.execute(update(ChargePoint) \
                           .where(ChargePoint.id == charge_point_id) \
+                          .where(ChargePoint.garage_id == garage_id)
                           .values(**data.dict(exclude_unset=True)))
 
 
-async def remove_charge_point(session, charge_point_id: str) -> None:
+async def remove_charge_point(session, garage_id: str, charge_point_id: str) -> None:
     query = delete(ChargePoint) \
-        .where(ChargePoint.id == charge_point_id)
+        .where(ChargePoint.id == charge_point_id) \
+        .where(ChargePoint.garage_id == garage_id)
     await session.execute(query)
 
 
-async def list_simple_charge_points(session, all=False) -> List[ChargePoint]:
-    query = select(ChargePoint)
+async def list_simple_charge_points(session, garage_id: str, all=False) -> List[ChargePoint]:
+    query = select(ChargePoint).where(ChargePoint.garage_id == garage_id)
     if not all:
         query = query.where(ChargePoint.driver_id.is_(None))
     query = query.with_only_columns(ChargePoint.id, ChargePoint.location, ChargePoint.status, ChargePoint.connectors)
     result = await session.execute(query)
     return result.fetchall()
+
+
+async def release_charge_point(session, garage_id: str, driver_id: str, charge_point_id: str):
+    await session.execute(update(ChargePoint) \
+                          .where(ChargePoint.driver_id == driver_id,
+                                 ChargePoint.id == charge_point_id,
+                                 ChargePoint.garage_id == garage_id) \
+                          .values({"driver_id": None}))

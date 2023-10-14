@@ -2,22 +2,21 @@
   <v-container>
     <v-row>
       <v-col cols="12" sm="12">
-        <v-sheet height="80vh">
+        <v-sheet min-height="80vh">
           <data-table
-            title="Drivers"
+            title="Garages"
             :items="items"
             :headers="headers"
             :current-page="currentPage"
             :last-page="lastPage"
             @page-updated="(newPage) => (currentPage = newPage)"
-            @click-row="onClickRow"
           >
             <template v-slot:title="{ title }">
               <v-row>
                 <v-col md="5">
-                  <v-card-item class="ma-6 pa-2" width="100%">
+                  <v-card-item class="ma-6 pa-2">
                     <v-text-field
-                      label="Email, Name or Address"
+                      label="Name, Address or Contact"
                       density="compact"
                       variant="outlined"
                       append-inner-icon="mdi-magnify"
@@ -39,13 +38,6 @@
                 </v-col>
               </v-row>
             </template>
-            <template v-slot:item.is_active="{ item }">
-              <v-chip :color="DRIVERS_STATUS[item.columns.is_active]">
-                <p class="text-medium-emphasis">
-                  {{ item.columns.is_active ? "Active" : "Blocked" }}
-                </p>
-              </v-chip>
-            </template>
           </data-table>
         </v-sheet>
       </v-col>
@@ -62,11 +54,11 @@
                   <v-col cols="12">
                     <v-text-field
                       :error="showError && errors.id"
-                      :error-messages="errors.email"
-                      :rules="rules.driver.emailRules"
-                      label="E-mail"
+                      :error-messages="errors.name"
+                      :rules="rules.garage.nameRules"
+                      label="Name"
                       required
-                      v-model="data.email"
+                      v-model="data.name"
                       density="compact"
                       variant="underlined"
                       validate-on="lazy blur"
@@ -75,31 +67,42 @@
                   </v-col>
                   <v-col cols="12">
                     <v-text-field
-                      label="First Name"
-                      :rules="rules.driver.firstNameRules"
-                      v-model="data.first_name"
-                      density="compact"
-                      variant="underlined"
-                      validate-on="lazy blur"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      :rules="rules.driver.lastNameRules"
-                      label="Last Name"
-                      required
-                      v-model="data.last_name"
-                      density="compact"
-                      variant="underlined"
-                      validate-on="lazy blur"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      :rules="rules.driver.addressRules"
                       label="Address"
-                      required
+                      :rules="rules.garage.addressRules"
                       v-model="data.address"
+                      density="compact"
+                      variant="underlined"
+                      validate-on="lazy blur"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-text-field
+                      :rules="rules.garage.contactRules"
+                      label="Contact"
+                      required
+                      v-model="data.contact"
+                      density="compact"
+                      variant="underlined"
+                      validate-on="lazy blur"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-text-field
+                      :rules="rules.garage.phoneRules"
+                      label="Phone"
+                      required
+                      v-model="data.phone"
+                      density="compact"
+                      variant="underlined"
+                      @input="clearError"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-text-field
+                      :rules="rules.garage.providerRules"
+                      label="Provider"
+                      required
+                      v-model="data.grid_provider"
                       density="compact"
                       variant="underlined"
                       @input="clearError"
@@ -139,14 +142,14 @@
 import { onMounted } from "vue";
 import { useStore } from "vuex";
 import DataTable from "@/components/DataTable";
-import router from "@/router";
+
+import { useSubmitForm } from "@/use/form";
+import { usePagination } from "@/use/pagination";
+import { addGarage, listGarages } from "@/services/garages";
+import { menuItems } from "@/menu/app-menu-items";
 import { rules } from "@/configs/validation";
 
-import { DRIVERS_STATUS } from "@/components/enums";
-import { usePagination } from "@/use/pagination";
-import { addDriver, listDrivers } from "@/services/drivers";
-import { menuItems } from "@/menu/app-menu-items";
-import { useSubmitForm } from "@/use/form";
+const { commit, getters } = useStore();
 
 const {
   loading,
@@ -160,22 +163,21 @@ const {
   closeModal,
   sendData,
 } = useSubmitForm({
-  itemSender: addDriver,
-  afterHandler: () => {
+  itemSender: addGarage,
+  afterHandler: (response) => {
     fetchData();
+    if (!getters.currentGarage) {
+      commit("setCurrentGarage", response);
+    }
   },
 });
 
 const { currentPage, lastPage, fetchData, items, search } = usePagination({
-  itemsLoader: listDrivers,
+  itemsLoader: listGarages,
+  afterHandler: (items) => {
+    commit("setGarages", items);
+  },
 });
-
-const onClickRow = ({ item }) => {
-  router.push({
-    name: "SingleDriver",
-    params: { driverId: item.key },
-  });
-};
 
 onMounted(() => {
   const { commit } = useStore();
@@ -184,33 +186,32 @@ onMounted(() => {
 
 const headers = [
   {
-    title: "E-mail",
-    key: "email",
+    title: "Name",
+    key: "name",
     align: "right",
     sortable: false,
     width: "30%",
   },
   {
-    title: "Name",
-    key: "first_name",
-    align: "center",
-    sortable: false,
-    value: (v) => `${v.first_name} ${v.last_name}`,
-    width: "20%",
-  },
-  {
     title: "Address",
     key: "address",
     align: "center",
-    sortable: true,
-    width: "40%",
+    sortable: false,
+    width: "20%",
   },
   {
-    title: "Status",
+    title: "Contact",
+    key: "contact",
     align: "center",
-    width: "15%",
     sortable: false,
-    key: "is_active",
+    width: "20%",
+  },
+  {
+    title: "Phone",
+    key: "phone",
+    align: "center",
+    sortable: true,
+    width: "40%",
   },
 ];
 </script>

@@ -1,26 +1,33 @@
 export const menuItems = [
   {
-    name: "Dashboard",
-    key: "dashboard",
-    path: "/",
-    icon: "mdi mdi-monitor-dashboard",
+    name: "Garages",
+    key: "garages",
+    icon: "mdi mdi-garage-variant-lock",
+    isActive: ({ currentUser }) => currentUser.is_superuser,
+    getPath: () => "/garages",
   },
   {
     name: "Stations",
-    path: "/stations",
     key: "stations",
     icon: "mdi mdi-ev-station",
+    isActive: ({ currentGarage }) => !!currentGarage,
+    getPath: ({ currentGarage }) =>
+      currentGarage ? `/${currentGarage.id}/stations` : "",
   },
   {
     name: "Drivers",
-    path: "/drivers",
     key: "drivers",
     icon: "mdi mdi-account-circle",
+    isActive: ({ currentGarage }) => !!currentGarage,
+    getPath: ({ currentGarage }) =>
+      currentGarage ? `/${currentGarage.id}/drivers` : "",
   },
   {
     name: "Transactions",
-    path: "/transactions",
     key: "transactions",
-    icon: "mdi mdi-battery-charging-outline",
+    icon: "mdi mdi-battery-charging-high",
+    isActive: ({ currentGarage }) => !!currentGarage,
+    getPath: ({ currentGarage }) =>
+      currentGarage ? `/${currentGarage.id}/transactions` : "",
   },
 ];

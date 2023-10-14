@@ -2,8 +2,17 @@
 import { createRouter, createWebHistory } from "vue-router";
 import AuthGuard from "./guards/auth-guard";
 import PublicPageGuard from "./guards/public-page-guard";
+import HomePageGuard from "@/router/guards/home-page-guard";
 
 const routes = [
+  {
+    path: "/",
+    name: "Home",
+    beforeEnter: HomePageGuard,
+    meta: {
+      public: true,
+    },
+  },
   {
     path: "/login",
     name: "login",
@@ -20,19 +29,19 @@ const routes = [
     beforeEnter: AuthGuard,
     children: [
       {
-        path: "",
-        name: "Dashboard",
+        path: "garages",
+        name: "Garages",
         component: () =>
-          import(/* webpackChunkName: "home" */ "@/pages/DashboardPage"),
+          import(/* webpackChunkName: "home" */ "@/pages/GaragesPage"),
       },
       {
-        path: "stations",
+        path: ":garageId/stations",
         name: "Stations",
         component: () =>
           import(/* webpackChunkName: "home" */ "@/pages/StationsPage.vue"),
       },
       {
-        path: "stations/:stationId",
+        path: ":garageId/stations/:stationId",
         name: "SingleStation",
         component: () =>
           import(
@@ -43,13 +52,13 @@ const routes = [
         },
       },
       {
-        path: "drivers",
+        path: ":garageId/drivers",
         name: "Drivers",
         component: () =>
           import(/* webpackChunkName: "home" */ "@/pages/DriversPage"),
       },
       {
-        path: "drivers/:driverId",
+        path: ":garageId/drivers/:driverId",
         name: "SingleDriver",
         component: () =>
           import(/* webpackChunkName: "home" */ "@/pages/SingleDriverPage.vue"),
@@ -58,7 +67,7 @@ const routes = [
         },
       },
       {
-        path: "transactions",
+        path: ":garageId/transactions",
         name: "Transactions",
         component: () =>
           import(/* webpackChunkName: "home" */ "@/pages/TransactionsPage"),

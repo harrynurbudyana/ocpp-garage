@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import List
+
 from sqlalchemy import select, update, func, or_, String, delete
 from sqlalchemy.sql import selectable
 
@@ -13,8 +15,11 @@ async def is_driver_authorized(driver: Driver):
     return driver.is_active
 
 
-async def build_drivers_query(search: str) -> selectable:
+async def build_drivers_query(search: str, extra_criterias: List | None = None) -> selectable:
     query = select(Driver)
+    if extra_criterias:
+        for criteria in extra_criterias:
+            query = query.where(criteria)
     query = query.order_by(Driver.updated_at.asc())
     if search:
         query = query.where(or_(
@@ -26,19 +31,24 @@ async def build_drivers_query(search: str) -> selectable:
     return query
 
 
-async def get_driver(session, driver_id) -> Driver | None:
-    result = await session.execute(select(Driver).where(Driver.id == driver_id))
+async def get_driver(session, garage_id, driver_id) -> Driver | None:
+    result = await session.execute(
+        select(Driver) \
+            .where(Driver.id == driver_id) \
+            .where(Driver.garage_id == garage_id)
+    )
     return result.scalars().first()
 
 
-async def create_driver(session, data: CreateDriverView):
-    driver = Driver(**data.dict())
+async def create_driver(session, garage_id: str, data: CreateDriverView):
+    driver = Driver(garage_id=garage_id, **data.dict())
     session.add(driver)
     return driver
 
 
 async def update_driver(
         session,
+        garage_id: str,
         driver_id: str,
         data: UpdateDriverView
 ) -> None:
@@ -50,20 +60,15 @@ async def update_driver(
     if payload:
         await session.execute(update(Driver) \
                               .where(Driver.id == driver_id) \
+                              .hwere(Driver.garage_id == garage_id) \
                               .values(**payload))
 
 
-async def remove_driver(session, driver_id: str) -> None:
+async def remove_driver(session, garage_id: str, driver_id: str) -> None:
     await session.execute(update(ChargePoint) \
                           .where(ChargePoint.driver_id == driver_id) \
                           .values({"driver_id": None}))
     query = delete(Driver) \
-        .where(Driver.id == driver_id)
+        .where(Driver.id == driver_id) \
+        .where(Driver.garage_id == garage_id)
     await session.execute(query)
-
-
-async def release_charge_point(session, driver_id: str, charge_point_id: str):
-    await session.execute(update(ChargePoint) \
-                          .where(ChargePoint.driver_id == driver_id,
-                                 ChargePoint.id == charge_point_id) \
-                          .values({"driver_id": None}))

@@ -126,7 +126,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted } from "vue";
 import { useStore } from "vuex";
 import { dateAgo } from "@/filters/date";
 import DataTable from "@/components/DataTable";
@@ -137,15 +137,26 @@ import { STATION_STATUS_COLOR } from "@/components/enums";
 import { usePagination } from "@/use/pagination";
 import { addStation, listStations } from "@/services/stations";
 import { menuItems } from "@/menu/app-menu-items";
-import { watchInterval } from "@/configs";
+import { useSubmitForm } from "@/use/form";
 
 var interval = null;
-const loading = ref(false);
-const isValid = ref(false);
-const dialog = ref(false);
-const data = ref({});
-const errors = ref({});
-const showError = ref(false);
+const {
+  loading,
+  isValid,
+  dialog,
+  data,
+  errors,
+  showError,
+  clearError,
+  openModal,
+  closeModal,
+  sendData,
+} = useSubmitForm({
+  itemSender: addStation,
+  afterHandler: () => {
+    fetchData();
+  },
+});
 
 const { currentPage, lastPage, fetchData, items, search } = usePagination({
   itemsLoader: listStations,
@@ -158,43 +169,9 @@ const onClickRow = ({ item }) => {
   });
 };
 
-const clearError = () => {
-  showError.value = false;
-  errors.value = {};
-};
-
-const openModal = () => {
-  dialog.value = true;
-};
-
-const closeModal = () => {
-  dialog.value = false;
-  data.value = {};
-  clearError();
-};
-
-const sendData = () => {
-  loading.value = true;
-  addStation(data.value)
-    .then(() => {
-      fetchData();
-      loading.value = false;
-      closeModal();
-    })
-    .catch(({ response }) => {
-      const { data } = response;
-      showError.value = true;
-      errors.value[data.key] = data.detail;
-      loading.value = false;
-    });
-};
-
 onMounted(() => {
   const { commit } = useStore();
   commit("setPageMenuItems", menuItems);
-  interval = setInterval(() => {
-    fetchData({ periodic: 1 });
-  }, watchInterval);
 });
 
 onUnmounted(() => {

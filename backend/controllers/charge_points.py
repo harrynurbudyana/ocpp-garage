@@ -20,7 +20,7 @@ from views.charge_points import PaginatedChargePointsView, CreateChargPointView,
     UpdateChargPointView, SimpleChargePoint
 
 charge_points_router = AuthenticatedRouter(
-    prefix="/charge_points",
+    prefix="/{garage_id}/charge_points",
     tags=["charge_points"]
 )
 
@@ -34,7 +34,7 @@ anonymous_charge_points_router = AnonymousRouter()
 async def authenticate(charge_point_id: str):
     logger.info(f"Start authenticate charge point (charge_point_id={charge_point_id})")
     async with get_contextual_session() as session:
-        charge_point = await get_charge_point(session, charge_point_id)
+        charge_point = await get_charge_point(session, garage_id=None, charge_point_id=charge_point_id)
         if not charge_point:
             logger.error(f"Could not authenticate charge_point (charge_point_id={charge_point_id})")
             raise HTTPException(status.HTTP_401_UNAUTHORIZED)
@@ -45,9 +45,9 @@ async def authenticate(charge_point_id: str):
     status_code=status.HTTP_200_OK,
     response_model=List[SimpleChargePoint]
 )
-async def retrieve_simple_charge_points() -> List[ChargePoint]:
+async def retrieve_simple_charge_points(garage_id: str) -> List[ChargePoint]:
     async with get_contextual_session() as session:
-        return await list_simple_charge_points(session)
+        return await list_simple_charge_points(session, garage_id)
 
 
 @charge_points_router.get(
@@ -55,13 +55,17 @@ async def retrieve_simple_charge_points() -> List[ChargePoint]:
     status_code=status.HTTP_200_OK
 )
 async def list_charge_points(
+        garage_id: str,
         search: str = "",
         params: Tuple = Depends(params_extractor)
 ) -> PaginatedChargePointsView:
     async with get_contextual_session() as session:
+        criterias = [
+            ChargePoint.garage_id == garage_id
+        ]
         items, pagination = await paginate(
             session,
-            lambda: build_charge_points_query(search),
+            lambda: build_charge_points_query(search, extra_criterias=criterias),
             *params
         )
         return PaginatedChargePointsView(items=[item[0] for item in items], pagination=pagination)
@@ -73,10 +77,11 @@ async def list_charge_points(
     response_model=ChargePointView
 )
 async def retrieve_charge_point(
+        garage_id: str,
         charge_point_id: str
 ):
     async with get_contextual_session() as session:
-        return await get_charge_point(session, charge_point_id)
+        return await get_charge_point(session, garage_id, charge_point_id)
 
 
 @charge_points_router.post(
@@ -84,11 +89,12 @@ async def retrieve_charge_point(
     status_code=status.HTTP_201_CREATED,
 )
 async def add_charge_point(
+        garage_id: str,
         data: CreateChargPointView
 ):
     logger.info(f"Start create charge point (data={data})")
     async with get_contextual_session() as session:
-        await create_charge_point(session, data)
+        await create_charge_point(session, garage_id, data)
         await session.commit()
 
 
@@ -98,14 +104,15 @@ async def add_charge_point(
     response_model=ChargePointView
 )
 async def edit_charge_point(
+        garage_id: str,
         charge_point_id: str,
         data: UpdateChargPointView
 ):
     logger.info(f"Start update charge point (data={data}, charge_point_id={charge_point_id})")
     async with get_contextual_session() as session:
-        await update_charge_point(session, charge_point_id, data)
+        await update_charge_point(session, garage_id, charge_point_id, data)
         await session.commit()
-        return await get_charge_point(session, charge_point_id)
+        return await get_charge_point(session, garage_id, charge_point_id)
 
 
 @charge_points_router.delete(
@@ -113,11 +120,12 @@ async def edit_charge_point(
     status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_charge_point(
+        garage_id: str,
         charge_point_id: str
 ):
     logger.info(f"Start remove charge point (charge_point_id={charge_point_id})")
     async with get_contextual_session() as session:
-        await remove_charge_point(session, charge_point_id)
+        await remove_charge_point(session, garage_id, charge_point_id)
         await session.commit()
 
 
@@ -126,6 +134,7 @@ async def delete_charge_point(
     status_code=status.HTTP_204_NO_CONTENT
 )
 async def unlock_connector(
+        garage_id: str,
         charge_point_id: str,
         connector_id: int
 ):
@@ -142,6 +151,6 @@ async def unlock_connector(
     "/{charge_point_id}",
     status_code=status.HTTP_204_NO_CONTENT
 )
-async def reset(charge_point_id: str):
+async def reset(garage_id: str, charge_point_id: str):
     logger.info(f"Reset -> | start process call request (charge_point_id={charge_point_id})")
     await process_reset(charge_point_id=charge_point_id, message_id=message_id_generator())

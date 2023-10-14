@@ -1,24 +1,41 @@
-from typing import Callable
+from typing import Callable, List
 
 import arrow
 from fastapi.routing import APIRoute
 from jose import jwt
 from passlib.context import CryptContext
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, func, String
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import selectable
 from starlette.requests import Request
 from starlette.responses import Response
 
 from core.database import get_contextual_session
 from core.settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, UTC_DATETIME_FORMAT
 from core.utils import now
-from exceptions import NotAuthenticated
+from exceptions import NotAuthenticated, Forbidden
 from models import Operator
 from views.auth import AuthToken
 from views.operators import CreateOperatorView
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 cookie_name = "token"
+
+
+async def build_operators_query(search: str, extra_criterias: List | None = None) -> selectable:
+    query = select(Operator)
+    if extra_criterias:
+        for criteria in extra_criterias:
+            query = query.where(criteria)
+    query = query.order_by(Operator.updated_at.asc())
+    if search:
+        query = query.where(or_(
+            func.lower(Operator.email).contains(func.lower(search)),
+            func.cast(Operator.address, String).ilike(f"{search}%"),
+            func.lower(Operator.first_name).contains(func.lower(search)),
+            func.lower(Operator.last_name).contains(func.lower(search)),
+        ))
+    return query
 
 
 async def get_operator(session: AsyncSession, value) -> Operator:
@@ -72,9 +89,15 @@ class AuthRoute(APIRoute):
 
             async with get_contextual_session() as session:
                 operator = await get_operator(session, token.operator)
+
                 if arrow.get(token.expired) < now() or not operator:
                     raise NotAuthenticated
+
+                if operator.garage_id and operator.garage_id != request.path_params.get("garage_id"):
+                    raise Forbidden
+
                 request.state.operator = operator
+
             response: Response = await original_route_handler(request)
             return response
 

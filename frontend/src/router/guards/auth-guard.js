@@ -7,6 +7,10 @@ export default (to, from, next) => {
       name: "login",
     });
   } else {
-    next();
+    if (to.name === "Garages" && !store.getters.currentUser.is_superuser) {
+      next({ name: "Stations" });
+    } else {
+      next();
+    }
   }
 };

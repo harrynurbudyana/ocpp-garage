@@ -1,6 +1,25 @@
 <template>
   <v-layout class="rounded rounded-md">
-    <v-app-bar class="px-3" flat density="compact"></v-app-bar>
+    <v-app-bar class="px-3" flat density="compact">
+      <v-row justify="end">
+        <v-menu transition="slide-y-transition" v-if="getters.currentGarage">
+          <template v-slot:activator="{ props }">
+            <v-btn
+              v-bind="props"
+              :disabled="!getters.dropDownList.length"
+              class="mr-6"
+              width="200"
+              >{{ getters.currentGarage.name }}
+            </v-btn>
+          </template>
+          <v-list>
+            <v-list-item v-for="(item, i) in getters.dropDownList" :key="i">
+              <v-list-item-title>{{ item.name }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </v-row>
+    </v-app-bar>
 
     <v-navigation-drawer
       v-model="drawer"
@@ -28,15 +47,17 @@
         <v-list-item
           v-for="link in getters.pageMenuItems"
           :key="link.name"
-          :to="link.path"
+          :to="link.getPath(getters)"
           :value="link.key"
           :title="link.name"
           :prepend-icon="link.icon"
           :active="isActive(link.name)"
-        ></v-list-item>
-
+          :disabled="!link.isActive(getters)"
+        >
+        </v-list-item>
+      </v-list>
+      <v-list density="compact" nav class="logout">
         <v-list-item
-          v-if="isLoginAvailable()"
           key="logout"
           value="logout"
           title="Logout"
@@ -117,7 +138,7 @@ import { ACTION_STATUS_COLOR } from "@/components/enums";
 const MAX_ACTIONS_LENGTH = 11;
 
 const { currentRoute } = useRouter();
-const { getters } = useStore();
+const { getters, commit } = useStore();
 
 var interval = null;
 const drawer = ref(true);
@@ -128,10 +149,6 @@ const ACTION_ICON = {
   pending: "mdi mdi-clock-time-seven-outline",
   completed: "mdi mdi-check",
   faulted: "mdi mdi-cancel",
-};
-
-const isLoginAvailable = () => {
-  return !currentRoute.value?.meta?.hasBackButton;
 };
 
 const isActive = (name) => {
@@ -149,4 +166,9 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.logout {
+  position: absolute;
+  bottom: 30px;
+}
+</style>

@@ -1,4 +1,5 @@
 import { request } from "@/api";
+import { useRoute } from "vue-router";
 
 const endpoint = "charge_points";
 
@@ -10,9 +11,12 @@ export function addStation(data) {
   return request.post(`/${endpoint}/`, data);
 }
 
-export function listStations(params) {
-  let searchParams = new URLSearchParams(params);
-  return request.get(`/${endpoint}/?${searchParams.toString()}`);
+export function listStations(queryParams) {
+  let searchParams = new URLSearchParams(queryParams);
+  const { params } = useRoute();
+  return request.get(
+    `/${params.garageId}/${endpoint}/?${searchParams.toString()}`
+  );
 }
 
 export function listSimpleStations() {

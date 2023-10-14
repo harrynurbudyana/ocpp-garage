@@ -1,13 +1,17 @@
 import http
+from typing import Tuple
 
-from fastapi import Response, Request
+from fastapi import Response, Request, Depends
 from loguru import logger
+from starlette import status
 
 from core.database import get_contextual_session
 from exceptions import NotAuthenticated
+from models import Operator
 from routers import AnonymousRouter, AuthenticatedRouter
-from services.operators import pwd_context, get_operator, create_token, cookie_name
-from views.operators import LoginView, ReadOperatorView
+from services.operators import pwd_context, get_operator, create_token, cookie_name, build_operators_query
+from utils import params_extractor, paginate
+from views.operators import LoginView, ReadOperatorView, PaginatedOperatorsView
 
 operators_public_router = AnonymousRouter()
 operators_private_router = AuthenticatedRouter()
@@ -41,6 +45,27 @@ async def login(response: Response, data: LoginView):
     token = await create_token(operator.id)
     response.set_cookie(cookie_name, token)
     return operator
+
+
+@operators_private_router.get(
+    "/{garage_id}/operators",
+    status_code=status.HTTP_200_OK
+)
+async def retrieve_garage_drivers(
+        garage_id: str,
+        search: str = "",
+        params: Tuple = Depends(params_extractor)
+) -> PaginatedOperatorsView:
+    async with get_contextual_session() as session:
+        criterias = [
+            Operator.garage_id == garage_id
+        ]
+        items, pagination = await paginate(
+            session,
+            lambda: build_operators_query(search, extra_criterias=criterias),
+            *params
+        )
+        return PaginatedOperatorsView(items=[item[0] for item in items], pagination=pagination)
 
 
 @operators_private_router.post("/logout")

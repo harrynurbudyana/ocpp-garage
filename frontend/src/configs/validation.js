@@ -106,6 +106,14 @@ export const rules = new (function () {
     ],
   };
 
+  this.garage = {
+    nameRules: [() => true],
+    addressRules: [() => true],
+    contactRules: [() => true],
+    phoneRules: [() => true],
+    providerRules: [() => true],
+  };
+
   this.driver = {
     emailRules: [
       ...this.common,

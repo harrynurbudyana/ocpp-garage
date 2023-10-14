@@ -53,6 +53,10 @@ class Operator(Person):
     garage_id = Column(String, ForeignKey("garages.id"), nullable=True)
     garage = relationship("Garage", back_populates="operators", lazy="joined")
 
+    @property
+    def is_superuser(self):
+        return not bool(self.garage_id)
+
 
 class Driver(Person):
     __tablename__ = "drivers"
