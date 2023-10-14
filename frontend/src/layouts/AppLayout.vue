@@ -27,11 +27,7 @@
       permanent
       @click="rail = false"
     >
-      <v-list-item
-        prepend-avatar="https://randomuser.me/api/portraits/men/37.jpg"
-        title="John Leider"
-        nav
-      >
+      <v-list-item prepend-icon="mdi mdi-garage" title="NO1" nav>
         <template v-slot:append>
           <v-btn
             variant="text"

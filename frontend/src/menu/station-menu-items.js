@@ -4,6 +4,6 @@ export const menuItems = [
     key: "stations",
     icon: "mdi mdi-arrow-left",
     isActive: () => true,
-    getPath: ({ currentGarage }) => `${currentGarage.id}/stations`,
+    getPath: ({ currentGarage }) => `/${currentGarage.id}/stations`,
   },
 ];
