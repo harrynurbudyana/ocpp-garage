@@ -90,7 +90,7 @@ async def edit_driver(
     async with get_contextual_session() as session:
         await update_driver(session, garage_id, driver_id, data)
         await session.commit()
-        return await get_driver(session, driver_id)
+        return await get_driver(session, garage_id, driver_id)
 
 
 @drivers_router.delete(
