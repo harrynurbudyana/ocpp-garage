@@ -5,7 +5,7 @@ from typing import List
 from sqlalchemy import select, update, func, or_, String, delete
 from sqlalchemy.sql import selectable
 
-from models import Driver, ChargePoint
+from models import Driver, ChargePoint, Garage
 from services.charge_points import update_charge_point
 from views.charge_points import UpdateChargPointView
 from views.drivers import CreateDriverView, UpdateDriverView
@@ -23,6 +23,7 @@ async def build_drivers_query(search: str, extra_criterias: List | None = None) 
     query = query.order_by(Driver.updated_at.asc())
     if search:
         query = query.where(or_(
+            func.lower(Garage.name).contains(func.lower(search)),
             func.lower(Driver.email).contains(func.lower(search)),
             func.cast(Driver.address, String).ilike(f"{search}%"),
             func.lower(Driver.first_name).contains(func.lower(search)),

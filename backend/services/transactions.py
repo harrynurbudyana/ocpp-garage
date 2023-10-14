@@ -45,6 +45,7 @@ async def build_transactions_query(search: str, extra_criterias: List | None = N
     query = query.order_by(models.Transaction.transaction_id.desc())
     if search:
         query = query.where(or_(
+            func.lower(models.Transaction.garage).contains(func.lower(search)),
             func.lower(models.Transaction.driver).contains(func.lower(search)),
             func.cast(models.Transaction.charge_point, String).ilike(f"{search}%"),
         ))

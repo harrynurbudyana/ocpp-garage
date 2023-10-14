@@ -57,6 +57,7 @@ async def build_charge_points_query(search: str, extra_criterias: List | None = 
     query = query.order_by(ChargePoint.updated_at.asc())
     if search:
         query = query.where(or_(
+            func.lower(models.Garage.name).contains(func.lower(search)),
             func.lower(ChargePoint.id).contains(func.lower(search)),
             func.cast(ChargePoint.status, String).ilike(f"{search}%"),
             func.lower(ChargePoint.location).contains(func.lower(search)),
