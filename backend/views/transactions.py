@@ -8,6 +8,7 @@ from views import PaginationView
 
 
 class CreateTransactionView(BaseModel):
+    garage: str
     driver: str
     meter_start: int
     meter_start: int

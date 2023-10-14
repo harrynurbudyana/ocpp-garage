@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import List
+
 from sqlalchemy import update, select, or_, func, String
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import selectable
@@ -35,8 +37,11 @@ async def get_transaction(session, transaction_id: str | int) -> models.Transact
     return query.scalars().first()
 
 
-async def build_transactions_query(search: str) -> selectable:
+async def build_transactions_query(search: str, extra_criterias: List | None = None) -> selectable:
     query = select(models.Transaction)
+    if extra_criterias:
+        for criteria in extra_criterias:
+            query = query.where(criteria)
     query = query.order_by(models.Transaction.transaction_id.desc())
     if search:
         query = query.where(or_(

@@ -106,6 +106,7 @@ class Transaction(Model):
     __tablename__ = "transactions"
     transaction_id_seq = Sequence("transaction_id_seq")
 
+    garage = Column(String, nullable=False)
     driver = Column(String, nullable=False)
     meter_start = Column(Integer, nullable=False)
     meter_stop = Column(Integer, nullable=True)
@@ -115,4 +116,4 @@ class Transaction(Model):
     status = Column(Enum(TransactionStatus), default=TransactionStatus.in_progress)
 
     def __repr__(self):
-        return f"Transaction (id={self.id}, charge_point={self.charge_point}, transaction_id={self.transaction_id}, status={self.status})"
+        return f"Transaction (id={self.id}, garage_id={self.garage}, charge_point={self.charge_point}, transaction_id={self.transaction_id}, status={self.status})"

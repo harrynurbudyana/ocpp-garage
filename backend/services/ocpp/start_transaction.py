@@ -20,6 +20,7 @@ async def process_start_transaction(session, event) -> StartTransactionPayload:
 
     # It is a good practice to always create transaction
     view = CreateTransactionView(
+        garage=charge_point.garage_id,
         driver=charge_point.driver.email,
         meter_start=event.payload.meter_start,
         charge_point=charge_point.id,
