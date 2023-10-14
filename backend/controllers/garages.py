@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, List
 
 from fastapi import status, Depends
 from loguru import logger
@@ -6,9 +6,9 @@ from loguru import logger
 from core.database import get_contextual_session
 from permissions.garages import CanOperatorManageGarages
 from routers import AuthenticatedRouter
-from services.garages import build_garages_query, create_garage
+from services.garages import build_garages_query, create_garage, list_simple_garages
 from utils import params_extractor, paginate
-from views.garages import PaginatedGaragesView, SingleGarageView, CreateGarageView
+from views.garages import PaginatedGaragesView, SingleGarageView, CreateGarageView, NotPaginatedSimpleGarageView
 
 garages_router = AuthenticatedRouter(
     prefix="/garages",
@@ -32,6 +32,16 @@ async def list_garages(
             *params
         )
         return PaginatedGaragesView(items=[item[0] for item in items], pagination=pagination)
+
+
+@garages_router.get(
+    "/autocomplete",
+    status_code=status.HTTP_200_OK,
+    response_model=List[NotPaginatedSimpleGarageView]
+)
+async def retrieve_simple_garages():
+    async with get_contextual_session() as session:
+        return await list_simple_garages(session)
 
 
 @garages_router.post(

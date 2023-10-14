@@ -5,6 +5,14 @@ from pydantic import BaseModel
 from views import PaginationView
 
 
+class NotPaginatedSimpleGarageView(BaseModel):
+    id: str
+    name: str
+
+    class Config:
+        orm_mode = True
+
+
 class SimpleGarageView(BaseModel):
     id: str
     name: str

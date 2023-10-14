@@ -9,6 +9,12 @@ import models as models
 from views.garages import CreateGarageView
 
 
+async def list_simple_garages(session):
+    query = select(models.Garage).with_only_columns(models.Garage.id, models.Garage.name)
+    result = await session.execute(query)
+    return result.unique().fetchall()
+
+
 async def build_garages_query(search: str, extra_criterias: List | None = None) -> selectable:
     criterias = [
         models.Garage.is_active.is_(True)
