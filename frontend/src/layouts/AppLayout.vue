@@ -31,7 +31,11 @@
       permanent
       @click="rail = false"
     >
-      <v-list-item prepend-icon="mdi mdi-garage" title="NO1" nav>
+      <v-list-item
+        prepend-icon="mdi mdi-transmission-tower-export"
+        title="NO1"
+        nav
+      >
         <template v-slot:append>
           <v-btn
             variant="text"
