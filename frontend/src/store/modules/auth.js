@@ -16,14 +16,17 @@ function _processSuccessfulLogout(commit) {
   commit("unsetAuthorized");
   commit("unsetUser");
   commit("unsetCurrentGarage");
+  commit("usetGarages");
   router.push("/login");
 }
 
 function _processSuccessfulLogin(commit, userData) {
+  let operator = userData.operator;
   commit("setAuthorized");
-  commit("setUser", userData);
+  commit("setUser", operator);
+  commit("setCurrentGarage", userData.garages);
 
-  if (userData.is_superuser) {
+  if (operator.is_superuser) {
     router.push("/garages");
   } else {
     router.push("/stations");
@@ -34,9 +37,22 @@ export default {
   name: "auth",
   state,
   actions: {
+    initAction({ getters }, payload) {
+      // We don't want to make unnecessary request to the backend in case it's
+      // a public page, it may effect Page Load Time
+      if (!payload.isPublicPage && getters.isAuthorized) {
+        this.dispatch("getUser").catch(() => {
+          console.log("Wasn't able to receive user data");
+        });
+      } else {
+        return Promise.resolve();
+      }
+    },
     getUser({ commit }) {
       return request.get("/me").then((responseBody) => {
-        commit("setUser", responseBody);
+        commit("setUser", responseBody.operator);
+        commit("setGarages", responseBody.garages);
+        commit("setCurrentGarage", responseBody.garages);
       });
     },
 
@@ -86,10 +102,6 @@ export default {
 
     unsetUser(state) {
       state.user = {};
-    },
-
-    setCurrentGarageId(state, garageId) {
-      state.currentGarageId = garageId;
     },
   },
 };

@@ -1,5 +1,3 @@
-import { listGarages } from "@/services/garages";
-
 const getDefaultState = () => {
   return {
     garages: [],
@@ -12,20 +10,7 @@ const state = getDefaultState();
 export default {
   name: "garages",
   state,
-  actions: {
-    getGarages({ commit, getters }) {
-      return listGarages().then((responseBody) => {
-        const { items } = responseBody;
-        commit("setGarages", items);
-        if (items.length && !getters.currentGarageId) {
-          commit("setCurrentGarage", items[0]);
-        }
-        if (!items.length) {
-          commit("setCurrentGarage", null);
-        }
-      });
-    },
-  },
+  actions: {},
   getters: {
     currentGarage(state) {
       return state.currentGarage;
@@ -35,14 +20,19 @@ export default {
     },
   },
   mutations: {
-    setCurrentGarage(state, garage) {
-      state.currentGarage = garage;
+    setCurrentGarage(state, garages) {
+      if (garages.length) {
+        state.currentGarage = garages[0];
+      }
     },
     unsetCurrentGarage(state) {
       state.currentGarage = null;
     },
     setGarages(state, garages) {
       state.garages = garages;
+    },
+    unsetGarages(state) {
+      state.garages = [];
     },
   },
 };

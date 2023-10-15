@@ -23,26 +23,7 @@ export default createStore({
       state.loading = false;
     },
   },
-  actions: {
-    initAction({ getters, commit }) {
-      // We don't want to make unnecessary request to the backend in case it's
-      // a public page, it may effect Page Load Time
-      this.dispatch("getUser")
-        .then(() => {
-          if (getters.currentUser.is_superuser) {
-            this.dispatch("getGarages");
-          } else {
-            commit("setCurrentGarage", getters.currentUser.id);
-          }
-        })
-        .catch(() => {
-          console.log("Wasn't able to receive user data");
-        });
-      if (getters.isAuthorized) {
-        return Promise.resolve();
-      }
-    },
-  },
+  actions: {},
   getters: {
     globalLoading(state) {
       return state.loading;

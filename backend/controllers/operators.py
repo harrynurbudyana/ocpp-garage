@@ -12,7 +12,7 @@ from routers import AnonymousRouter, AuthenticatedRouter
 from services.garages import list_simple_garages
 from services.operators import pwd_context, get_operator, create_token, cookie_name, build_operators_query
 from utils import params_extractor, paginate
-from views.operators import LoginView, OperatorView, PaginatedOperatorsView, ReadOperatorGaragesView
+from views.operators import LoginView, PaginatedOperatorsView, ReadOperatorGaragesView
 
 operators_public_router = AnonymousRouter()
 operators_private_router = AuthenticatedRouter()
@@ -35,7 +35,7 @@ async def retrieve_operator(request: Request):
 @operators_public_router.post(
     "/login",
     status_code=http.HTTPStatus.ACCEPTED,
-    response_model=OperatorView
+    response_model=ReadOperatorGaragesView
 )
 async def login(response: Response, data: LoginView):
     logger.info(f"Start login (user={data.email})")
@@ -50,7 +50,11 @@ async def login(response: Response, data: LoginView):
 
     token = await create_token(operator.id)
     response.set_cookie(cookie_name, token)
-    return operator
+    response = ReadOperatorGaragesView(operator=operator)
+    if operator.is_superuser:
+        async with get_contextual_session() as session:
+            response.garages = await list_simple_garages(session)
+    return response
 
 
 @operators_private_router.get(
