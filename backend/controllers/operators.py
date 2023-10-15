@@ -9,9 +9,10 @@ from core.database import get_contextual_session
 from exceptions import NotAuthenticated
 from models import Operator
 from routers import AnonymousRouter, AuthenticatedRouter
+from services.garages import list_simple_garages
 from services.operators import pwd_context, get_operator, create_token, cookie_name, build_operators_query
 from utils import params_extractor, paginate
-from views.operators import LoginView, ReadOperatorView, PaginatedOperatorsView
+from views.operators import LoginView, OperatorView, PaginatedOperatorsView, ReadOperatorGaragesView
 
 operators_public_router = AnonymousRouter()
 operators_private_router = AuthenticatedRouter()
@@ -20,16 +21,21 @@ operators_private_router = AuthenticatedRouter()
 @operators_private_router.get(
     "/me",
     status_code=http.HTTPStatus.OK,
-    response_model=ReadOperatorView
+    response_model=ReadOperatorGaragesView
 )
 async def retrieve_operator(request: Request):
-    return request.state.operator
+    operator = request.state.operator
+    response = ReadOperatorGaragesView(operator=operator)
+    if operator.is_superuser:
+        async with get_contextual_session() as session:
+            response.garages = await list_simple_garages(session)
+    return response
 
 
 @operators_public_router.post(
     "/login",
     status_code=http.HTTPStatus.ACCEPTED,
-    response_model=ReadOperatorView
+    response_model=OperatorView
 )
 async def login(response: Response, data: LoginView):
     logger.info(f"Start login (user={data.email})")

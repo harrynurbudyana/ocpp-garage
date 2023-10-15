@@ -24,6 +24,14 @@ class SimpleGarageView(BaseModel):
         orm_mode = True
 
 
+class ShortGarageView(BaseModel):
+    id: str
+    name: str
+
+    class Config:
+        orm_mode = True
+
+
 class SingleGarageView(BaseModel):
     id: str
     name: str
