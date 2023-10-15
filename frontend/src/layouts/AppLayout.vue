@@ -7,14 +7,16 @@
             <v-btn
               v-bind="props"
               :disabled="!getters.dropDownList.length"
-              class="mr-6"
+              class="mr-6 text-capitalize"
               width="200"
               >{{ getters.currentGarage.name }}
             </v-btn>
           </template>
           <v-list>
             <v-list-item v-for="(item, i) in getters.dropDownList" :key="i">
-              <v-list-item-title @click="switchGarage(item)"
+              <v-list-item-title
+                @click="switchGarage(item)"
+                class="text-capitalize text-caption text-center"
                 >{{ item.name }}
               </v-list-item-title>
             </v-list-item>
