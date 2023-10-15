@@ -167,7 +167,7 @@ const {
   afterHandler: (response) => {
     fetchData();
     if (!getters.currentGarage) {
-      commit("setCurrentGarage", response);
+      commit("setCurrentGarage", [response]);
     }
   },
 });
