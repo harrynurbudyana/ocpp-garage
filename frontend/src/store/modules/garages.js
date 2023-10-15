@@ -25,6 +25,11 @@ export default {
         state.currentGarage = garages[0];
       }
     },
+    setCurrentGarageById(state, garageId) {
+      state.currentGarage = state.garages.filter(
+        (item) => item.id === garageId
+      )[0];
+    },
     unsetCurrentGarage(state) {
       state.currentGarage = null;
     },

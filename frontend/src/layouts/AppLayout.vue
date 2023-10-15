@@ -14,7 +14,9 @@
           </template>
           <v-list>
             <v-list-item v-for="(item, i) in getters.dropDownList" :key="i">
-              <v-list-item-title>{{ item.name }}</v-list-item-title>
+              <v-list-item-title @click="switchGarage(item)"
+                >{{ item.name }}
+              </v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>
@@ -133,8 +135,8 @@ import { ACTION_STATUS_COLOR } from "@/components/enums";
 
 const MAX_ACTIONS_LENGTH = 11;
 
-const { currentRoute } = useRouter();
-const { getters } = useStore();
+const { currentRoute, push } = useRouter();
+const { getters, commit } = useStore();
 
 var interval = null;
 const drawer = ref(true);
@@ -151,7 +153,20 @@ const isActive = (name) => {
   return currentRoute.value.name === name;
 };
 
+const switchGarage = (item) => {
+  commit("setCurrentGarage", [item]);
+  push({ name: currentRoute.value.name, params: { garageId: item.id } }).then(
+    () => {
+      location.reload();
+    }
+  );
+};
+
 onMounted(() => {
+  let garageId = currentRoute.value.params?.garageId;
+  if (garageId) {
+    commit("setCurrentGarageById", garageId);
+  }
   interval = setInterval(() => {
     listActions({ periodic: 1 }).then((response) => (actions.value = response));
   }, 2000);
