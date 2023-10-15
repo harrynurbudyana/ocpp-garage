@@ -8,7 +8,10 @@ export default (to, from, next) => {
     });
   } else {
     if (to.name === "Garages" && !store.getters.currentUser.is_superuser) {
-      next({ name: "Stations" });
+      next({
+        name: "Stations",
+        params: { garageId: store.getters.currentGarage.id },
+      });
     } else {
       next();
     }

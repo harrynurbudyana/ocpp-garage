@@ -22,14 +22,15 @@ function _processSuccessfulLogout(commit) {
 
 function _processSuccessfulLogin(commit, userData) {
   let operator = userData.operator;
+  let garages = userData.garages;
   commit("setAuthorized");
   commit("setUser", operator);
-  commit("setCurrentGarage", userData.garages);
+  commit("setCurrentGarage", garages);
 
   if (operator.is_superuser) {
     router.push("/garages");
   } else {
-    router.push("/stations");
+    router.push(`${garages[0].id}/stations`);
   }
 }
 

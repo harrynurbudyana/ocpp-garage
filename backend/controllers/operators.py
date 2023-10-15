@@ -26,9 +26,11 @@ operators_private_router = AuthenticatedRouter()
 async def retrieve_operator(request: Request):
     operator = request.state.operator
     response = ReadOperatorGaragesView(operator=operator)
-    if operator.is_superuser:
-        async with get_contextual_session() as session:
+    async with get_contextual_session() as session:
+        if operator.is_superuser:
             response.garages = await list_simple_garages(session)
+        else:
+            response.garages = operator.garage
     return response
 
 
@@ -51,9 +53,11 @@ async def login(response: Response, data: LoginView):
     token = await create_token(operator.id)
     response.set_cookie(cookie_name, token)
     response = ReadOperatorGaragesView(operator=operator)
-    if operator.is_superuser:
-        async with get_contextual_session() as session:
+    async with get_contextual_session() as session:
+        if operator.is_superuser:
             response.garages = await list_simple_garages(session)
+        else:
+            response.garages = [operator.garage]
     return response
 
 
