@@ -53,6 +53,7 @@ services:
   manager-thnxel:
     container_name: csms-manager-thnxel
     build:
+      context: .
       dockerfile: Dockerfile
       args:
         GITHUB_TOKEN: "${GITHUB_TOKEN}"
