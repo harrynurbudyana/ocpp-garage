@@ -50,8 +50,9 @@ services:
     command: >
       sh -c "cd /usr/src/app && python main.py"
     depends_on:
-      rabbitmq-thnxel:
-        condition: service_healthy
+      - rabbitmq-thnxel:
+          condition: service_healthy
+          restart: true
     networks:
       - app-network
   
@@ -74,10 +75,10 @@ services:
       sh -c "cd /usr/src/csms/backend && alembic upgrade head &&
              uvicorn main:app --host 0.0.0.0 --port ${HTTP_SERVER_PORT} --reload"
     depends_on:
-      rabbitmq-thnxel:
-        condition: service_healthy
-      db-thnxel:
-        condition: service_healthy
+      - rabbitmq-thnxel:
+          condition: service_healthy
+      - db-thnxel:
+          condition: service_healthy
     healthcheck:
       test: "exit 0"
 
@@ -95,8 +96,8 @@ services:
       sh -c "cd /usr/src/csms/frontend && 
              yarn install && yarn dev --port ${UI_SERVER_PORT} --host 0.0.0.0"
     depends_on:
-      manager-thnxel:
-        condition: service_healthy
+      - manager-thnxel:
+          condition: service_healthy
 
   nginx-thnxel:
     image: nginx:1.24.0-bullseye
