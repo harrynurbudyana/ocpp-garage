@@ -68,6 +68,7 @@
                   <v-col cols="12">
                     <v-text-field
                       label="Address"
+                      required
                       :rules="rules.garage.addressRules"
                       v-model="data.address"
                       density="compact"
@@ -77,9 +78,9 @@
                   </v-col>
                   <v-col cols="12">
                     <v-text-field
+                      required
                       :rules="rules.garage.contactRules"
                       label="Contact"
-                      required
                       v-model="data.contact"
                       density="compact"
                       variant="underlined"
@@ -88,9 +89,9 @@
                   </v-col>
                   <v-col cols="12">
                     <v-text-field
+                      required
                       :rules="rules.garage.phoneRules"
                       label="Phone"
-                      required
                       v-model="data.phone"
                       density="compact"
                       variant="underlined"
@@ -99,9 +100,9 @@
                   </v-col>
                   <v-col cols="12">
                     <v-text-field
+                      required
                       :rules="rules.garage.providerRules"
                       label="Provider"
-                      required
                       v-model="data.grid_provider"
                       density="compact"
                       variant="underlined"

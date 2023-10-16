@@ -12,9 +12,14 @@ export const rules = new (function () {
 
   this.minLength = 3;
 
-  this.maxEmailLength = 48;
-  this.maxFirstNameLength = 24;
-  this.maxLastNameLength = 24;
+  this.maxEmailLength = 25;
+  this.maxFirstNameLength = 15;
+  this.maxLastNameLength = 15;
+
+  this.maxGarageNameLength = 15;
+  this.macGarageContactLength = 25;
+  this.maxPhoneLength = 15;
+  this.maxProviderName = 15;
 
   this.common = [
     (value) => {
@@ -107,18 +112,51 @@ export const rules = new (function () {
   };
 
   this.garage = {
-    nameRules: [() => true],
-    addressRules: [() => true],
-    contactRules: [() => true],
-    phoneRules: [() => true],
-    providerRules: [() => true],
-  };
-
-  this.operator = {
-    emailRules: [() => true],
-    firstNameRules: [() => true],
-    lastNameRules: [() => true],
-    addressRules: [() => true],
+    nameRules: [
+      ...this.common,
+      (value) => {
+        if (value?.length > this.maxGarageNameLength) {
+          return `Maximum ${this.maxGarageNameLength} characters required`;
+        }
+        return true;
+      },
+    ],
+    addressRules: [
+      ...this.common,
+      (value) => {
+        if (value?.length > this.maxAddressLength) {
+          return `Maximum ${this.maxAddressLength} characters required`;
+        }
+        return true;
+      },
+    ],
+    contactRules: [
+      ...this.common,
+      (value) => {
+        if (value?.length > this.macGarageContactLength) {
+          return `Maximum ${this.macGarageContactLength} characters required`;
+        }
+        return true;
+      },
+    ],
+    phoneRules: [
+      ...this.common,
+      (value) => {
+        if (value?.length > this.maxPhoneLength) {
+          return `Maximum ${this.maxPhoneLength} characters required`;
+        }
+        return true;
+      },
+    ],
+    providerRules: [
+      ...this.common,
+      (value) => {
+        if (value?.length > this.maxProviderName) {
+          return `Maximum ${this.maxProviderName} characters required`;
+        }
+        return true;
+      },
+    ],
   };
 
   this.driver = {

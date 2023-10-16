@@ -4,6 +4,7 @@ from fastapi import status, Depends, HTTPException
 from loguru import logger
 
 from core.database import get_contextual_session
+from exceptions import NotFound
 from models import ChargePoint
 from pyocpp_contrib.decorators import message_id_generator
 from routers import AuthenticatedRouter, AnonymousRouter
@@ -81,7 +82,10 @@ async def retrieve_charge_point(
         charge_point_id: str
 ):
     async with get_contextual_session() as session:
-        return await get_charge_point(session, garage_id, charge_point_id)
+        charge_point = await get_charge_point(session, garage_id, charge_point_id)
+        if not charge_point:
+            raise NotFound
+        return charge_point
 
 
 @charge_points_router.post(

@@ -78,6 +78,7 @@
                   </v-col>
                   <v-col cols="12">
                     <v-text-field
+                      required
                       label="Location"
                       :rules="rules.station.locationRules"
                       v-model="data.location"

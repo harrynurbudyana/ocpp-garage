@@ -1,6 +1,7 @@
 import axios from "axios";
 
 import store from "@/store";
+import router from "@/router";
 
 axios.defaults.withCredentials = true;
 const API_URL = import.meta.env.VITE_API_URL;
@@ -48,6 +49,10 @@ export function request(
 
       if (status === 401) {
         store.dispatch("silentLogout");
+      }
+
+      if (status === 404) {
+        return router.push("/404");
       }
 
       throw err;

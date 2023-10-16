@@ -5,6 +5,6 @@ export default () => {
 
   const path = store.getters.currentUser.is_superuser
     ? "/garages"
-    : "/stations";
+    : `${store.getters.currentGarage?.id}/stations`;
   return store.getters.isAuthorized ? path : "/login";
 };

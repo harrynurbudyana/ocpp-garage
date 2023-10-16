@@ -62,6 +62,7 @@
                     <v-text-field
                       :error="showError && errors.id"
                       :error-messages="errors.email"
+                      :rules="rules.driver.emailRules"
                       label="E-mail"
                       required
                       v-model="data.email"
@@ -73,7 +74,9 @@
                   </v-col>
                   <v-col cols="12">
                     <v-text-field
+                      required
                       label="First Name"
+                      :rules="rules.driver.firstNameRules"
                       v-model="data.first_name"
                       density="compact"
                       variant="underlined"
@@ -82,6 +85,7 @@
                   </v-col>
                   <v-col cols="12">
                     <v-text-field
+                      :rules="rules.driver.lastNameRules"
                       label="Last Name"
                       required
                       v-model="data.last_name"
@@ -92,6 +96,7 @@
                   </v-col>
                   <v-col cols="12">
                     <v-text-field
+                      :rules="rules.driver.addressRules"
                       label="Address"
                       required
                       v-model="data.address"
@@ -139,6 +144,7 @@ import { onMounted } from "vue";
 import { useStore } from "vuex";
 import { menuItems } from "@/menu/app-menu-items";
 import { useSubmitForm } from "@/use/form";
+import { rules } from "@/configs/validation";
 
 const {
   loading,
