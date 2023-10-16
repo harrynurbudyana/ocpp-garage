@@ -8,7 +8,7 @@ from views.garages import ShortGarageView
 
 class CreateOperatorView(BaseModel):
     email: str
-    password: str
+    password: str | None = None
     first_name: str
     last_name: str
     address: str
@@ -24,6 +24,7 @@ class OperatorView(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     is_superuser: bool
+    is_active: bool
 
     class Config:
         orm_mode = True
@@ -43,6 +44,7 @@ class SimpleOperatorView(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     address: str | None = None
+    is_active: bool
 
     class Config:
         orm_mode = True

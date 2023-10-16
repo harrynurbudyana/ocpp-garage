@@ -67,6 +67,23 @@ const routes = [
         },
       },
       {
+        path: ":garageId/operators",
+        name: "Operators",
+        component: () =>
+          import(/* webpackChunkName: "home" */ "@/pages/OperatorsPage"),
+      },
+      {
+        path: ":garageId/operators/:operatorId",
+        name: "SingleOperator",
+        component: () =>
+          import(
+            /* webpackChunkName: "home" */ "@/pages/SingleOperatorPage.vue"
+          ),
+        meta: {
+          hasBackButton: true,
+        },
+      },
+      {
         path: ":garageId/transactions",
         name: "Transactions",
         component: () =>

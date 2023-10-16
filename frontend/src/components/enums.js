@@ -24,6 +24,11 @@ export const DRIVERS_STATUS = {
   false: "#DC184CFF",
 };
 
+export const OPERATORS_STATUS = {
+  true: "#0ee018",
+  false: "#DC184CFF",
+};
+
 export const TRANSACTIONS_STATUS_COLOR = {
   in_progress: "#0fe018",
   pending: "#efc909",

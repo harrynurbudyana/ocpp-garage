@@ -48,17 +48,19 @@
       <v-divider></v-divider>
 
       <v-list density="compact" nav>
-        <v-list-item
-          v-for="link in getters.pageMenuItems"
-          :key="link.name"
-          :to="link.getPath(getters)"
-          :value="link.key"
-          :title="link.name"
-          :prepend-icon="link.icon"
-          :active="isActive(link.name)"
-          :disabled="!link.isActive(getters)"
-        >
-        </v-list-item>
+        <div v-for="(link, i) in getters.pageMenuItems" :key="i">
+          <v-list-item
+            v-if="link.isVisible(getters)"
+            :key="link.name"
+            :to="link.getPath(getters)"
+            :value="link.key"
+            :title="link.name"
+            :prepend-icon="link.icon"
+            :active="isActive(link.name)"
+            :disabled="!link.isVisible(getters)"
+          >
+          </v-list-item>
+        </div>
       </v-list>
       <v-list density="compact" nav class="logout">
         <v-list-item
@@ -136,7 +138,6 @@ import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { onMounted, onUnmounted, ref } from "vue";
 import store from "@/store";
-import { listActions } from "@/services/actions";
 import { ACTION_STATUS_COLOR } from "@/components/enums";
 
 const MAX_ACTIONS_LENGTH = 11;
@@ -173,9 +174,9 @@ onMounted(() => {
   if (garageId) {
     commit("setCurrentGarageById", garageId);
   }
-  interval = setInterval(() => {
-    listActions({ periodic: 1 }).then((response) => (actions.value = response));
-  }, 2000);
+  // interval = setInterval(() => {
+  //   listActions({ periodic: 1 }).then((response) => (actions.value = response));
+  // }, 2000);
 });
 
 onUnmounted(() => {

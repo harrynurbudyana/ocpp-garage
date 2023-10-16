@@ -114,6 +114,13 @@ export const rules = new (function () {
     providerRules: [() => true],
   };
 
+  this.operator = {
+    emailRules: [() => true],
+    firstNameRules: [() => true],
+    lastNameRules: [() => true],
+    addressRules: [() => true],
+  };
+
   this.driver = {
     emailRules: [
       ...this.common,

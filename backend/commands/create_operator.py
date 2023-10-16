@@ -18,7 +18,7 @@ async def run(email, password, first_name, last_name, address):
         address=address
     )
     async with get_contextual_session() as session:
-        user = await create_operator(session, view)
+        user = await create_operator(session, None, view)
         try:
             await session.commit()
         except IntegrityError:

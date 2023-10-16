@@ -13,7 +13,7 @@ from starlette.responses import Response
 from core.database import get_contextual_session
 from core.settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, UTC_DATETIME_FORMAT
 from core.utils import now
-from exceptions import NotAuthenticated, Forbidden
+from exceptions import NotAuthenticated
 from models import Operator
 from views.auth import AuthToken
 from views.operators import CreateOperatorView
@@ -43,9 +43,10 @@ async def get_operator(session: AsyncSession, value) -> Operator:
     return result.scalars().first()
 
 
-async def create_operator(session: AsyncSession, data: CreateOperatorView) -> Operator:
+async def create_operator(session: AsyncSession, garage_id: str | None, data: CreateOperatorView) -> Operator:
     data.password = pwd_context.hash(data.password)
     operator = Operator(**data.dict())
+    operator.garage_id = garage_id
     session.add(operator)
     return operator
 
@@ -92,9 +93,6 @@ class AuthRoute(APIRoute):
 
                 if arrow.get(token.expired) < now() or not operator:
                     raise NotAuthenticated
-
-                if operator.garage_id and operator.garage_id != request.path_params.get("garage_id"):
-                    raise Forbidden
 
                 request.state.operator = operator
 

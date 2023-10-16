@@ -16,7 +16,6 @@ function _processSuccessfulLogout(commit) {
   commit("unsetAuthorized");
   commit("unsetUser");
   commit("unsetCurrentGarage");
-  commit("usetGarages");
   router.push("/login");
 }
 
@@ -25,6 +24,7 @@ function _processSuccessfulLogin(commit, userData) {
   let garages = userData.garages;
   commit("setAuthorized");
   commit("setUser", operator);
+  commit("setGarages", garages);
   commit("setCurrentGarage", garages);
 
   if (operator.is_superuser) {
@@ -83,9 +83,6 @@ export default {
     isAuthorized(state) {
       return state.isAuthorized;
     },
-    currentGarageId(state) {
-      return state.currentGarageId;
-    },
   },
 
   mutations: {
@@ -103,6 +100,10 @@ export default {
 
     unsetUser(state) {
       state.user = {};
+    },
+
+    unsetGarages(state) {
+      state.garages = [];
     },
   },
 };

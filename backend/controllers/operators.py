@@ -10,9 +10,10 @@ from exceptions import NotAuthenticated
 from models import Operator
 from routers import AnonymousRouter, AuthenticatedRouter
 from services.garages import list_simple_garages
-from services.operators import pwd_context, get_operator, create_token, cookie_name, build_operators_query
+from services.operators import pwd_context, get_operator, create_token, cookie_name, build_operators_query, \
+    create_operator
 from utils import params_extractor, paginate
-from views.operators import LoginView, PaginatedOperatorsView, ReadOperatorGaragesView
+from views.operators import LoginView, PaginatedOperatorsView, ReadOperatorGaragesView, CreateOperatorView
 
 operators_public_router = AnonymousRouter()
 operators_private_router = AuthenticatedRouter()
@@ -30,8 +31,14 @@ async def retrieve_operator(request: Request):
         if operator.is_superuser:
             response.garages = await list_simple_garages(session)
         else:
-            response.garages = operator.garage
+            response.garages = [operator.garage]
     return response
+
+
+@operators_private_router.post("/logout")
+async def logout():
+    logger.info(f"Start logout.")
+    raise NotAuthenticated
 
 
 @operators_public_router.post(
@@ -63,7 +70,8 @@ async def login(response: Response, data: LoginView):
 
 @operators_private_router.get(
     "/{garage_id}/operators",
-    status_code=status.HTTP_200_OK
+    status_code=status.HTTP_200_OK,
+    response_model=PaginatedOperatorsView
 )
 async def retrieve_garage_drivers(
         garage_id: str,
@@ -82,7 +90,12 @@ async def retrieve_garage_drivers(
         return PaginatedOperatorsView(items=[item[0] for item in items], pagination=pagination)
 
 
-@operators_private_router.post("/logout")
-async def logout():
-    logger.info(f"Start logout.")
-    raise NotAuthenticated
+@operators_private_router.post(
+    "/{garage_id}/operators",
+    status_code=status.HTTP_204_NO_CONTENT
+)
+async def add_operator(garage_id: str, data: CreateOperatorView):
+    logger.info(f"Start create driver (data={data})")
+    async with get_contextual_session() as session:
+        await create_operator(session, garage_id, data)
+        await session.commit()
