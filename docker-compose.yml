@@ -13,8 +13,6 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
       RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASS}"
-    healthcheck:
-      test: "exit 0"
     networks:
       - app-network
 
@@ -33,8 +31,6 @@ services:
       POSTGRES_PASSWORD: "${DB_PASSWORD}"
       POSTGRES_DB: "${DB_NAME}"
       PGDATA: "/data"
-    healthcheck:
-      test: "exit 0"
     networks:
       - app-network
 
@@ -50,9 +46,7 @@ services:
     command: >
       sh -c "cd /usr/src/app && python main.py"
     depends_on:
-      - rabbitmq-thnxel:
-          condition: service_healthy
-          restart: true
+      - rabbitmq-thnxel
     networks:
       - app-network
   
@@ -75,12 +69,8 @@ services:
       sh -c "cd /usr/src/csms/backend && alembic upgrade head &&
              uvicorn main:app --host 0.0.0.0 --port ${HTTP_SERVER_PORT} --reload"
     depends_on:
-      - rabbitmq-thnxel:
-          condition: service_healthy
-      - db-thnxel:
-          condition: service_healthy
-    healthcheck:
-      test: "exit 0"
+      - rabbitmq-thnxel
+      - db-thnxel
 
   frontend-thnxel:
     container_name: frontend-thnxel
@@ -96,8 +86,7 @@ services:
       sh -c "cd /usr/src/csms/frontend && 
              yarn install && yarn dev --port ${UI_SERVER_PORT} --host 0.0.0.0"
     depends_on:
-      - manager-thnxel:
-          condition: service_healthy
+      - manager-thnxel
 
   nginx-thnxel:
     image: nginx:1.24.0-bullseye
