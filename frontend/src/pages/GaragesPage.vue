@@ -16,7 +16,7 @@
                 <v-col md="5">
                   <v-card-item class="ma-6 pa-2">
                     <v-text-field
-                      label="Name, Address or Contact"
+                      label="Name, City, Contact or Post nummer"
                       density="compact"
                       variant="outlined"
                       append-inner-icon="mdi-magnify"
@@ -67,13 +67,26 @@
                   </v-col>
                   <v-col cols="12">
                     <v-text-field
-                      label="Address"
+                      label="City"
                       required
-                      :rules="rules.garage.addressRules"
-                      v-model="data.address"
+                      :rules="rules.garage.cityRules"
+                      v-model="data.city"
                       density="compact"
                       variant="underlined"
                       validate-on="lazy blur"
+                      @input="clearError"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-text-field
+                      label="Street"
+                      required
+                      :rules="rules.garage.addressRules"
+                      v-model="data.street"
+                      density="compact"
+                      variant="underlined"
+                      validate-on="lazy blur"
+                      @input="clearError"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12">
@@ -85,6 +98,7 @@
                       density="compact"
                       variant="underlined"
                       validate-on="lazy blur"
+                      @input="clearError"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12">
@@ -100,6 +114,30 @@
                   </v-col>
                   <v-col cols="12">
                     <v-text-field
+                      label="E-mail"
+                      required
+                      :rules="rules.garage.emailRules"
+                      v-model="data.email"
+                      density="compact"
+                      variant="underlined"
+                      validate-on="lazy blur"
+                      @input="clearError"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-text-field
+                      label="Postnummer"
+                      required
+                      :rules="rules.garage.postNummerRules"
+                      v-model="data.postnummer"
+                      density="compact"
+                      variant="underlined"
+                      validate-on="lazy blur"
+                      @input="clearError"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-text-field
                       required
                       :rules="rules.garage.providerRules"
                       label="Provider"
@@ -107,6 +145,7 @@
                       density="compact"
                       variant="underlined"
                       @input="clearError"
+                      @focus="setDefault"
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -180,6 +219,10 @@ const { currentPage, lastPage, fetchData, items, search } = usePagination({
   },
 });
 
+const setDefault = () => {
+  data.value.grid_provider = data.value.postnummer;
+};
+
 onMounted(() => {
   const { commit } = useStore();
   commit("setPageMenuItems", menuItems);
@@ -191,28 +234,35 @@ const headers = [
     key: "name",
     align: "right",
     sortable: false,
-    width: "30%",
+    width: "15%",
   },
   {
-    title: "Address",
-    key: "address",
-    align: "center",
+    title: "City",
+    key: "city",
+    align: "right",
+    sortable: false,
+    width: "10%",
+  },
+  {
+    title: "Street",
+    key: "street",
+    align: "right",
     sortable: false,
     width: "20%",
   },
   {
     title: "Contact",
     key: "contact",
-    align: "center",
+    align: "right",
     sortable: false,
-    width: "20%",
+    width: "15%",
   },
   {
-    title: "Phone",
-    key: "phone",
-    align: "center",
+    title: "Provider",
+    key: "grid_provider",
+    align: "right",
     sortable: true,
-    width: "40%",
+    width: "15%",
   },
 ];
 </script>

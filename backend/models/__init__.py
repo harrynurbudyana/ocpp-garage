@@ -28,11 +28,14 @@ class Person(Model):
 class Garage(Model):
     __tablename__ = "garages"
 
-    name = Column(String, nullable=False)
-    address = Column(String, nullable=False, unique=True)
-    grid_provider = Column(String, nullable=False)
+    name = Column(String, nullable=False, unique=True)
+    city = Column(String, nullable=False)
+    street = Column(String, nullable=False)
     contact = Column(String, nullable=False)
     phone = Column(String, nullable=False)
+    email = Column(String, nullable=False)
+    postnummer = Column(String, nullable=False)
+    grid_provider = Column(String, nullable=False)
 
     charge_points = relationship("ChargePoint",
                                  back_populates="garage",

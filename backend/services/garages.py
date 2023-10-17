@@ -28,8 +28,9 @@ async def build_garages_query(search: str, extra_criterias: List | None = None) 
     if search:
         query = query.where(or_(
             func.lower(models.Garage.name).contains(func.lower(search)),
-            func.lower(models.Garage.address).contains(func.lower(search)),
+            func.lower(models.Garage.city).contains(func.lower(search)),
             func.lower(models.Garage.contact).contains(func.lower(search)),
+            func.lower(models.Garage.postnummer).contains(func.lower(search)),
         ))
     return query
 

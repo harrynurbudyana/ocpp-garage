@@ -16,9 +16,13 @@ class NotPaginatedSimpleGarageView(BaseModel):
 class SimpleGarageView(BaseModel):
     id: str
     name: str
-    address: str
+    city: str
+    street: str
     contact: str
     phone: str
+    email: str
+    postnummer: str
+    grid_provider: str
 
     class Config:
         orm_mode = True
@@ -35,9 +39,12 @@ class ShortGarageView(BaseModel):
 class SingleGarageView(BaseModel):
     id: str
     name: str
-    address: str
+    city: str
+    street: str
     contact: str
     phone: str
+    email: str
+    postnummer: str
     grid_provider: str
 
     class Config:
@@ -46,13 +53,13 @@ class SingleGarageView(BaseModel):
 
 class CreateGarageView(BaseModel):
     name: str
-    address: str
+    city: str
+    street: str
     contact: str
     phone: str
+    email: str
+    postnummer: str
     grid_provider: str
-
-    class Config:
-        orm_mode = True
 
 
 class PaginatedGaragesView(BaseModel):
