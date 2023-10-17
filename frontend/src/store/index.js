@@ -37,7 +37,7 @@ export default createStore({
   plugins: [
     createPersistedState({
       key: "usr.src.csms.data",
-      paths: ["auth"],
+      paths: ["auth", "garages"],
     }),
   ],
 });
