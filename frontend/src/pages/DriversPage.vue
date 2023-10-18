@@ -31,6 +31,7 @@
                 </v-col>
                 <v-col class="d-flex justify-end mb-6 mt-3">
                   <v-btn
+                    v-if="!getters.currentUser.is_superuser"
                     color="blue-lighten-1"
                     class="ma-6 pa-2"
                     @click="openModal"
@@ -148,6 +149,8 @@ import { addDriver, listDrivers } from "@/services/drivers";
 import { menuItems } from "@/menu/app-menu-items";
 import { useSubmitForm } from "@/use/form";
 
+const { commit, getters } = useStore();
+
 const {
   loading,
   isValid,
@@ -171,6 +174,9 @@ const { currentPage, lastPage, fetchData, items, search } = usePagination({
 });
 
 const onClickRow = ({ item }) => {
+  if (getters.currentUser.is_superuser) {
+    return;
+  }
   router.push({
     name: "SingleDriver",
     params: { driverId: item.key },
@@ -178,7 +184,6 @@ const onClickRow = ({ item }) => {
 };
 
 onMounted(() => {
-  const { commit } = useStore();
   commit("setPageMenuItems", menuItems);
 });
 

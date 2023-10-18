@@ -31,6 +31,7 @@
                 </v-col>
                 <v-col class="d-flex justify-end mb-6 mt-3">
                   <v-btn
+                    v-if="!getters.currentUser.is_superuser"
                     color="blue-lighten-1"
                     class="ma-6 pa-2"
                     @click="openModal"
@@ -140,6 +141,8 @@ import { addStation, listStations } from "@/services/stations";
 import { menuItems } from "@/menu/app-menu-items";
 import { useSubmitForm } from "@/use/form";
 
+const { commit, getters } = useStore();
+
 var interval = null;
 const {
   loading,
@@ -164,6 +167,9 @@ const { currentPage, lastPage, fetchData, items, search } = usePagination({
 });
 
 const onClickRow = ({ item }) => {
+  if (getters.currentUser.is_superuser) {
+    return;
+  }
   router.push({
     name: "SingleStation",
     params: { stationId: item.columns.id },
@@ -171,7 +177,6 @@ const onClickRow = ({ item }) => {
 };
 
 onMounted(() => {
-  const { commit } = useStore();
   commit("setPageMenuItems", menuItems);
 });
 
