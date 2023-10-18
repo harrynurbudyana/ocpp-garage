@@ -6,3 +6,7 @@ class TransactionStatus(str, Enum):
     pending = "pending"
     completed = "completed"
     faulted = "faulted"
+
+
+class NotificationType(str, Enum):
+    new_operator_invited = "new_operator_invited"

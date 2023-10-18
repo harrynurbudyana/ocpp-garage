@@ -1,6 +1,7 @@
 from typing import Callable, List
 
 import arrow
+from faker import Faker
 from fastapi.routing import APIRoute
 from jose import jwt
 from passlib.context import CryptContext
@@ -20,6 +21,12 @@ from views.operators import CreateOperatorView
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 cookie_name = "token"
+
+
+async def generate_random_password(length: int = 10) -> str:
+    Faker.seed(0)
+    faker = Faker()
+    return faker.lexify(text='?' * length)
 
 
 async def build_operators_query(search: str, extra_criterias: List | None = None) -> selectable:
@@ -44,6 +51,8 @@ async def get_operator(session: AsyncSession, value) -> Operator:
 
 
 async def create_operator(session: AsyncSession, garage_id: str | None, data: CreateOperatorView) -> Operator:
+    if not data.password:
+        raise ValueError(f"Received empty 'password' field for operator. Need to set a value (data={data})")
     data.password = pwd_context.hash(data.password)
     operator = Operator(**data.dict())
     operator.garage_id = garage_id

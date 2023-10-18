@@ -15,7 +15,6 @@ export function listOperators(params) {
 }
 
 export function addOperator(data) {
-  data.password = "operator";
   return request.post(
     `/${currentRoute.value.params.garageId}/${endpoint}/`,
     data

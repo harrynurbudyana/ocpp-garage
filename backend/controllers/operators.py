@@ -1,17 +1,19 @@
 import http
 from typing import Tuple
 
-from fastapi import Response, Request, Depends
+from fastapi import Response, Request, Depends, BackgroundTasks
 from loguru import logger
 from starlette import status
 
 from core.database import get_contextual_session
+from core.fields import NotificationType
 from exceptions import NotAuthenticated
 from models import Operator
 from routers import AnonymousRouter, AuthenticatedRouter
 from services.garages import list_simple_garages
+from services.notifications import send_notification
 from services.operators import pwd_context, get_operator, create_token, cookie_name, build_operators_query, \
-    create_operator
+    create_operator, generate_random_password
 from utils import params_extractor, paginate
 from views.operators import LoginView, PaginatedOperatorsView, ReadOperatorGaragesView, CreateOperatorView
 
@@ -94,8 +96,24 @@ async def retrieve_garage_drivers(
     "/{garage_id}/operators",
     status_code=status.HTTP_204_NO_CONTENT
 )
-async def add_operator(garage_id: str, data: CreateOperatorView):
+async def add_operator(
+        garage_id: str,
+        data: CreateOperatorView,
+        background_tasks: BackgroundTasks,
+        request: Request
+):
     logger.info(f"Start create driver (data={data})")
+
+    password = await generate_random_password()
+    data.password = password
+
     async with get_contextual_session() as session:
         await create_operator(session, garage_id, data)
         await session.commit()
+
+    background_tasks.add_task(
+        send_notification,
+        data.email,
+        NotificationType.new_operator_invited,
+        dict(request=request, password=password)
+    )
