@@ -6,7 +6,7 @@
           <template v-slot:activator="{ props }">
             <v-btn
               v-bind="props"
-              :disabled="!getters.dropDownList.length"
+              :disabled="!isActiveSwitcher()"
               class="mr-6 text-capitalize"
               width="200"
               >{{ getters.currentGarage.name }}
@@ -167,6 +167,13 @@ const switchGarage = (item) => {
       location.reload();
     }
   );
+};
+
+const isActiveSwitcher = () => {
+  let result =
+    getters.dropDownList.length &&
+    !currentRoute.value.fullPath.includes("garages");
+  return !!result;
 };
 
 onMounted(() => {

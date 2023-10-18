@@ -386,11 +386,6 @@ onMounted(() => {
     .finally(() => {
       commit("unsetGlobalLoading");
     });
-  interval = setInterval(() => {
-    getStation(router.currentRoute.value.params.stationId).then((response) => {
-      station.value = response;
-    });
-  }, watchInterval);
 });
 
 onUnmounted(() => {

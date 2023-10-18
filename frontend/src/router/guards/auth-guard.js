@@ -7,7 +7,10 @@ export default (to, from, next) => {
       name: "login",
     });
   } else {
-    if (to.name === "Garages" && !store.getters.currentUser.is_superuser) {
+    if (
+      ["Garages", "SingleGarage"].includes(to.name) &&
+      !store.getters.currentUser.is_superuser
+    ) {
       next({
         name: "Stations",
         params: { garageId: store.getters.currentGarage.id },

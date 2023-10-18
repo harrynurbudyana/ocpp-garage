@@ -35,6 +35,12 @@ const routes = [
           import(/* webpackChunkName: "home" */ "@/pages/GaragesPage"),
       },
       {
+        path: "garages/:garageId",
+        name: "SingleGarage",
+        component: () =>
+          import(/* webpackChunkName: "home" */ "@/pages/SingleGaragePage"),
+      },
+      {
         path: ":garageId/stations",
         name: "Stations",
         component: () =>

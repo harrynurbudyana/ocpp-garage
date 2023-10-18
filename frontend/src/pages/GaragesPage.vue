@@ -10,6 +10,7 @@
             :current-page="currentPage"
             :last-page="lastPage"
             @page-updated="(newPage) => (currentPage = newPage)"
+            @click-row="onClickRow"
           >
             <template v-slot:title="{ title }">
               <v-row>
@@ -188,6 +189,7 @@ import { usePagination } from "@/use/pagination";
 import { addGarage, listGarages } from "@/services/garages";
 import { menuItems } from "@/menu/app-menu-items";
 import { rules } from "@/configs/validation";
+import router from "@/router";
 
 const { commit, getters } = useStore();
 
@@ -218,6 +220,13 @@ const { currentPage, lastPage, fetchData, items, search } = usePagination({
     commit("setGarages", items);
   },
 });
+
+const onClickRow = ({ item }) => {
+  router.push({
+    name: "SingleGarage",
+    params: { garageId: item.key },
+  });
+};
 
 const setDefault = () => {
   data.value.grid_provider = data.value.postnummer;

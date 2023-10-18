@@ -83,7 +83,6 @@ import {
 } from "@/services/transactions";
 import { menuItems } from "@/menu/app-menu-items";
 import { dateAgo } from "@/filters/date";
-import { watchInterval } from "@/configs";
 
 var interval = null;
 
@@ -104,9 +103,6 @@ const stopTransaction = (item) => {
 onMounted(() => {
   const { commit } = useStore();
   commit("setPageMenuItems", menuItems);
-  interval = setInterval(() => {
-    fetchData({ periodic: 1 });
-  }, watchInterval);
 });
 
 onUnmounted(() => {
