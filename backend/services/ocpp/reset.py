@@ -11,9 +11,15 @@ from views.actions import ActionView
 
 @contextable
 @send_call(Action.Reset)
-async def process_reset(charge_point_id: str, message_id: str) -> ResetPayload:
+async def process_reset(
+        session,
+        charge_point_id: str,
+        message_id: str
+) -> ResetPayload:
     payload = ResetPayload(type=ResetType.soft)
     logger.info(f"Reset -> | prepared payload={payload}")
+
+    charge_point = await get_charge_point(session, None, charge_point_id)
 
     cache = ActionCache()
     action = ActionView(
@@ -21,7 +27,7 @@ async def process_reset(charge_point_id: str, message_id: str) -> ResetPayload:
         charge_point_id=charge_point_id,
         body="Reset station"
     )
-    await cache.insert(action)
+    await cache.insert(charge_point.garage_id, action)
 
     return payload
 
@@ -35,12 +41,13 @@ async def process_reset_call_result(
     logger.info(f"<- Reset | start process call result response (event={event}, context={context})")
     cache = ActionCache()
 
+    charge_point = await get_charge_point(session, None, event.charge_point_id)
+
     if ResetStatus(event.payload.status) is ResetStatus.accepted:
-        await cache.update_status(event.message_id, status=TransactionStatus.completed)
-        charge_point = await get_charge_point(session, event.charge_point_id)
+        await cache.update_status(charge_point.garage_id, event.message_id, status=TransactionStatus.completed)
         charge_point.connectors.clear()
         charge_point.status = ChargePointStatus.unavailable
         logger.info(f"<- Reset | refused reset by station (event={event}, context={context})")
 
     if ResetStatus(event.payload.status) is ResetStatus.rejected:
-        await cache.update_status(event.message_id, status=TransactionStatus.faulted)
+        await cache.update_status(charge_point.garage_id, event.message_id, status=TransactionStatus.faulted)

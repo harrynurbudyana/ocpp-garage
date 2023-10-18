@@ -13,10 +13,10 @@ actions_router = AuthenticatedRouter(
 
 
 @actions_router.get(
-    "/",
+    "/{garage_id}",
     status_code=status.HTTP_200_OK,
     response_model=List[ActionView]
 )
-async def list_actions():
+async def list_actions(garage_id):
     cache = ActionCache()
-    return await cache.get_all_actions()
+    return await cache.get_all_actions(garage_id)

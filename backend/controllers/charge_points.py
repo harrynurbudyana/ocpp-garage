@@ -144,11 +144,13 @@ async def unlock_connector(
 ):
     logger.info(
         f"UnlockConnector -> | start process call request (charge_point_id={charge_point_id}, connector_id={connector_id})")
-    await process_unlock_connector(
-        charge_point_id=charge_point_id,
-        connector_id=connector_id,
-        message_id=message_id_generator()
-    )
+    async with get_contextual_session() as session:
+        await process_unlock_connector(
+            session,
+            charge_point_id=charge_point_id,
+            connector_id=connector_id,
+            message_id=message_id_generator()
+        )
 
 
 @charge_points_router.patch(
@@ -157,4 +159,9 @@ async def unlock_connector(
 )
 async def reset(garage_id: str, charge_point_id: str):
     logger.info(f"Reset -> | start process call request (charge_point_id={charge_point_id})")
-    await process_reset(charge_point_id=charge_point_id, message_id=message_id_generator())
+    async with get_contextual_session() as session:
+        await process_reset(
+            session,
+            charge_point_id=charge_point_id,
+            message_id=message_id_generator()
+        )

@@ -18,7 +18,7 @@ async def process_remote_start_transaction_call(
         id_tag: str,
         message_id: str
 ) -> RemoteStartTransactionPayload:
-    charge_point = await get_charge_point(session, charge_point_id)
+    charge_point = await get_charge_point(session, None, charge_point_id)
     logger.info(
         f"RemoteStartTransaction -> | Found charge point (charge_point_id={charge_point_id}, connector_id={connector_id}, id_tag={id_tag})")
     data = dict(status=ChargePointStatus.preparing)
@@ -38,7 +38,7 @@ async def process_remote_start_transaction_call(
         charge_point_id=charge_point_id,
         body=f"Start transaction ({connector_id})"
     )
-    await cache.insert(action)
+    await cache.insert(charge_point.garage_id, action)
 
     return payload
 
@@ -51,10 +51,11 @@ async def process_remote_start_transaction_call_result(
 ):
     logger.info(f"<- RemoteStartTransaction | Start process call result response (event={event}, context={context}.)")
     cache = ActionCache()
+    charge_point = await get_charge_point(session, None, event.charge_point_id)
+
     if RemoteStartStopStatus(event.payload.status) is RemoteStartStopStatus.accepted:
-        await cache.update_status(event.message_id, status=TransactionStatus.completed)
+        await cache.update_status(charge_point.garage_id, event.message_id, status=TransactionStatus.completed)
     else:
-        await cache.update_status(event.message_id, status=TransactionStatus.faulted)
-        charge_point = await get_charge_point(session, event.charge_point_id)
+        await cache.update_status(charge_point.garage_id, event.message_id, status=TransactionStatus.faulted)
         data = dict(status=ChargePointStatus.available)
         await charge_point.update_connector(session, context.connector_id, data)

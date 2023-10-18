@@ -14,20 +14,21 @@ class Cache:
 
 class ActionCache(Cache):
     max_actions_length = 30
-    key = "actions"
 
-    async def get_all_actions(self) -> List[Dict]:
-        stored_data = await self.conn.lrange(self.key, 0, -1)
+    async def get_all_actions(self, garage_id: str) -> List[Dict]:
+        stored_data = await self.conn.lrange(str(garage_id), 0, -1)
         return [json.loads(item) for item in stored_data]
 
-    async def insert(self, value: ActionView):
-        await self.conn.lpush(self.key, value.json())
-        await self.conn.ltrim(self.key, 0, self.max_actions_length)
+    async def insert(self, garage_id: str, value: ActionView):
+        garage_id = str(garage_id)
+        await self.conn.lpush(garage_id, value.json())
+        await self.conn.ltrim(garage_id, 0, self.max_actions_length)
 
-    async def update_status(self, message_id, status):
-        actions = await self.get_all_actions()
+    async def update_status(self, garage_id, message_id, status):
+        garage_id = str(garage_id)
+        actions = await self.get_all_actions(garage_id)
         for idx, item in enumerate(actions):
             action = ActionView(**item)
             if action.message_id == message_id:
                 action.status = status
-                await self.conn.lset(self.key, idx, action.json())
+                await self.conn.lset(garage_id, idx, action.json())

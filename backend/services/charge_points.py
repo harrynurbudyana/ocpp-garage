@@ -5,18 +5,17 @@ from dataclasses import asdict
 from typing import List
 
 from ocpp.v16.call import StatusNotificationPayload
-from ocpp.v16.enums import ChargePointStatus
 from sqlalchemy import select, update, func, or_, String, delete
 from sqlalchemy.sql import selectable
 
 import models as models
 from models import ChargePoint
 from pyocpp_contrib.v16.views.events import StatusNotificationCallEvent
-from views.charge_points import CreateChargPointView, UpdateChargPointView
+from views.charge_points import CreateChargPointView
 
 
 async def update_connectors(session, event: StatusNotificationCallEvent):
-    charge_point = await get_charge_point(session, event.charge_point_id)
+    charge_point = await get_charge_point(session, None, event.charge_point_id)
     connectors = deepcopy(charge_point.connectors)
     if not event.payload.connector_id:
         charge_point.status = event.payload.status
@@ -34,15 +33,8 @@ async def update_connectors(session, event: StatusNotificationCallEvent):
 
 
 async def reset_connectors(session, charge_point_id: str):
-    charge_point = await get_charge_point(session, charge_point_id)
+    charge_point = await get_charge_point(session, None, charge_point_id)
     charge_point.connectors.clear()
-
-
-async def reset_charge_points(session):
-    charge_points = await list_simple_charge_points(session, all=True)
-    for charge_point in charge_points:
-        await update_charge_point(session, charge_point.id, UpdateChargPointView(status=ChargePointStatus.unavailable))
-        await reset_connectors(session, charge_point.id)
 
 
 async def build_charge_points_query(search: str, extra_criterias: List | None = None) -> selectable:

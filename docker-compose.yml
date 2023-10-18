@@ -4,7 +4,6 @@ services:
   rabbitmq-thnxel:
     image: rabbitmq:3.12.0-management
     restart: always
-    container_name: csms-rabbitmq-thnxel
     env_file:
       - .env
     ports:
@@ -13,6 +12,8 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
       RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASS}"
+    healthcheck:
+      test: "exit 0"
     networks:
       - app-network
 
@@ -31,12 +32,14 @@ services:
       POSTGRES_PASSWORD: "${DB_PASSWORD}"
       POSTGRES_DB: "${DB_NAME}"
       PGDATA: "/data"
+    healthcheck:
+      test: "exit 0"
     networks:
       - app-network
 
 
   ws_server-thnxel:
-    container_name: ws_server-thnxel
+    container_name: csms-ws_server-thnxel
     image: heroyooki/charge_point_node:thnxel-fenix-61045
     restart: always
     ports:
@@ -46,7 +49,8 @@ services:
     command: >
       sh -c "cd /usr/src/app && python main.py"
     depends_on:
-      - rabbitmq-thnxel
+      rabbitmq-thnxel:
+        condition: service_healthy
     networks:
       - app-network
   
@@ -70,11 +74,15 @@ services:
       sh -c "cd /usr/src/csms/backend && alembic upgrade head &&
              uvicorn main:app --host 0.0.0.0 --port ${HTTP_SERVER_PORT} --reload"
     depends_on:
-      - rabbitmq-thnxel
-      - db-thnxel
+      rabbitmq-thnxel:
+        condition: service_healthy
+      db-thnxel:
+        condition: service_healthy
+    healthcheck:
+      test: "exit 0"
 
   frontend-thnxel:
-    container_name: frontend-thnxel
+    container_name: csms-frontend-thnxel
     restart: always
     image: node:18.17-bullseye
     volumes:
@@ -87,7 +95,8 @@ services:
       sh -c "cd /usr/src/csms/frontend && 
              yarn install && yarn dev --port ${UI_SERVER_PORT} --host 0.0.0.0"
     depends_on:
-      - manager-thnxel
+      manager-thnxel:
+        condition: service_healthy
 
   nginx-thnxel:
     image: nginx:1.24.0-bullseye
@@ -101,7 +110,7 @@ services:
       - app-network
 
   redis-thnxel:
-    container_name: redis-thnxel
+    container_name: csms-redis-thnxel
     image: redis:4-buster
     networks:
       - app-network

@@ -86,7 +86,7 @@
             </v-sheet>
           </v-col>
 
-          <v-col cols="12" md="3">
+          <v-col cols="12" md="3" v-if="currentRoute.params?.garageId">
             <v-sheet rounded="lg" height="90vh" class="elevation-4">
               <v-container>
                 <v-card
@@ -136,9 +136,10 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import store from "@/store";
 import { ACTION_STATUS_COLOR } from "@/components/enums";
+import { listActions } from "@/services/actions";
 
 const MAX_ACTIONS_LENGTH = 11;
 
@@ -176,14 +177,34 @@ const isActiveSwitcher = () => {
   return !!result;
 };
 
+const setIntervalForActions = () => {
+  interval = setInterval(() => {
+    listActions({
+      garageId: currentRoute.value.params?.garageId,
+      periodic: 1,
+    }).then((response) => (actions.value = response));
+  }, 2000);
+};
+
+watch(
+  () => currentRoute.value.params?.garageId,
+  () => {
+    if (!currentRoute.value.fullPath.includes("garages")) {
+      setIntervalForActions();
+    } else {
+      clearInterval(interval);
+    }
+  }
+);
+
 onMounted(() => {
-  let garageId = currentRoute.value.params?.garageId;
+  const garageId = currentRoute.value.params?.garageId;
   if (garageId) {
     commit("setCurrentGarageById", garageId);
   }
-  // interval = setInterval(() => {
-  //   listActions({ periodic: 1 }).then((response) => (actions.value = response));
-  // }, 2000);
+  if (!currentRoute.value.fullPath.includes("garages")) {
+    setIntervalForActions();
+  }
 });
 
 onUnmounted(() => {
