@@ -3,6 +3,7 @@ from typing import List
 from pydantic import BaseModel
 
 from views import PaginationView
+from views.grid_providers import GridProviderView
 
 
 class NotPaginatedSimpleGarageView(BaseModel):
@@ -21,8 +22,6 @@ class SimpleGarageView(BaseModel):
     contact: str
     phone: str
     email: str
-    postnummer: str
-    grid_provider: str
 
     class Config:
         orm_mode = True
@@ -44,8 +43,7 @@ class SingleGarageView(BaseModel):
     contact: str
     phone: str
     email: str
-    postnummer: str
-    grid_provider: str
+    grid_provider: GridProviderView
 
     class Config:
         orm_mode = True
@@ -58,8 +56,7 @@ class CreateGarageView(BaseModel):
     contact: str
     phone: str
     email: str
-    postnummer: str
-    grid_provider: str
+    grid_provider_id: str
 
 
 class PaginatedGaragesView(BaseModel):
