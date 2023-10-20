@@ -61,6 +61,18 @@ class Garage(Model):
     drivers = relationship("Driver",
                            back_populates="garage",
                            lazy="joined")
+    government_rebates = relationship("GovernmentRebate",
+                                      back_populates="garage",
+                                      lazy="joined")
+
+
+class GovernmentRebate(Model):
+    __tablename__ = "government_rebates"
+
+    value = Column(Numeric(2, 10), nullable=False)
+
+    garage_id = Column(String, ForeignKey("garages.id"), nullable=True)
+    garage = relationship("Garage", back_populates="government_rebates", lazy="joined")
 
 
 class Operator(Person):
