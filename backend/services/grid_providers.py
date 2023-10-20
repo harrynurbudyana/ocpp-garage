@@ -3,11 +3,11 @@ from sqlalchemy import select, func, or_
 from models import GridProvider
 
 
-async def retrieve_grid_providers(session, search: str):
+async def retrieve_grid_providers(session, region, search: str):
     criterias = [
         GridProvider.is_active.is_(True)
     ]
-    query = select(GridProvider)
+    query = select(GridProvider).where(GridProvider.region == region)
     for criteria in criterias:
         query = query.where(criteria)
 

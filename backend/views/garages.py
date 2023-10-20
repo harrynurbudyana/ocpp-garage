@@ -43,6 +43,19 @@ class SingleGarageView(BaseModel):
     contact: str
     phone: str
     email: str
+
+    class Config:
+        orm_mode = True
+
+
+class SingleGarageWithProviderView(BaseModel):
+    id: str
+    name: str
+    city: str
+    street: str
+    contact: str
+    phone: str
+    email: str
     grid_provider: GridProviderView
 
     class Config:

@@ -10,9 +10,10 @@
     <v-card-subtitle> {{ garage.email }}</v-card-subtitle>
     <v-card-subtitle> {{ garage.phone }}</v-card-subtitle>
     <div class="mt-3">Provider:</div>
-    <v-card-subtitle> {{ garage.grid_provider }}</v-card-subtitle>
-    <div class="mt-3">Postnummer:</div>
-    <v-card-subtitle> {{ garage.postnummer }}</v-card-subtitle>
+    <v-card-subtitle>
+      {{ garage.grid_provider.postnummer }},
+      {{ garage.grid_provider.name }}</v-card-subtitle
+    >
   </v-card>
 </template>
 

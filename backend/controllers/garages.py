@@ -8,7 +8,8 @@ from permissions.garages import CanOperatorManageGarages
 from routers import AuthenticatedRouter
 from services.garages import build_garages_query, create_garage, list_simple_garages, get_garage
 from utils import params_extractor, paginate
-from views.garages import PaginatedGaragesView, SingleGarageView, CreateGarageView, NotPaginatedSimpleGarageView
+from views.garages import PaginatedGaragesView, SingleGarageView, CreateGarageView, NotPaginatedSimpleGarageView, \
+    SingleGarageWithProviderView
 
 garages_router = AuthenticatedRouter(
     prefix="/garages",
@@ -37,7 +38,7 @@ async def list_garages(
 @garages_router.get(
     "/{garage_id}",
     status_code=status.HTTP_200_OK,
-    response_model=SingleGarageView
+    response_model=SingleGarageWithProviderView
 )
 async def retrieve_garage(garage_id: str):
     async with get_contextual_session() as session:

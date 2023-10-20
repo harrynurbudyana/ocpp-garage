@@ -3,6 +3,7 @@ from typing import List
 from starlette import status
 
 from core.database import get_contextual_session
+from core.settings import NORDPOOL_REGION
 from routers import AuthenticatedRouter
 from services.grid_providers import retrieve_grid_providers
 from views.grid_providers import SimpleGridProviderView
@@ -20,4 +21,4 @@ grid_providers_router = AuthenticatedRouter(
 )
 async def list_grid_providers(search: str = ""):
     async with get_contextual_session() as session:
-        return await retrieve_grid_providers(session, search)
+        return await retrieve_grid_providers(session, NORDPOOL_REGION, search)

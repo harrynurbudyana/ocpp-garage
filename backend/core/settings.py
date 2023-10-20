@@ -42,3 +42,6 @@ EMAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]
 EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
 EMAIL_PORT = int(os.environ["EMAIL_PORT"])
 EMAIL_FROM = os.environ["EMAIL_FROM"]
+
+NORDPOOL_REGION = os.environ["NORDPOOL_REGION"]
+assert NORDPOOL_REGION in [f"NO{i}" for i in range(1, 6)]

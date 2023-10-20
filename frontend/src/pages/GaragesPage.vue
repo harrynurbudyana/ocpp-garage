@@ -31,9 +31,10 @@
                 </v-col>
                 <v-col class="d-flex justify-end mb-6 mt-3">
                   <v-btn
+                    :loading="postNummersLoading"
                     color="blue-lighten-1"
                     class="ma-6 pa-2"
-                    @click="openModal"
+                    @click="showModal"
                     >add
                   </v-btn>
                 </v-col>
@@ -54,7 +55,7 @@
                 <v-row>
                   <v-col cols="12">
                     <v-text-field
-                      :error="showError && errors.id"
+                      :error="!!errors.name"
                       :error-messages="errors.name"
                       :rules="rules.garage.nameRules"
                       label="Name"
@@ -126,27 +127,26 @@
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12">
-                    <v-text-field
-                      label="Postnummer"
+                    <v-autocomplete
+                      :items="grid_providers"
+                      v-model="data.grid_provider_id"
                       required
-                      :rules="rules.garage.postNummerRules"
-                      v-model="data.postnummer"
+                      label="Postnummer"
                       density="compact"
                       variant="underlined"
-                      validate-on="lazy blur"
-                      @input="clearError"
-                    ></v-text-field>
+                      item-title="postnummer"
+                      item-value="id"
+                      @update:modelValue="onUpdatePostnummer"
+                    ></v-autocomplete>
                   </v-col>
                   <v-col cols="12">
                     <v-text-field
                       required
-                      :rules="rules.garage.providerRules"
                       label="Provider"
-                      v-model="data.grid_provider"
+                      v-model="grid_provider_name"
                       density="compact"
                       variant="underlined"
-                      @input="clearError"
-                      @focus="setDefault"
+                      disabled
                     ></v-text-field>
                   </v-col>
                 </v-row>
@@ -180,7 +180,7 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useStore } from "vuex";
 import DataTable from "@/components/DataTable";
 
@@ -190,8 +190,12 @@ import { addGarage, listGarages } from "@/services/garages";
 import { menuItems } from "@/menu/app-menu-items";
 import { rules } from "@/configs/validation";
 import router from "@/router";
+import { listGridProviders } from "@/services/grid-providers";
 
 const { commit, getters } = useStore();
+const grid_providers = ref([]);
+const grid_provider_name = ref();
+const postNummersLoading = ref(false);
 
 const {
   loading,
@@ -199,7 +203,6 @@ const {
   dialog,
   data,
   errors,
-  showError,
   clearError,
   openModal,
   closeModal,
@@ -213,6 +216,21 @@ const {
     }
   },
 });
+
+const onUpdatePostnummer = (value) => {
+  grid_provider_name.value =
+    grid_providers.value.filter((item) => item.id === value)[0]?.name || null;
+};
+
+const showModal = () => {
+  postNummersLoading.value = true;
+  listGridProviders()
+    .then((response) => (grid_providers.value = response))
+    .finally(() => {
+      openModal();
+      postNummersLoading.value = false;
+    });
+};
 
 const { currentPage, lastPage, fetchData, items, search } = usePagination({
   itemsLoader: listGarages,
@@ -228,10 +246,6 @@ const onClickRow = ({ item }) => {
   });
 };
 
-const setDefault = () => {
-  data.value.grid_provider = data.value.postnummer;
-};
-
 onMounted(() => {
   const { commit } = useStore();
   commit("setPageMenuItems", menuItems);
@@ -243,35 +257,28 @@ const headers = [
     key: "name",
     align: "right",
     sortable: false,
-    width: "15%",
+    width: "20%",
   },
   {
     title: "City",
     key: "city",
     align: "right",
     sortable: false,
-    width: "10%",
+    width: "20%",
   },
   {
     title: "Street",
     key: "street",
     align: "right",
     sortable: false,
-    width: "20%",
+    width: "30%",
   },
   {
     title: "Contact",
     key: "contact",
     align: "right",
     sortable: false,
-    width: "15%",
-  },
-  {
-    title: "Provider",
-    key: "grid_provider",
-    align: "right",
-    sortable: true,
-    width: "15%",
+    width: "30%",
   },
 ];
 </script>

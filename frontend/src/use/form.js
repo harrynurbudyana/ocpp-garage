@@ -28,6 +28,7 @@ export function useSubmitForm({ itemSender, afterHandler }) {
     itemSender(data.value)
       .then((response) => {
         afterHandler(response);
+        closeModal();
       })
       .catch(({ response }) => {
         const { data } = response;
@@ -36,7 +37,6 @@ export function useSubmitForm({ itemSender, afterHandler }) {
       })
       .finally(() => {
         loading.value = false;
-        closeModal();
       });
   };
   return {
