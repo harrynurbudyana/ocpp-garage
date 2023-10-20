@@ -5,7 +5,7 @@ from typing import Dict
 
 from ocpp.v16.call import StatusNotificationPayload
 from ocpp.v16.enums import ChargePointStatus
-from sqlalchemy import Column, String, ForeignKey, Enum, ARRAY, JSON, Integer, Sequence
+from sqlalchemy import Column, String, ForeignKey, Enum, ARRAY, JSON, Integer, Sequence, Numeric
 from sqlalchemy.ext.mutable import MutableList
 from sqlalchemy.orm import relationship
 
@@ -25,6 +25,20 @@ class Person(Model):
         return f"Driver: {self.id}, {self.email}"
 
 
+class GridProvider(Model):
+    __tablename__ = "grid_providers"
+
+    postnummer = Column(String, nullable=False, unique=True)
+    region = Column(String, nullable=False)
+    name = Column(String, nullable=False)
+    daily_rate = Column(Numeric(2, 2), default=0.0)
+    nightly_rate = Column(Numeric(2, 2), default=0.0)
+
+    garages = relationship("Garage",
+                           back_populates="grid_provider",
+                           lazy="joined")
+
+
 class Garage(Model):
     __tablename__ = "garages"
 
@@ -34,6 +48,9 @@ class Garage(Model):
     contact = Column(String, nullable=False)
     phone = Column(String, nullable=False)
     email = Column(String, nullable=False)
+
+    grid_provider_id = Column(String, ForeignKey("grid_providers.id"), nullable=False)
+    grid_provider = relationship("GridProvider", back_populates="garages", lazy="joined")
 
     charge_points = relationship("ChargePoint",
                                  back_populates="garage",
