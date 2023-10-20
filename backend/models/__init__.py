@@ -34,8 +34,6 @@ class Garage(Model):
     contact = Column(String, nullable=False)
     phone = Column(String, nullable=False)
     email = Column(String, nullable=False)
-    postnummer = Column(String, nullable=False)
-    grid_provider = Column(String, nullable=False)
 
     charge_points = relationship("ChargePoint",
                                  back_populates="garage",
