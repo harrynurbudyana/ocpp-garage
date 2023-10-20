@@ -28,9 +28,9 @@ class Person(Model):
 class GridProvider(Model):
     __tablename__ = "grid_providers"
 
-    postnummer = Column(String, nullable=False, unique=True)
+    postnummer = Column(String, nullable=False, unique=True, index=True)
     region = Column(String, nullable=False)
-    name = Column(String, nullable=False)
+    name = Column(String, nullable=False, index=True)
     daily_rate = Column(Numeric(2, 2), default=0.0)
     nightly_rate = Column(Numeric(2, 2), default=0.0)
 

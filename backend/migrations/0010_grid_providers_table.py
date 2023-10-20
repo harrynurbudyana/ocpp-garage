@@ -31,7 +31,8 @@ with open(os.path.join(BASE_DIR, "NorwayELPrices.csv")) as csv_file:
             region=row[1],
             name=row[2],
             daily_rate=row[3],
-            nightly_rate=row[4]
+            nightly_rate=row[4],
+            is_active=True
         ))
 
 
