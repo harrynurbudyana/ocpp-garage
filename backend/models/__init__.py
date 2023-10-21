@@ -31,8 +31,8 @@ class GridProvider(Model):
     postnummer = Column(String, nullable=False, unique=True, index=True)
     region = Column(String, nullable=False)
     name = Column(String, nullable=False, index=True)
-    daily_rate = Column(Numeric(2, 2), default=0.0)
-    nightly_rate = Column(Numeric(2, 2), default=0.0)
+    daily_rate = Column(Numeric(precision=2, scale=2))
+    nightly_rate = Column(Numeric(precision=2, scale=2))
 
     garages = relationship("Garage",
                            back_populates="grid_provider",
@@ -48,6 +48,8 @@ class Garage(Model):
     contact = Column(String, nullable=False)
     phone = Column(String, nullable=False)
     email = Column(String, nullable=False)
+    daily_rate = Column(Numeric(precision=2, scale=2))
+    nightly_rate = Column(Numeric(precision=2, scale=2))
 
     grid_provider_id = Column(String, ForeignKey("grid_providers.id"), nullable=False)
     grid_provider = relationship("GridProvider", back_populates="garages", lazy="joined")

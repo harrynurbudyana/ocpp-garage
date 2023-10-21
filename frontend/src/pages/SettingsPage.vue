@@ -2,28 +2,39 @@
   <v-container>
     <v-col>
       <v-row justify="end">
-        <v-btn color="blue-lighten-1 mr-2">Save</v-btn>
+        <v-btn
+          :disabled="disabled"
+          :loading="loading"
+          color="blue-lighten-1 mr-2"
+          @click="onSaveChanges"
+          >Save
+        </v-btn>
       </v-row>
-      <v-row class="mt-10" v-for="(key, i) in Object.keys(data)" :key="i">
+      <v-row class="mt-10" v-for="(period, i) in Object.keys(rates)" :key="i">
         <v-slider
           thumb-label="always"
-          v-model="data[key].garageRate"
+          v-model="rates[period].garage_rate"
           :max="1"
-          :min="data[key].providerRate"
+          :min="rates[period].provider_rate"
           :step="0.01"
           hide-details
           class="align-center"
           color="grey"
           track-size="1"
+          @update:modelValue="onUpdateSlider"
         >
           <template v-slot:thumb-label="{ modelValue }">
-            {{ countPercentage(modelValue, data[key].providerRate) }}%
+            {{ countPercentage(modelValue, rates[period].provider_rate) }}%
           </template>
           <template v-slot:prepend>
-            <v-sheet class="text-caption mr-5">{{ key }} rate:</v-sheet>
+            <div class="text-caption mr-5">
+              <v-sheet width="100px"
+                >{{ period.charAt(0).toUpperCase() + period.slice(1) }} rate:
+              </v-sheet>
+            </div>
             <v-text-field
               disabled
-              v-model="data[key].providerRate"
+              v-model="rates[period].provider_rate"
               hide-details
               single-line
               type="float"
@@ -34,7 +45,8 @@
           </template>
           <template v-slot:append>
             <v-text-field
-              v-model="data[key].garageRate"
+              disabled
+              v-model="rates[period].garage_rate"
               hide-details
               single-line
               type="float"
@@ -50,28 +62,44 @@
 </template>
 
 <script setup>
-import { onMounted, reactive } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { menuItems } from "@/menu/app-menu-items";
 import { useStore } from "vuex";
+import { getGarageRates, saveSettings } from "@/services/garages";
 
 const { commit } = useStore();
+
+const rates = reactive({
+  daily: { garage_rate: 0.0, provider_rate: 0.0 },
+  nightly: { garage_rate: 0.0, provider_rate: 0.0 },
+});
+
+const disabled = ref(true);
+const loading = ref(false);
 
 const countPercentage = (newRate, initialRate) => {
   return Math.ceil(((newRate - initialRate) / initialRate) * 100);
 };
 
-const data = reactive({
-  daily: {
-    garageRate: 0.45,
-    providerRate: 0.45,
-  },
-  nightly: {
-    garageRate: 0.29,
-    providerRate: 0.29,
-  },
-});
+const onSaveChanges = () => {
+  loading.value = true;
+  let data = { rates };
+  saveSettings(data).finally(() => {
+    setTimeout(() => {
+      loading.value = false;
+      disabled.value = true;
+    }, 1000);
+  });
+};
+
+const onUpdateSlider = () => {
+  disabled.value = false;
+};
 
 onMounted(() => {
   commit("setPageMenuItems", menuItems);
+  getGarageRates().then((response) => {
+    Object.assign(rates, response);
+  });
 });
 </script>

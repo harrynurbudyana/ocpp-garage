@@ -72,6 +72,20 @@ class CreateGarageView(BaseModel):
     grid_provider_id: str
 
 
+class Rates(BaseModel):
+    garage_rate: float
+    provider_rate: float
+
+
+class GarageRatesView(BaseModel):
+    daily: Rates
+    nightly: Rates
+
+
+class StoreSettingsView(BaseModel):
+    rates: GarageRatesView
+    
+
 class PaginatedGaragesView(BaseModel):
     items: List[SimpleGarageView]
     pagination: PaginationView

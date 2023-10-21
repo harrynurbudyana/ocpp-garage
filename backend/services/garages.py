@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import List
 
-from sqlalchemy import select, func, or_
+from sqlalchemy import select, func, or_, update
 from sqlalchemy.sql import selectable
 
 import models as models
-from views.garages import CreateGarageView
+from views.garages import CreateGarageView, GarageRatesView
 
 
 async def list_simple_garages(session):
@@ -41,7 +41,18 @@ async def get_garage(session, garage_id) -> selectable:
 
 
 async def create_garage(session, data: CreateGarageView):
+    query = await session.execute(select(models.GridProvider).where(models.GridProvider.id == data.grid_provider_id))
+    provider = query.scalars().first()
     garage = models.Garage(**data.dict())
+    garage.daily_rate = provider.daily_rate
+    garage.nightly_rate = provider.nightly_rate
     session.add(garage)
     await session.flush()
     return garage
+
+
+async def store_rates(session, garage_id: str, data: GarageRatesView):
+    query = update(models.Garage) \
+        .where(models.Garage.id == garage_id) \
+        .values(daily_rate=round(data.daily.garage_rate, 2), nightly_rate=round(data.nightly.garage_rate, 2))
+    await session.execute(query)

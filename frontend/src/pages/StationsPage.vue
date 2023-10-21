@@ -128,7 +128,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted } from "vue";
+import { onMounted } from "vue";
 import { useStore } from "vuex";
 import { dateAgo } from "@/filters/date";
 import DataTable from "@/components/DataTable";
@@ -143,7 +143,6 @@ import { useSubmitForm } from "@/use/form";
 
 const { commit, getters } = useStore();
 
-var interval = null;
 const {
   loading,
   isValid,
@@ -178,10 +177,6 @@ const onClickRow = ({ item }) => {
 
 onMounted(() => {
   commit("setPageMenuItems", menuItems);
-});
-
-onUnmounted(() => {
-  clearInterval(interval);
 });
 
 const headers = [

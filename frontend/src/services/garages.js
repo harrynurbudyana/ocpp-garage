@@ -1,4 +1,7 @@
 import { request } from "@/api";
+import router from "@/router";
+
+const { currentRoute } = router;
 
 const endpoint = "garages";
 
@@ -13,4 +16,15 @@ export function listGarages(params) {
 
 export function getGarage(garageId) {
   return request.get(`${endpoint}/${garageId}`);
+}
+
+export function getGarageRates() {
+  return request.get(`${endpoint}/${currentRoute.value.params.garageId}/rates`);
+}
+
+export function saveSettings(data) {
+  return request.post(
+    `${endpoint}/${currentRoute.value.params.garageId}/settings`,
+    data
+  );
 }
