@@ -31,11 +31,7 @@
       permanent
       @click="rail = false"
     >
-      <v-list-item
-        prepend-icon="mdi mdi-transmission-tower-export"
-        title="NO1"
-        nav
-      >
+      <v-list-item prepend-icon="mdi mdi-land-plots-marker" title="NO1" nav>
         <template v-slot:append>
           <v-btn
             variant="text"
@@ -86,11 +82,12 @@
             </v-sheet>
           </v-col>
 
-          <v-col cols="12" md="3" v-if="currentRoute.params?.garageId">
+          <v-col cols="12" md="3">
             <v-sheet rounded="lg" height="90vh" class="elevation-4">
               <v-container>
                 <v-card
                   v-for="(action, i) in actions.slice(0, MAX_ACTIONS_LENGTH)"
+                  :key="i"
                   width="100%"
                   density="compact"
                   variant="flat"
