@@ -22,11 +22,18 @@ export const menuItems = [
   },
   {
     name: "Operators",
-    key: "drivers",
+    key: "operators",
     icon: "mdi mdi-account-tie",
     isVisible: ({ currentUser, currentGarage }) =>
       !!currentGarage && currentUser.is_superuser,
     getPath: ({ currentGarage }) => `/${currentGarage?.id}/operators`,
+  },
+  {
+    name: "Government Rebates",
+    key: "government-rebates",
+    icon: "mdi mdi-percent-circle-outline",
+    isVisible: ({ currentGarage }) => !!currentGarage,
+    getPath: ({ currentGarage }) => `/${currentGarage?.id}/government-rebates`,
   },
   {
     name: "Transactions",

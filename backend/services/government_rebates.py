@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import List
 
+import arrow
+from sqlalchemy import extract
 from sqlalchemy import select, update, delete
 from sqlalchemy.sql import selectable
 
@@ -14,12 +16,20 @@ async def build_government_rebates_query(extra_criterias: List | None = None) ->
     if extra_criterias:
         for criteria in extra_criterias:
             query = query.where(criteria)
-    query = query.order_by(GovernmentRebate.created_at.asc())
+    query = query.order_by(GovernmentRebate.created_at.desc())
     return query
 
 
 async def create_government_rebate(session, garage_id: str, data: CreateGovernmentRebateView):
-    rebate = GovernmentRebate(garage_id=garage_id, **data.dict())
+    query = await session.execute(
+        select(GovernmentRebate) \
+            .where(extract("month", GovernmentRebate.created_at) == arrow.utcnow().month)
+    )
+    rebate = query.scalars().first()
+    if rebate:
+        rebate.value = data.value
+    else:
+        rebate = GovernmentRebate(garage_id=garage_id, **data.dict())
     session.add(rebate)
     return rebate
 

@@ -14,7 +14,7 @@ from views.government_rebates import PaginatedGovernmentRebatesView, CreateGover
     UpdateGovernmentRebateView, ReadGovernmentRebateView
 
 government_rebates_router = AuthenticatedRouter(
-    prefix="/government-rebates",
+    prefix="/{garage_id}/government-rebates",
     tags=["government-rebates"]
 )
 
@@ -70,7 +70,7 @@ async def edit_government_rebate(
 
 
 @government_rebates_router.delete(
-    "/{government_rebate}",
+    "/{government_rebate_id}",
     status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_government_rebate(

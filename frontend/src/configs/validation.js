@@ -93,6 +93,13 @@ export const rules = new (function () {
       },
     ],
   };
+  this.rebate = {
+    valueRules: [
+      (value) => {
+        return !/^[0-9/,]+$/.test(value) && !!parseFloat(value);
+      },
+    ],
+  };
 
   this.user = {
     loginRules: [

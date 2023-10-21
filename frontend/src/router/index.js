@@ -95,6 +95,14 @@ const routes = [
         component: () =>
           import(/* webpackChunkName: "home" */ "@/pages/TransactionsPage"),
       },
+      {
+        path: ":garageId/government-rebates",
+        name: "Government Rebates",
+        component: () =>
+          import(
+            /* webpackChunkName: "home" */ "@/pages/GovernmentRebatesPage"
+          ),
+      },
     ],
   },
 ];

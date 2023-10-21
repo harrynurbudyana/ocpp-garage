@@ -11,12 +11,16 @@ class CreateGovernmentRebateView(BaseModel):
 
 
 class UpdateGovernmentRebateView(BaseModel):
-    value: str
+    value: float
 
 
 class ReadGovernmentRebateView(BaseModel):
+    id: str
     created_at: datetime
     value: float
+
+    class Config:
+        orm_mode = True
 
 
 class PaginatedGovernmentRebatesView(BaseModel):

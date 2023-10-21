@@ -69,7 +69,7 @@ class Garage(Model):
 class GovernmentRebate(Model):
     __tablename__ = "government_rebates"
 
-    value = Column(Numeric(2, 10), nullable=False)
+    value = Column(Numeric, nullable=False)
 
     garage_id = Column(String, ForeignKey("garages.id"), nullable=True)
     garage = relationship("Garage", back_populates="government_rebates", lazy="joined")
