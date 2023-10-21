@@ -56,7 +56,7 @@
             :value="link.key"
             :title="link.name"
             :prepend-icon="link.icon"
-            :active="isActive(link.name)"
+            :active="isActive(link.key)"
             :disabled="!link.isVisible(getters)"
           >
           </v-list-item>
@@ -157,8 +157,8 @@ const ACTION_ICON = {
   faulted: "mdi mdi-cancel",
 };
 
-const isActive = (name) => {
-  return currentRoute.value.name === name;
+const isActive = (key) => {
+  return currentRoute.value.name === key;
 };
 
 const switchGarage = (item) => {

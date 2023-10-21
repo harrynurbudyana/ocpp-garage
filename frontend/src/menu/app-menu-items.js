@@ -42,4 +42,11 @@ export const menuItems = [
     isVisible: ({ currentGarage }) => !!currentGarage,
     getPath: ({ currentGarage }) => `/${currentGarage?.id}/transactions`,
   },
+  {
+    name: "Settings",
+    key: "settings",
+    icon: "mdi mdi-tune",
+    isVisible: ({ currentGarage }) => !!currentGarage,
+    getPath: ({ currentGarage }) => `/${currentGarage?.id}/settings`,
+  },
 ];

@@ -30,7 +30,7 @@ const routes = [
     children: [
       {
         path: "garages",
-        name: "Garages",
+        name: "garages",
         component: () =>
           import(/* webpackChunkName: "home" */ "@/pages/GaragesPage"),
       },
@@ -42,7 +42,7 @@ const routes = [
       },
       {
         path: ":garageId/stations",
-        name: "Stations",
+        name: "stations",
         component: () =>
           import(/* webpackChunkName: "home" */ "@/pages/StationsPage.vue"),
       },
@@ -59,7 +59,7 @@ const routes = [
       },
       {
         path: ":garageId/drivers",
-        name: "Drivers",
+        name: "drivers",
         component: () =>
           import(/* webpackChunkName: "home" */ "@/pages/DriversPage"),
       },
@@ -74,7 +74,7 @@ const routes = [
       },
       {
         path: ":garageId/operators",
-        name: "Operators",
+        name: "operators",
         component: () =>
           import(/* webpackChunkName: "home" */ "@/pages/OperatorsPage"),
       },
@@ -91,17 +91,23 @@ const routes = [
       },
       {
         path: ":garageId/transactions",
-        name: "Transactions",
+        name: "transactions",
         component: () =>
           import(/* webpackChunkName: "home" */ "@/pages/TransactionsPage"),
       },
       {
         path: ":garageId/government-rebates",
-        name: "Government Rebates",
+        name: "government-rebates",
         component: () =>
           import(
             /* webpackChunkName: "home" */ "@/pages/GovernmentRebatesPage"
           ),
+      },
+      {
+        path: ":garageId/settings",
+        name: "settings",
+        component: () =>
+          import(/* webpackChunkName: "home" */ "@/pages/SettingsPage"),
       },
     ],
   },
