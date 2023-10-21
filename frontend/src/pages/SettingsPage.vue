@@ -50,7 +50,11 @@
 </template>
 
 <script setup>
-import { reactive } from "vue";
+import { onMounted, reactive } from "vue";
+import { menuItems } from "@/menu/app-menu-items";
+import { useStore } from "vuex";
+
+const { commit } = useStore();
 
 const countPercentage = (newRate, initialRate) => {
   return Math.ceil(((newRate - initialRate) / initialRate) * 100);
@@ -65,5 +69,9 @@ const data = reactive({
     garageRate: 0.29,
     providerRate: 0.29,
   },
+});
+
+onMounted(() => {
+  commit("setPageMenuItems", menuItems);
 });
 </script>
