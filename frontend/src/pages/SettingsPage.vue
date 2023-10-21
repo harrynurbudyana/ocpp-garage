@@ -4,12 +4,12 @@
       <v-row justify="end">
         <v-btn color="blue-lighten-1 mr-2">Save</v-btn>
       </v-row>
-      <v-row class="mt-10">
+      <v-row class="mt-10" v-for="(key, i) in Object.keys(data)" :key="i">
         <v-slider
           thumb-label="always"
-          v-model="data.daily.garageRate"
+          v-model="data[key].garageRate"
           :max="1"
-          :min="0.45"
+          :min="data[key].providerRate"
           :step="0.01"
           hide-details
           class="align-center"
@@ -17,13 +17,13 @@
           track-size="1"
         >
           <template v-slot:thumb-label="{ modelValue }">
-            {{ countPercentage(modelValue, data.daily.providerRate) }}%
+            {{ countPercentage(modelValue, data[key].providerRate) }}%
           </template>
           <template v-slot:prepend>
-            <v-sheet class="text-caption mr-5">Daily rate:</v-sheet>
+            <v-sheet class="text-caption mr-5">{{ key }} rate:</v-sheet>
             <v-text-field
               disabled
-              v-model="data.daily.providerRate"
+              v-model="data[key].providerRate"
               hide-details
               single-line
               type="float"
@@ -34,48 +34,7 @@
           </template>
           <template v-slot:append>
             <v-text-field
-              v-model="data.daily.garageRate"
-              hide-details
-              single-line
-              type="float"
-              variant="outlined"
-              style="width: 70px"
-              density="compact"
-            ></v-text-field>
-          </template>
-        </v-slider>
-      </v-row>
-      <v-row class="mt-10">
-        <v-slider
-          thumb-label="always"
-          v-model="data.nightly.garageRate"
-          :min="data.nightly.providerRate"
-          :max="1"
-          :step="0.01"
-          hide-details
-          class="align-center"
-          color="grey"
-          track-size="1"
-        >
-          <template v-slot:thumb-label="{ modelValue }">
-            {{ countPercentage(modelValue, data.nightly.providerRate) }}%
-          </template>
-          <template v-slot:prepend>
-            <v-sheet class="text-caption mr-2">Nightly rate:</v-sheet>
-            <v-text-field
-              disabled
-              v-model="data.nightly.providerRate"
-              hide-details
-              single-line
-              type="float"
-              variant="outlined"
-              density="compact"
-              style="width: 70px"
-            ></v-text-field>
-          </template>
-          <template v-slot:append>
-            <v-text-field
-              v-model="data.nightly.garageRate"
+              v-model="data[key].garageRate"
               hide-details
               single-line
               type="float"
@@ -107,6 +66,4 @@ const data = reactive({
     providerRate: 0.29,
   },
 });
-
-const model = reactive({});
 </script>
