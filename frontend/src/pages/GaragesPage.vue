@@ -196,10 +196,10 @@ const { commit, getters } = useStore();
 const grid_providers = ref([]);
 const grid_provider_name = ref();
 const postNummersLoading = ref(false);
+const isValid = ref(false);
 
 const {
   loading,
-  isValid,
   dialog,
   data,
   errors,
@@ -218,8 +218,14 @@ const {
 });
 
 const onUpdatePostnummer = (value) => {
-  grid_provider_name.value =
-    grid_providers.value.filter((item) => item.id === value)[0]?.name || null;
+  if (!value) {
+    isValid.value = false;
+    grid_provider_name.value = null;
+  } else {
+    isValid.value = true;
+    grid_provider_name.value =
+      grid_providers.value.filter((item) => item.id === value)[0]?.name || null;
+  }
 };
 
 const showModal = () => {
