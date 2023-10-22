@@ -14,7 +14,7 @@
         <v-slider
           thumb-label="always"
           v-model="rates[period].garage_rate"
-          :max="1"
+          :max="rates[period].provider_rate * 1.3"
           :min="rates[period].provider_rate"
           :step="0.01"
           hide-details

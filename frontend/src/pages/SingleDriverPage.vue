@@ -69,7 +69,11 @@
             <v-card-item>{{ title }}</v-card-item>
           </v-col>
           <v-col class="d-flex justify-end mb-6 mt-3">
-            <v-btn color="blue-lighten-1" class="ma-6 pa-2" @click="openModal"
+            <v-btn
+              :disabled="!driver.is_active"
+              color="blue-lighten-1"
+              class="ma-6 pa-2"
+              @click="openModal"
               >add
             </v-btn>
           </v-col>
@@ -87,6 +91,7 @@
       <template v-slot:item.action="{ item }">
         <v-hover v-slot="{ isHovering, props }" open-delay="100">
           <v-btn
+            v-if="driver.is_active"
             icon
             size="small"
             density="compact"
