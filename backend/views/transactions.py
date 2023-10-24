@@ -14,6 +14,7 @@ class CreateTransactionView(BaseModel):
     meter_start: int
     charge_point: str
     connector: int
+    status: TransactionStatus | None = None
 
 
 class InitTransactionView(BaseModel):

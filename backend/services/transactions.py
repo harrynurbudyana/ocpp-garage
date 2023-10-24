@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import selectable
 
 import models
+from core.fields import TransactionStatus
 from views.transactions import CreateTransactionView, UpdateTransactionView
 
 
@@ -50,3 +51,11 @@ async def build_transactions_query(search: str, extra_criterias: List | None = N
             func.cast(models.Transaction.charge_point, String).ilike(f"{search}%"),
         ))
     return query
+
+
+async def find_drivers_transactions(session, driver: models.Driver, month: int, year: int) -> List[models.Transaction]:
+    query = select(models.Transaction) \
+        .where(models.Transaction.driver == driver.email,
+               models.Transaction.status == TransactionStatus.completed)
+    result = await session.execute(query)
+    return result.scalars().fetchall()

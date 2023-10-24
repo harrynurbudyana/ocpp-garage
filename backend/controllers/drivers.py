@@ -1,5 +1,6 @@
 from typing import Tuple
 
+import arrow
 from fastapi import status, Depends
 from loguru import logger
 
@@ -14,6 +15,9 @@ from services.drivers import (
     update_driver,
     remove_driver
 )
+from services.garages import get_garage
+from services.statements import generate_statements_for_driver
+from services.transactions import find_drivers_transactions
 from utils import params_extractor, paginate
 from views.drivers import (
     PaginatedDriversView,
@@ -21,6 +25,7 @@ from views.drivers import (
     CreateDriverView,
     UpdateDriverView
 )
+from views.statements import DriversStatement
 
 drivers_router = AuthenticatedRouter(
     prefix="/{garage_id}/drivers",
@@ -120,3 +125,25 @@ async def remove_charge_point(
     async with get_contextual_session() as session:
         await release_charge_point(session, garage_id, driver_id, charge_point_id)
         await session.commit()
+
+
+@drivers_router.get(
+    "/{driver_id}/statement",
+    status_code=status.HTTP_200_OK,
+    response_model=DriversStatement
+)
+async def generate_statement(
+        garage_id: str,
+        driver_id: str,
+        month: int | None = None,
+        year: int | None = None
+) -> DriversStatement:
+    if not month:
+        month = arrow.utcnow().month - 1  # previous one
+    if not year:
+        year = arrow.utcnow().year  # current one
+    async with get_contextual_session() as session:
+        garage = await get_garage(session, garage_id)
+        driver = await get_driver(session, garage_id, driver_id)
+        transactions = await find_drivers_transactions(session, driver, month, year)
+    return await generate_statements_for_driver(garage, driver, transactions, month, year)

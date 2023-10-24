@@ -45,3 +45,5 @@ EMAIL_FROM = os.environ["EMAIL_FROM"]
 
 NORDPOOL_REGION = os.environ["NORDPOOL_REGION"]
 assert NORDPOOL_REGION in [f"NO{i}" for i in range(1, 6)]
+
+DAILY_HOURS_RANGE = range(6, 22)

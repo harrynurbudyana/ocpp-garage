@@ -148,4 +148,10 @@ class Transaction(Model):
     status = Column(Enum(TransactionStatus), default=TransactionStatus.in_progress)
 
     def __repr__(self):
-        return f"Transaction (id={self.id}, garage_id={self.garage}, charge_point={self.charge_point}, transaction_id={self.transaction_id}, status={self.status})"
+        return f"Transaction (id={self.id}, " \
+               f"garage_id={self.garage}, " \
+               f"charge_point={self.charge_point}, " \
+               f"transaction_id={self.transaction_id}, " \
+               f"status={self.status}, " \
+               f"meter_start={self.meter_start}, " \
+               f"meter_stop={self.meter_stop})"
