@@ -1,8 +1,8 @@
 from ocpp.v16.call_result import BootNotificationPayload
 from ocpp.v16.enums import RegistrationStatus, Action
+from pyocpp_contrib.decorators import response_call_result
 
 from core.utils import get_utc_as_string
-from pyocpp_contrib.decorators import response_call_result
 from services.charge_points import get_charge_point
 
 

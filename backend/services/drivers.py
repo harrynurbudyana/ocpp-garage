@@ -57,7 +57,7 @@ async def update_driver(
     charge_point_id = payload.pop("charge_point_id", None)
     if charge_point_id:
         data = UpdateChargPointView(driver_id=driver_id)
-        await update_charge_point(session, garage_id, charge_point_id, data)
+        await update_charge_point(session, charge_point_id, data)
     if payload:
         await session.execute(update(Driver) \
                               .where(Driver.id == driver_id) \

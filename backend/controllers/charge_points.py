@@ -2,11 +2,11 @@ from typing import Tuple, List
 
 from fastapi import status, Depends, HTTPException
 from loguru import logger
+from pyocpp_contrib.decorators import message_id_generator
 
 from core.database import get_contextual_session
 from exceptions import NotFound
 from models import ChargePoint
-from pyocpp_contrib.decorators import message_id_generator
 from routers import AuthenticatedRouter, AnonymousRouter
 from services.charge_points import (
     get_charge_point,
@@ -35,7 +35,7 @@ anonymous_charge_points_router = AnonymousRouter()
 async def authenticate(charge_point_id: str):
     logger.info(f"Start authenticate charge point (charge_point_id={charge_point_id})")
     async with get_contextual_session() as session:
-        charge_point = await get_charge_point(session, garage_id=None, charge_point_id=charge_point_id)
+        charge_point = await get_charge_point(session, charge_point_id=charge_point_id)
         if not charge_point:
             logger.error(f"Could not authenticate charge_point (charge_point_id={charge_point_id})")
             raise HTTPException(status.HTTP_401_UNAUTHORIZED)
@@ -82,7 +82,7 @@ async def retrieve_charge_point(
         charge_point_id: str
 ):
     async with get_contextual_session() as session:
-        charge_point = await get_charge_point(session, garage_id, charge_point_id)
+        charge_point = await get_charge_point(session, charge_point_id)
         if not charge_point:
             raise NotFound
         return charge_point
@@ -114,9 +114,9 @@ async def edit_charge_point(
 ):
     logger.info(f"Start update charge point (data={data}, charge_point_id={charge_point_id})")
     async with get_contextual_session() as session:
-        await update_charge_point(session, garage_id, charge_point_id, data)
+        await update_charge_point(session, charge_point_id, data)
         await session.commit()
-        return await get_charge_point(session, garage_id, charge_point_id)
+        return await get_charge_point(session, charge_point_id)
 
 
 @charge_points_router.delete(
@@ -129,7 +129,7 @@ async def delete_charge_point(
 ):
     logger.info(f"Start remove charge point (charge_point_id={charge_point_id})")
     async with get_contextual_session() as session:
-        await remove_charge_point(session, garage_id, charge_point_id)
+        await remove_charge_point(session, charge_point_id)
         await session.commit()
 
 

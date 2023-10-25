@@ -17,7 +17,7 @@ from views.transactions import CreateTransactionView
 @response_call_result(Action.StartTransaction)
 async def process_start_transaction(session, event) -> StartTransactionPayload:
     logger.info(f"StartTransaction -> | start process call event (event={event})")
-    charge_point = await get_charge_point(session, None, event.charge_point_id)
+    charge_point = await get_charge_point(session, event.charge_point_id)
 
     # It is a good practice to always create transaction
     view = CreateTransactionView(

@@ -15,7 +15,7 @@ from views.transactions import UpdateTransactionView
 
 @response_call_result(Action.StopTransaction)
 async def process_stop_transaction(session, event) -> StopTransactionPayload:
-    charge_point = await get_charge_point(session, None, event.charge_point_id)
+    charge_point = await get_charge_point(session, event.charge_point_id)
     logger.info(f"StopTransaction -> | start process call event (event={event}, driver={charge_point.driver})")
 
     view = UpdateTransactionView(

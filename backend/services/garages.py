@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
-from sqlalchemy import select, func, or_, update
+from sqlalchemy import select, func, or_, update, delete
 from sqlalchemy.sql import selectable
 
 import models as models
@@ -49,6 +49,10 @@ async def create_garage(session, data: CreateGarageView):
     session.add(garage)
     await session.flush()
     return garage
+
+
+async def delete_garage(session, garage_id: str):
+    await session.execute(delete(models.Garage).where(models.Garage.id == garage_id))
 
 
 async def store_rates(session, garage_id: str, data: GarageRatesView):
