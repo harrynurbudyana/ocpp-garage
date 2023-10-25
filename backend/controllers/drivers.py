@@ -1,10 +1,14 @@
+import os
 from typing import Tuple
 
 import arrow
-from fastapi import status, Depends
+import pdfkit
+from fastapi import status, Depends, BackgroundTasks
+from fastapi.responses import FileResponse
 from loguru import logger
 
 from core.database import get_contextual_session
+from core.settings import STATIC_PATH
 from models import Driver
 from routers import AuthenticatedRouter
 from services.charge_points import release_charge_point
@@ -25,7 +29,6 @@ from views.drivers import (
     CreateDriverView,
     UpdateDriverView
 )
-from views.statements import DriversStatement
 
 drivers_router = AuthenticatedRouter(
     prefix="/{garage_id}/drivers",
@@ -129,15 +132,15 @@ async def remove_charge_point(
 
 @drivers_router.get(
     "/{driver_id}/statement",
-    status_code=status.HTTP_200_OK,
-    response_model=DriversStatement
+    status_code=status.HTTP_200_OK
 )
 async def generate_statement(
+        background_task: BackgroundTasks,
         garage_id: str,
         driver_id: str,
         month: int | None = None,
         year: int | None = None
-) -> DriversStatement:
+):
     if not month:
         month = arrow.utcnow().month - 1  # previous one
     if not year:
@@ -146,4 +149,9 @@ async def generate_statement(
         garage = await get_garage(session, garage_id)
         driver = await get_driver(session, garage_id, driver_id)
         transactions = await find_drivers_transactions(session, driver, month, year)
-    return await generate_statements_for_driver(garage, driver, transactions, month, year)
+    html = await generate_statements_for_driver(garage, driver, transactions, month, year)
+    filename = driver.email.split("@")[0]
+    filepath = os.path.join(STATIC_PATH, f"{filename}.pdf")
+    pdfkit.from_string(html, filepath, verbose=True)
+    background_task.add_task(os.remove, filepath)
+    return FileResponse(filepath, media_type='application/pdf', filename=filepath.split("/")[-1])

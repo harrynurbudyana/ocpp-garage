@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <style>
+        .info {
+            padding: 10px 10px 10px 10px;
+        }
+
+        #total {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        #total td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #transactions {
+            font-family: Arial, Helvetica, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        #transactions td, #transactions th {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        #transactions .transaction {
+            background-color: #f2f2f2;
+            font-style: italic;
+        }
+
+        #transactions th {
+            padding-top: 12px;
+            padding-bottom: 12px;
+            text-align: center;
+            background-color: #04AA6D;
+            color: white;
+        }
+
+        .hours {
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<h3>{{ year }}, {{ month }}</h3>
+<table id="total">
+    <tr>
+        <td>Total kWh</td>
+        <td>Total cost</td>
+        <td>Cost / kWh</td>
+    </tr>
+    <tr>
+        <td>{{ total_kw }}</td>
+        <td>{{ total_cost }}</td>
+        <td>{{ per_kw_cost }}</td>
+    </tr>
+</table>
+
+<div class="info">{{ name }}</div>
+<div class="info">{{ garage_address }}</div>
+<div class="info">{{ email }}</div>
+<h3>Charging history</h3>
+<table id="transactions">
+    <tr>
+        <th>Start</th>
+        <th>End</th>
+        <th>Electricity Costs</th>
+        <th>Grid Costs</th>
+        <th>Stromstotte</th>
+        <th>Total Cost</th>
+        <th>Cost per kWh</th>
+    </tr>
+    {% for transaction in transactions %}
+    <tr class="transaction">
+        <td>
+            {{ transaction.start.strftime('%d %B, %Y') }}
+        </td>
+        <td>
+            {{ transaction.end.strftime('%d %B, %Y') }}
+        </td>
+        <td>{{ transaction.nordpool_price }}</td>
+        <td>{{ transaction.grid_cost }}</td>
+        <td>{{ transaction.government_rebate }}</td>
+        <td>{{ transaction.total_cost }}</td>
+        <td>{{ transaction.per_kw_cost }}</td>
+    </tr>
+    {% for hour in transaction.hours %}
+    <tr class="hours">
+        <td>{{ hour.start }}</td>
+        <td>{{ hour.end }}</td>
+        <td>{{ hour.nordpool_price }}</td>
+        <td>{{ hour.grid_cost }}</td>
+        <td>{{ hour.government_rebate }}</td>
+        <td>{{ hour.total_cost }}</td>
+        <td>{{ hour.per_kw_cost }}</td>
+    </tr>
+    {% endfor %}
+    {% endfor %}
+</table>
+</body>
+</html>

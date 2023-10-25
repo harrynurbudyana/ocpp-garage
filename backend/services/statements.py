@@ -2,6 +2,8 @@ import calendar
 from datetime import timedelta, datetime, time
 from typing import List, Type
 
+from jinja2 import Environment, FileSystemLoader
+
 from core.settings import DAILY_HOURS_RANGE
 from models import Garage, Driver, Transaction
 from views.statements import TransactionsHourlyPeriod, StatementsTransaction, DriversStatement
@@ -91,7 +93,8 @@ async def generate_statements_for_driver(
         transactions: List[Transaction],
         month: int,
         year: int
-) -> DriversStatement:
+):
+    env = Environment(loader=FileSystemLoader('templates/statements'))
     total_kw = 0
     total_cost = 0
     statement_items = []
@@ -109,7 +112,7 @@ async def generate_statements_for_driver(
         )
         total_cost += transaction_view.total_cost
         statement_items.append(transaction_view)
-    return DriversStatement(
+    statement = DriversStatement(
         month=calendar.month_name[month],
         year=year,
         total_kw=total_kw,
@@ -120,3 +123,5 @@ async def generate_statements_for_driver(
         garage_address=f"{garage.city}, {garage.street}",
         transactions=statement_items
     )
+    template = env.get_template('driver.html')
+    return template.render(**statement.dict())

@@ -1,9 +1,10 @@
 FROM python:3.11.3-slim-bullseye
 
-RUN apt-get update && apt-get install -y build-essential curl git
+RUN apt-get update && apt-get install -y build-essential curl git wkhtmltopdf
 
 RUN mkdir -p /usr/src/csms/backend
 RUN mkdir -p /usr/src/csms/frontend
+RUN mkdir -p /tmp/static
 
 WORKDIR /usr/src/csms
 
