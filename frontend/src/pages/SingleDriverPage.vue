@@ -8,7 +8,7 @@
     <v-container>
       <v-card-actions>
         <v-row>
-          <v-col>
+          <v-col cols="2" sm="2">
             <v-sheet align="left">
               <v-btn
                 :active="!loading"
@@ -16,6 +16,16 @@
                 :color="driver.is_active ? 'blue-darken-1' : 'red'"
                 @click="manageDriver()"
                 >{{ driver.is_active ? "Block" : "Recover" }}
+              </v-btn>
+            </v-sheet>
+          </v-col>
+          <v-col>
+            <v-sheet align="left">
+              <v-btn
+                variant="outlined"
+                color="green-darken-1"
+                @click="requestDriversReport(driver.id)"
+                >Report
               </v-btn>
             </v-sheet>
           </v-col>
@@ -169,6 +179,7 @@ import {
   deleteDriver,
   getDriver,
   releaseStation,
+  requestDriversReport,
   updateDriver,
 } from "@/services/drivers";
 import { listSimpleStations } from "@/services/stations";

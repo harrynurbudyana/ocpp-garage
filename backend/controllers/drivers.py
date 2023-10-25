@@ -62,7 +62,7 @@ async def retrieve_drivers(
     status_code=status.HTTP_200_OK,
     response_model=DriverView
 )
-async def retrieve_charge_point(
+async def retrieve_driver(
         garage_id: str,
         driver_id: str
 ):

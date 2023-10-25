@@ -1,6 +1,8 @@
 import { request } from "@/api";
 import router from "@/router";
 
+const API_URL = import.meta.env.VITE_API_URL.trim("/");
+
 const { currentRoute } = router;
 
 const endpoint = "drivers";
@@ -31,6 +33,15 @@ export function getDriver(driverId) {
   return request.get(
     `/${currentRoute.value.params.garageId}/${endpoint}/${driverId}`
   );
+}
+
+export function requestDriversReport(driverId) {
+  const link = document.createElement("a");
+  link.href = `${API_URL}/${currentRoute.value.params.garageId}/${endpoint}/${driverId}/statement`;
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
 
 export function updateDriver(driverId, data) {
