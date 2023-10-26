@@ -1,7 +1,6 @@
 import os
 from typing import Tuple
 
-import arrow
 import pdfkit
 from fastapi import status, Depends, BackgroundTasks
 from fastapi.responses import FileResponse
@@ -141,10 +140,6 @@ async def generate_statement(
         month: int | None = None,
         year: int | None = None
 ):
-    if not month:
-        month = arrow.utcnow().month - 1  # previous one
-    if not year:
-        year = arrow.utcnow().year  # current one
     async with get_contextual_session() as session:
         garage = await get_garage(session, garage_id)
         driver = await get_driver(session, garage_id, driver_id)

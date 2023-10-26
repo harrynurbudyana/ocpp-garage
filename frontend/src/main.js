@@ -15,6 +15,8 @@ import { createVuetify } from "vuetify";
 // Plugins
 import { registerPlugins } from "@/plugins";
 import "@mdi/font/css/materialdesignicons.css";
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 
 import router from "@/router";
 import store from "@/store";
@@ -26,6 +28,7 @@ const vuetify = createVuetify({
 });
 
 const app = createApp(App);
+app.component("VueDatePicker", VueDatePicker);
 app.use(vuetify);
 app.use(store);
 app.use(router);

@@ -2,13 +2,13 @@
   <v-card
     max-width="100%"
     class="text-center elevation-4"
-    height="330"
+    height="400"
     v-if="driver"
   >
     <v-container>
       <v-card-actions>
         <v-row>
-          <v-col cols="2" sm="2">
+          <v-col cols="2" sm="4">
             <v-sheet align="left">
               <v-btn
                 :active="!loading"
@@ -19,14 +19,13 @@
               </v-btn>
             </v-sheet>
           </v-col>
-          <v-col>
-            <v-sheet align="left">
-              <v-btn
-                variant="outlined"
-                color="green-darken-1"
-                @click="requestDriversReport(driver.id)"
-                >Report
-              </v-btn>
+          <v-col cols="2" sm="4">
+            <v-sheet align="center" class="ml-8">
+              <VueDatePicker
+                v-model="month"
+                @update:model-value="handleDate"
+                month-picker
+              />
             </v-sheet>
           </v-col>
           <v-col>
@@ -62,7 +61,7 @@
   <v-card
     max-width="100%"
     class="text-center mt-3 elevation-4"
-    height="500"
+    height="432"
     v-if="driver"
   >
     <data-table
@@ -170,6 +169,8 @@
 </template>
 
 <script setup>
+import VueDatePicker from "@vuepic/vue-datepicker";
+import "@vuepic/vue-datepicker/dist/main.css";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
@@ -189,9 +190,14 @@ import ConfirmWindow from "@/components/dialogs/ConfirmWindow";
 import DataTable from "@/components/DataTable";
 import { dateAgo } from "@/filters/date";
 
+const month = ref({
+  month: new Date().getMonth(),
+  year: new Date().getFullYear(),
+});
 const data = ref({});
 const stations = ref([]);
 const dialog = ref(false);
+
 const loading = ref(false);
 const driver = ref();
 const router = useRouter();
@@ -203,6 +209,12 @@ const openModal = () => {
     dialog.value = true;
     stations.value = response;
   });
+};
+
+const handleDate = (value) => {
+  if (!value) return;
+  let { month, year } = value;
+  requestDriversReport({ driverId: driver.value.id, month, year });
 };
 
 const closeModal = () => {

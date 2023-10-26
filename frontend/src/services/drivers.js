@@ -35,9 +35,10 @@ export function getDriver(driverId) {
   );
 }
 
-export function requestDriversReport(driverId) {
+export function requestDriversReport({ driverId, month, year }) {
   const link = document.createElement("a");
-  link.href = `${API_URL}/${currentRoute.value.params.garageId}/${endpoint}/${driverId}/statement`;
+  link.href = `${API_URL}/${currentRoute.value.params.garageId}/${endpoint}/${driverId}/statement?month=${month}&year=${year}`;
+  link.target = "_blank";
 
   document.body.appendChild(link);
   link.click();
