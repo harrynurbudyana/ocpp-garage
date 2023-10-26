@@ -191,7 +191,7 @@ import DataTable from "@/components/DataTable";
 import { dateAgo } from "@/filters/date";
 
 const month = ref({
-  month: new Date().getMonth(),
+  month: new Date().getMonth() - 1,
   year: new Date().getFullYear(),
 });
 const data = ref({});
@@ -214,7 +214,7 @@ const openModal = () => {
 const handleDate = (value) => {
   if (!value) return;
   let { month, year } = value;
-  requestDriversReport({ driverId: driver.value.id, month, year });
+  requestDriversReport({ driverId: driver.value.id, month: month + 1, year });
 };
 
 const closeModal = () => {
