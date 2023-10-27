@@ -168,10 +168,7 @@ const switchGarage = (item) => {
 };
 
 const isActiveSwitcher = () => {
-  let result =
-    getters.dropDownList.length &&
-    !currentRoute.value.fullPath.includes("garages");
-  return !!result;
+  return getters.dropDownList.length;
 };
 
 const setIntervalForActions = () => {
