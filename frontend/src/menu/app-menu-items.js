@@ -32,7 +32,8 @@ export const menuItems = [
     name: "Government Rebates",
     key: "government-rebates",
     icon: "mdi mdi-cash-refund",
-    isVisible: ({ currentGarage }) => !!currentGarage,
+    isVisible: ({ currentGarage, currentUser }) =>
+      !!currentGarage && currentUser.is_superuser,
     getPath: ({ currentGarage }) => `/${currentGarage?.id}/government-rebates`,
   },
   {
