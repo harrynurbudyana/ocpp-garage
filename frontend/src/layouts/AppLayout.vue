@@ -168,7 +168,10 @@ const switchGarage = (item) => {
 };
 
 const isActiveSwitcher = () => {
-  return getters.dropDownList.length;
+  let result =
+    getters.dropDownList.length &&
+    !currentRoute.value.fullPath.includes("garages");
+  return !!result;
 };
 
 const setIntervalForActions = () => {
