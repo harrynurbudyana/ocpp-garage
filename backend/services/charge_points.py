@@ -66,8 +66,15 @@ async def get_charge_point(session, charge_point_id) -> ChargePoint | None:
 
 
 async def create_charge_point(session, garage_id: str, data: CreateChargPointView):
-    charge_point = ChargePoint(garage_id=garage_id, **data.dict())
+    charge_point_id = data.id
+    connectors = data.connectors
+    data = data.dict()
+    data.pop("connectors")
+    charge_point = ChargePoint(garage_id=garage_id, **data)
     session.add(charge_point)
+    for idx, connector in enumerate(connectors):
+        connector = models.Connector(id=idx + 1, charge_point_id=charge_point_id, type=connector.type)
+        session.add(connector)
     return charge_point
 
 

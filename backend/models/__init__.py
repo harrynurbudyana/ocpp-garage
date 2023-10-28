@@ -4,7 +4,7 @@ from copy import deepcopy
 from typing import Dict
 
 from ocpp.v16.call import StatusNotificationPayload
-from ocpp.v16.enums import ChargePointStatus
+from ocpp.v16.enums import ChargePointStatus, ChargePointErrorCode
 from sqlalchemy import Column, String, ForeignKey, Enum, JSON, Integer, Sequence, Numeric, UniqueConstraint, \
     PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
@@ -145,6 +145,8 @@ class Connector(Base):
 
     id = Column(Integer, nullable=False)
     type = Column(String, nullable=False)
+    status = Column(Enum(ChargePointStatus), default=ChargePointStatus.unavailable)
+    error_code = Column(Enum(ChargePointErrorCode), default=ChargePointErrorCode.no_error)
 
     charge_point_id = Column(String, ForeignKey("charge_points.id", ondelete='CASCADE'), nullable=False)
     charge_point = relationship("ChargePoint", back_populates="connectors", lazy="joined")
