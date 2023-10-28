@@ -31,7 +31,6 @@ class CreateChargPointView(BaseModel):
     serial_number: str | None = None
     model: str | None = None
     location: str | None = None
-    connectors: List[str]
 
 
 class UpdateChargPointView(BaseModel):

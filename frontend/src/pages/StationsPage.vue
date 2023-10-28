@@ -88,30 +88,6 @@
                       validate-on="lazy blur"
                     ></v-text-field>
                   </v-col>
-                  <v-combobox
-                    label="Connectors"
-                    v-model="data.connectors"
-                    closable-chips
-                    chips
-                    clearable
-                    multiple
-                    filled
-                    variant="underlined"
-                  >
-                    <template
-                      v-slot:selection="{ attrs, item, select, selected }"
-                    >
-                      <v-chip
-                        small
-                        v-bind="attrs"
-                        :input-value="selected"
-                        close
-                        @click="select"
-                      >
-                        {{ item }}
-                      </v-chip>
-                    </template>
-                  </v-combobox>
                   <v-col cols="12">
                     <v-text-field
                       :rules="rules.station.commentRules"
