@@ -43,7 +43,7 @@ async def build_charge_points_query(search: str, extra_criterias: List | None = 
     ]
     if extra_criterias:
         criterias.extend(extra_criterias)
-    query = select(ChargePoint).outerjoin(models.Driver)
+    query = select(ChargePoint).outerjoin(models.Connector)
     for criteria in criterias:
         query = query.where(criteria)
     query = query.order_by(ChargePoint.updated_at.asc())
@@ -72,8 +72,12 @@ async def create_charge_point(session, garage_id: str, data: CreateChargPointVie
     data.pop("connectors")
     charge_point = ChargePoint(garage_id=garage_id, **data)
     session.add(charge_point)
-    for idx, connector in enumerate(connectors):
-        connector = models.Connector(id=idx + 1, charge_point_id=charge_point_id, type=connector.type)
+    for idx, type_ in enumerate(connectors):
+        connector = models.Connector(
+            id=idx + 1,
+            charge_point_id=charge_point_id,
+            type=type_
+        )
         session.add(connector)
     return charge_point
 

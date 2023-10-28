@@ -95,8 +95,13 @@
       <v-card max-width="100%" class="text-center" height="100%">
         <v-card-title primary-title>
           <span class="mdi mdi-connection"></span>
-          Connector {{ connector.connector_id }}
+          Connector {{ connector.id }}
         </v-card-title>
+        <v-card-subtitle class="mt-10 mb-10">
+          <p class="text-medium-emphasis">
+            {{ connector.type }}
+          </p>
+        </v-card-subtitle>
         <v-card-subtitle class="mt-10 mb-10">
           <v-chip :color="STATION_STATUS_COLOR[connector.status.toLowerCase()]">
             <p class="text-medium-emphasis">
@@ -303,7 +308,7 @@ const closeModal = (type) => {
 
 const removeStation = (stationId) => {
   return deleteStation(stationId).then(() => {
-    router.push({ name: "Stations" });
+    router.push({ name: "stations" });
   });
 };
 

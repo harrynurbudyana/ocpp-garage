@@ -14,15 +14,14 @@ class ChargePointUpdateStatusView(BaseModel):
     connectors: Dict | None = None
 
 
-class CreateConnectorView(BaseModel):
-    type: str
-
-
 class ConnectorView(BaseModel):
     id: int
     type: str
     status: ChargePointStatus
     error_code: ChargePointErrorCode
+
+    class Config:
+        orm_mode = True
 
 
 class CreateChargPointView(BaseModel):
@@ -32,7 +31,7 @@ class CreateChargPointView(BaseModel):
     serial_number: str | None = None
     model: str | None = None
     location: str | None = None
-    connectors: List[CreateConnectorView]
+    connectors: List[str]
 
 
 class UpdateChargPointView(BaseModel):

@@ -1,10 +1,10 @@
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 
 export function useSubmitForm({ itemSender, afterHandler }) {
   const loading = ref(false);
   const isValid = ref(false);
   const dialog = ref(false);
-  const data = ref({});
+  const data = reactive({});
   const errors = ref({});
   const showError = ref(false);
 
@@ -25,7 +25,7 @@ export function useSubmitForm({ itemSender, afterHandler }) {
 
   const sendData = () => {
     loading.value = true;
-    itemSender(data.value)
+    itemSender(data)
       .then((response) => {
         afterHandler(response);
         closeModal();
