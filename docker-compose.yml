@@ -94,7 +94,6 @@ services:
     command: >
       sh -c "cd /usr/src/csms/frontend &&
              yarn install && 
-             yarn add @vuepic/vue-datepicker && 
              yarn dev --port ${UI_SERVER_PORT} --host 0.0.0.0"
     depends_on:
       manager-thnxel:
