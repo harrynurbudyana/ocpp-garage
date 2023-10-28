@@ -113,7 +113,8 @@ class ChargePoint(Model):
     location = Column(String, nullable=True)
     model = Column(String, nullable=True)
     connectors = relationship("Connector",
-                              back_populates="charge_point",
+                              backref="charge_point",
+                              passive_deletes=True,
                               lazy="joined")
 
     garage_id = Column(String, ForeignKey("garages.id"), nullable=False)
@@ -145,7 +146,7 @@ class Connector(Base):
     id = Column(Integer, nullable=False)
     type = Column(String, nullable=False)
 
-    charge_point_id = Column(String, ForeignKey("charge_points.id"), nullable=False)
+    charge_point_id = Column(String, ForeignKey("charge_points.id", ondelete='CASCADE'), nullable=False)
     charge_point = relationship("ChargePoint", back_populates="connectors", lazy="joined")
 
     driver_id = Column(String, ForeignKey("drivers.id"), nullable=True)
