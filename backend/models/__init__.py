@@ -5,11 +5,11 @@ from typing import Dict
 
 from ocpp.v16.call import StatusNotificationPayload
 from ocpp.v16.enums import ChargePointStatus
-from sqlalchemy import Column, String, ForeignKey, Enum, ARRAY, JSON, Integer, Sequence, Numeric
-from sqlalchemy.ext.mutable import MutableList
+from sqlalchemy import Column, String, ForeignKey, Enum, JSON, Integer, Sequence, Numeric, UniqueConstraint, \
+    PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 
-from core.database import Model
+from core.database import Model, Base
 from core.fields import TransactionStatus
 
 
@@ -94,9 +94,10 @@ class Driver(Person):
     __tablename__ = "drivers"
 
     billing_requisites = Column(JSON, default=dict())
-    charge_points = relationship("ChargePoint",
-                                 back_populates="driver",
-                                 lazy="joined")
+    connector = relationship("Connector",
+                             uselist=False,
+                             back_populates="driver",
+                             lazy="joined")
 
     garage_id = Column(String, ForeignKey("garages.id"), nullable=False)
     garage = relationship("Garage", back_populates="drivers", lazy="joined")
@@ -111,10 +112,9 @@ class ChargePoint(Model):
     serial_number = Column(String, nullable=True)
     location = Column(String, nullable=True)
     model = Column(String, nullable=True)
-    connectors = Column(MutableList.as_mutable(ARRAY(JSON)), default=list())
-
-    driver_id = Column(String, ForeignKey("drivers.id"), nullable=True)
-    driver = relationship("Driver", back_populates="charge_points", lazy="joined")
+    connectors = relationship("Connector",
+                              back_populates="charge_point",
+                              lazy="joined")
 
     garage_id = Column(String, ForeignKey("garages.id"), nullable=False)
     garage = relationship("Garage", back_populates="charge_points", lazy="joined")
@@ -132,6 +132,24 @@ class ChargePoint(Model):
 
     def __repr__(self):
         return f"ChargePoint (id={self.id}, status={self.status}, location={self.location})"
+
+
+class Connector(Base):
+    __tablename__ = "connectors"
+
+    __table_args__ = (
+        UniqueConstraint("id", "charge_point_id"),
+        PrimaryKeyConstraint("id", "charge_point_id")
+    )
+
+    id = Column(Integer, nullable=False)
+    type = Column(String, nullable=False)
+
+    charge_point_id = Column(String, ForeignKey("charge_points.id"), nullable=False)
+    charge_point = relationship("ChargePoint", back_populates="connectors", lazy="joined")
+
+    driver_id = Column(String, ForeignKey("drivers.id"), nullable=True)
+    driver = relationship("Driver", back_populates="connector", lazy="joined")
 
 
 class Transaction(Model):
