@@ -36,8 +36,8 @@ configuration = [
 
 @send_call(Action.ChangeConfiguration)
 async def process_change_configration_call(
-        configuration: ChangeConfigurationPayload,
+        config: ChangeConfigurationPayload,
         charge_point_id: str,
         message_id: str
 ) -> ChangeConfigurationPayload:
-    return configuration
+    return config
