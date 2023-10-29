@@ -115,18 +115,21 @@ async def delete_driver(
 
 
 @drivers_router.delete(
-    "/{driver_id}/charge_points/{charge_point_id}",
-    status_code=status.HTTP_204_NO_CONTENT
+    "/{driver_id}/charge_points/{charge_point_id}/connectors/{connector_id}",
+    status_code=status.HTTP_200_OK,
+    response_model=DriverView
 )
 async def remove_charge_point(
         garage_id: str,
         driver_id: str,
-        charge_point_id: str
+        charge_point_id: str,
+        connector_id: int
 ):
     logger.info(f"Releasing drivers charge point (driver_id={driver_id}, charge_point_id={charge_point_id})")
     async with get_contextual_session() as session:
-        await release_charge_point(session, driver_id, charge_point_id)
+        await release_charge_point(session, driver_id, charge_point_id, connector_id)
         await session.commit()
+        return await get_driver(session, garage_id, driver_id)
 
 
 @drivers_router.get(
@@ -137,8 +140,8 @@ async def generate_statement(
         background_task: BackgroundTasks,
         garage_id: str,
         driver_id: str,
-        month: int | None = None,
-        year: int | None = None
+        month: int,
+        year: int
 ):
     async with get_contextual_session() as session:
         garage = await get_garage(session, garage_id)

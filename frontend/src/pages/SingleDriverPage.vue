@@ -68,7 +68,7 @@
       :hover="false"
       :paginate="false"
       title="Stations"
-      :items="driver.charge_points"
+      :items="driver.connectors"
       :headers="headers"
     >
       <template v-slot:title="{ title }">
@@ -128,12 +128,29 @@
                   <v-col cols="12" class="mt-7">
                     <v-autocomplete
                       :items="stations"
+                      no-data-text="There are no available stations."
                       v-model="data.charge_point_id"
                       required
                       label="Station"
                       density="compact"
                       variant="underlined"
                       item-title="location"
+                      item-value="id"
+                      @update:modelValue="requestConnectors"
+                    ></v-autocomplete>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="12" class="mt-7">
+                    <v-autocomplete
+                      :disabled="!data.charge_point_id"
+                      :items="connectors"
+                      v-model="data.connector_id"
+                      required
+                      label="Connector"
+                      density="compact"
+                      variant="underlined"
+                      item-title="id"
                       item-value="id"
                     ></v-autocomplete>
                   </v-col>
@@ -183,12 +200,11 @@ import {
   requestDriversReport,
   updateDriver,
 } from "@/services/drivers";
-import { listSimpleStations } from "@/services/stations";
+import { getStation, listSimpleStations } from "@/services/stations";
 import { menuItems } from "@/menu/driver-menu-items";
 import { DRIVERS_STATUS, STATION_STATUS_COLOR } from "@/components/enums";
 import ConfirmWindow from "@/components/dialogs/ConfirmWindow";
 import DataTable from "@/components/DataTable";
-import { dateAgo } from "@/filters/date";
 
 const month = ref({
   month: new Date().getMonth() - 1,
@@ -196,6 +212,7 @@ const month = ref({
 });
 const data = ref({});
 const stations = ref([]);
+const connectors = ref([]);
 const dialog = ref(false);
 
 const loading = ref(false);
@@ -203,6 +220,15 @@ const driver = ref();
 const router = useRouter();
 const { commit } = useStore();
 const { openConfirm } = useConfirm();
+
+const requestConnectors = (value) => {
+  getStation(value).then(
+    (response) =>
+      (connectors.value = response.connectors.filter(
+        (item) => item.is_taken === false
+      ))
+  );
+};
 
 const openModal = () => {
   listSimpleStations().then((response) => {
@@ -235,7 +261,10 @@ const manageDriver = () => {
 
 const bindStation = () => {
   loading.value = true;
-  updateDriver(driver.value.id, { charge_point_id: data.value.charge_point_id })
+  updateDriver(driver.value.id, {
+    charge_point_id: data.value.charge_point_id,
+    connector_id: data.value.connector_id,
+  })
     .then((response) => {
       driver.value = response;
     })
@@ -247,12 +276,13 @@ const bindStation = () => {
 
 const unbindStation = (item) => {
   loading.value = true;
-  releaseStation({ driverId: driver.value.id, stationId: item.columns.id })
-    .then(() => {
-      console.log(driver.value);
-      driver.value.charge_points = driver.value.charge_points.filter(
-        (i) => i.id !== item.columns.id
-      );
+  releaseStation({
+    driverId: driver.value.id,
+    stationId: item.columns.charge_point,
+    connectorId: item.columns.id,
+  })
+    .then((response) => {
+      driver.value = response;
     })
     .finally(() => {
       loading.value = false;
@@ -279,7 +309,23 @@ onMounted(() => {
 
 const headers = [
   {
-    title: "Id",
+    title: "Station",
+    key: "charge_point",
+    align: "center",
+    value: (item) => item.charge_point.id,
+    sortable: false,
+    width: "15%",
+  },
+  {
+    title: "Location",
+    key: "location",
+    align: "center",
+    value: (item) => item.charge_point.location,
+    sortable: false,
+    width: "20%",
+  },
+  {
+    title: "Connector",
     key: "id",
     align: "center",
     sortable: false,
@@ -290,21 +336,6 @@ const headers = [
     key: "status",
     align: "center",
     sortable: false,
-    width: "20%",
-  },
-  {
-    title: "Location",
-    key: "location",
-    align: "center",
-    sortable: false,
-    width: "20%",
-  },
-  {
-    title: "Last activity",
-    key: "updated_at",
-    align: "center",
-    sortable: true,
-    value: (v) => dateAgo(v.updated_at),
     width: "20%",
   },
   {

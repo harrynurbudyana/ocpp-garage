@@ -98,11 +98,6 @@
           Connector {{ connector.id }}
         </v-card-title>
         <v-card-subtitle class="mt-10 mb-10">
-          <p class="text-medium-emphasis">
-            {{ connector.type }}
-          </p>
-        </v-card-subtitle>
-        <v-card-subtitle class="mt-10 mb-10">
           <v-chip :color="STATION_STATUS_COLOR[connector.status.toLowerCase()]">
             <p class="text-medium-emphasis">
               {{ connector.status }}

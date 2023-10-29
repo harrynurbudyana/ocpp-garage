@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 from typing import Dict
+from uuid import uuid4
 
 from ocpp.v16.call import StatusNotificationPayload
 from ocpp.v16.enums import ChargePointStatus, ChargePointErrorCode
@@ -94,10 +95,9 @@ class Driver(Person):
     __tablename__ = "drivers"
 
     billing_requisites = Column(JSON, default=dict())
-    connector = relationship("Connector",
-                             uselist=False,
-                             back_populates="driver",
-                             lazy="joined")
+    connectors = relationship("Connector",
+                              back_populates="driver",
+                              lazy="joined")
 
     garage_id = Column(String, ForeignKey("garages.id"), nullable=False)
     garage = relationship("Garage", back_populates="drivers", lazy="joined")
@@ -105,7 +105,11 @@ class Driver(Person):
 
 class ChargePoint(Model):
     __tablename__ = "charge_points"
+    __table_args__ = (UniqueConstraint("id", "garage_id"),)
 
+    _id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()), unique=True)
+
+    id = Column(String, nullable=False)
     description = Column(String(124), nullable=True)
     status = Column(Enum(ChargePointStatus), default=ChargePointStatus.unavailable, index=True)
     vendor = Column(String, nullable=True)
@@ -144,7 +148,6 @@ class Connector(Base):
     )
 
     id = Column(Integer, nullable=False)
-    type = Column(String, nullable=False)
     status = Column(Enum(ChargePointStatus), default=ChargePointStatus.unavailable)
     error_code = Column(Enum(ChargePointErrorCode), default=ChargePointErrorCode.no_error)
 
@@ -152,7 +155,11 @@ class Connector(Base):
     charge_point = relationship("ChargePoint", back_populates="connectors", lazy="joined")
 
     driver_id = Column(String, ForeignKey("drivers.id"), nullable=True)
-    driver = relationship("Driver", back_populates="connector")
+    driver = relationship("Driver", back_populates="connectors")
+
+    @property
+    def is_taken(self):
+        return bool(self.driver_id)
 
 
 class Transaction(Model):

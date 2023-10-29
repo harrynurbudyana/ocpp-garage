@@ -3,7 +3,7 @@ from typing import List
 from pydantic import BaseModel
 
 from views import PaginationView
-from views.charge_points import SimpleChargePoint
+from views.charge_points import ConnectorView
 
 
 class CreateDriverView(BaseModel):
@@ -19,6 +19,7 @@ class UpdateDriverView(BaseModel):
     last_name: str | None = None
     address: str | None = None
     charge_point_id: str | None = None
+    connector_id: int | None = None
     is_active: bool | None = None
 
 
@@ -41,7 +42,7 @@ class DriverView(BaseModel):
     last_name: str
     address: str
     is_active: bool
-    charge_points: List[SimpleChargePoint]
+    connectors: List[ConnectorView]
 
     class Config:
         orm_mode = True

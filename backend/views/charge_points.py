@@ -14,16 +14,6 @@ class ChargePointUpdateStatusView(BaseModel):
     connectors: Dict | None = None
 
 
-class ConnectorView(BaseModel):
-    id: int
-    type: str
-    status: ChargePointStatus
-    error_code: ChargePointErrorCode
-
-    class Config:
-        orm_mode = True
-
-
 class CreateChargPointView(BaseModel):
     id: str
     description: str | None = None
@@ -44,7 +34,7 @@ class ChargePointView(BaseModel):
     id: str
     description: str | None = None
     status: ChargePointStatus
-    connectors: List[ConnectorView]
+    connectors: List[SimpleConnectorView]
 
     class Config:
         orm_mode = True
@@ -58,6 +48,30 @@ class SimpleChargePoint(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class SimpleConnectorView(BaseModel):
+    id: int
+    status: ChargePointStatus
+    error_code: ChargePointErrorCode
+    is_taken: bool
+
+    class Config:
+        orm_mode = True
+
+
+class ConnectorView(BaseModel):
+    id: int
+    status: ChargePointStatus
+    error_code: ChargePointErrorCode
+    charge_point: SimpleChargePoint
+
+    class Config:
+        orm_mode = True
+
+
+ConnectorView.update_forward_refs()
+ChargePointView.update_forward_refs()
 
 
 class PaginatedChargePointsView(BaseModel):

@@ -2,11 +2,11 @@ from copy import deepcopy
 
 from loguru import logger
 from ocpp.v16.enums import Action, ChargePointStatus
-
-from core.database import get_contextual_session
 from pyocpp_contrib.decorators import prepare_event, message_id_generator
 from pyocpp_contrib.enums import ConnectionAction
-from services.charge_points import update_charge_point, reset_connectors
+
+from core.database import get_contextual_session
+from services.charge_points import update_charge_point, update_connectors
 from services.ocpp.authorize import process_authorize
 from services.ocpp.boot_notification import process_boot_notification
 from services.ocpp.change_availability import process_change_availability_call_result
@@ -60,7 +60,7 @@ async def process_event(event):
         if event.action is ConnectionAction.lost_connection:
             data = ChargePointUpdateStatusView(status=ChargePointStatus.unavailable)
             await update_charge_point(session, charge_point_id=event.charge_point_id, data=data)
-            await reset_connectors(session, event.charge_point_id)
+            await update_connectors(session, charge_point_id=event.charge_point_id, data=data)
 
         # Call result messages
         if event.action is Action.RemoteStartTransaction:

@@ -6,7 +6,7 @@ from sqlalchemy import select, update, func, or_, String, delete
 from sqlalchemy.sql import selectable
 
 from models import Driver, ChargePoint, Garage
-from services.charge_points import update_charge_point
+from services.charge_points import update_connector
 from views.charge_points import UpdateChargPointView
 from views.drivers import CreateDriverView, UpdateDriverView
 
@@ -55,9 +55,10 @@ async def update_driver(
 ) -> None:
     payload = data.dict(exclude_unset=True)
     charge_point_id = payload.pop("charge_point_id", None)
-    if charge_point_id:
+    connector_id = payload.pop("connector_id", None)
+    if charge_point_id and connector_id:
         data = UpdateChargPointView(driver_id=driver_id)
-        await update_charge_point(session, charge_point_id, data)
+        await update_connector(session, charge_point_id, connector_id, data)
     if payload:
         await session.execute(update(Driver) \
                               .where(Driver.id == driver_id) \

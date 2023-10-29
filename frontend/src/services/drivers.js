@@ -52,8 +52,8 @@ export function updateDriver(driverId, data) {
   );
 }
 
-export function releaseStation({ driverId, stationId }) {
+export function releaseStation({ driverId, stationId, connectorId }) {
   return request.delete(
-    `/${currentRoute.value.params.garageId}/${endpoint}/${driverId}/charge_points/${stationId}/`
+    `/${currentRoute.value.params.garageId}/${endpoint}/${driverId}/charge_points/${stationId}/connectors/${connectorId}`
   );
 }
