@@ -113,7 +113,7 @@ class ChargePoint(Model):
                               lazy="joined")
 
     garage_id = Column(String, ForeignKey("garages.id"), nullable=False)
-    garage = relationship("Garage", back_populates="charge_points")
+    garage = relationship("Garage", back_populates="charge_points", lazy="joined")
 
     def __repr__(self):
         return f"ChargePoint (id={self.id}, status={self.status}, location={self.location})"
@@ -135,7 +135,7 @@ class Connector(Base):
     charge_point = relationship("ChargePoint", back_populates="connectors", lazy="joined")
 
     driver_id = Column(String, ForeignKey("drivers.id"), nullable=True)
-    driver = relationship("Driver", back_populates="connectors")
+    driver = relationship("Driver", back_populates="connectors", lazy="joined")
 
     @property
     def is_taken(self):

@@ -5,7 +5,7 @@ from typing import List
 from sqlalchemy import select, update, func, or_, String, delete
 from sqlalchemy.sql import selectable
 
-from models import Driver, ChargePoint, Garage
+from models import Driver, Garage, Connector
 from services.charge_points import update_connector
 from views.charge_points import UpdateChargPointView
 from views.drivers import CreateDriverView, UpdateDriverView
@@ -67,8 +67,8 @@ async def update_driver(
 
 
 async def remove_driver(session, garage_id: str, driver_id: str) -> None:
-    await session.execute(update(ChargePoint) \
-                          .where(ChargePoint.driver_id == driver_id) \
+    await session.execute(update(Connector) \
+                          .where(Connector.driver_id == driver_id) \
                           .values({"driver_id": None}))
     query = delete(Driver) \
         .where(Driver.id == driver_id) \

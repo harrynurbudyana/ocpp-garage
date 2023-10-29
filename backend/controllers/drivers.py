@@ -10,7 +10,7 @@ from core.database import get_contextual_session
 from core.settings import STATIC_PATH
 from models import Driver
 from routers import AuthenticatedRouter
-from services.charge_points import release_charge_point
+from services.charge_points import release_connector
 from services.drivers import (
     build_drivers_query,
     get_driver,
@@ -127,7 +127,7 @@ async def remove_charge_point(
 ):
     logger.info(f"Releasing drivers charge point (driver_id={driver_id}, charge_point_id={charge_point_id})")
     async with get_contextual_session() as session:
-        await release_charge_point(session, driver_id, charge_point_id, connector_id)
+        await release_connector(session, driver_id, charge_point_id, connector_id)
         await session.commit()
         return await get_driver(session, garage_id, driver_id)
 

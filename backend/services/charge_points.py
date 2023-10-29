@@ -34,6 +34,15 @@ async def update_connectors(session, charge_point_id: str, data: ChargePointUpda
     )
 
 
+async def update_connector(session, charge_point_id: str, connector_id: int, data):
+    await session.execute(
+        update(models.Connector) \
+            .where(models.Connector.charge_point_id == charge_point_id,
+                   models.Connector.id == connector_id) \
+            .values(**data.dict(exclude_unset=True))
+    )
+
+
 async def build_charge_points_query(search: str, extra_criterias: List | None = None) -> selectable:
     criterias = [
         ChargePoint.is_active.is_(True)
@@ -58,7 +67,15 @@ async def build_charge_points_query(search: str, extra_criterias: List | None = 
 
 
 async def get_charge_point(session, charge_point_id) -> ChargePoint | None:
-    query = select(ChargePoint).where(ChargePoint.id == charge_point_id)
+    query = select(ChargePoint).outerjoin(models.Garage).where(ChargePoint.id == charge_point_id)
+    result = await session.execute(query)
+    return result.scalars().first()
+
+
+async def get_connector(session, charge_point_id, connector_id) -> ChargePoint | None:
+    query = select(models.Connector) \
+        .outerjoin(models.ChargePoint) \
+        .where(models.ChargePoint.id == charge_point_id, models.Connector.id == connector_id)
     result = await session.execute(query)
     return result.scalars().first()
 
@@ -67,15 +84,6 @@ async def create_charge_point(session, garage_id: str, data: CreateChargPointVie
     charge_point = ChargePoint(garage_id=garage_id, **data.dict())
     session.add(charge_point)
     return charge_point
-
-
-async def update_connector(session, charge_point_id: str, connector_id: int, data):
-    await session.execute(
-        update(models.Connector) \
-            .where(models.Connector.charge_point_id == charge_point_id,
-                   models.Connector.id == connector_id) \
-            .values(**data.dict(exclude_unset=True))
-    )
 
 
 async def update_charge_point(
@@ -108,7 +116,7 @@ async def list_simple_charge_points(session, garage_id: str, all=False) -> List[
     return result.unique().fetchall()
 
 
-async def release_charge_point(session, driver_id: str, charge_point_id: str, connector_id: int):
+async def release_connector(session, driver_id: str, charge_point_id: str, connector_id: int):
     await session.execute(update(models.Connector) \
                           .where(models.Connector.driver_id == driver_id,
                                  models.Connector.charge_point_id == charge_point_id,

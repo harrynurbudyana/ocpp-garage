@@ -8,15 +8,15 @@ from ocpp.v16.enums import AuthorizationStatus, ChargePointStatus
 from pyocpp_contrib.decorators import response_call_result
 
 from core.fields import TransactionStatus
-from services.charge_points import get_charge_point, update_connector
+from services.charge_points import update_connector, get_connector
 from services.transactions import update_transaction, get_transaction
+from views.charge_points import ChargePointUpdateStatusView
 from views.transactions import UpdateTransactionView
 
 
 @response_call_result(Action.StopTransaction)
 async def process_stop_transaction(session, event) -> StopTransactionPayload:
-    charge_point = await get_charge_point(session, event.charge_point_id)
-    logger.info(f"StopTransaction -> | start process call event (event={event}, driver={charge_point.driver})")
+    logger.info(f"StopTransaction -> | start process call event (event={event})")
 
     view = UpdateTransactionView(
         transaction_id=event.payload.transaction_id,
@@ -26,17 +26,20 @@ async def process_stop_transaction(session, event) -> StopTransactionPayload:
 
     transaction = await get_transaction(session, event.payload.transaction_id)
     transaction.status = TransactionStatus.completed
-    logger.info(f"StopTransaction -> | mark transaction as completed (event={event}, driver={charge_point.driver})")
 
+    connector = await get_connector(session, event.charge_point_id, transaction.connector)
+    logger.info(f"StopTransaction -> | mark transaction as completed (event={event}, driver={connector.driver})")
+
+    data = ChargePointUpdateStatusView(status=ChargePointStatus.available)
     await update_connector(
         session,
         event.charge_point_id,
         transaction.connector,
-        dict(status=ChargePointStatus.available)
+        data
     )
-    logger.info(f"StopTransaction -> | mark connector as available (event={event}, driver={charge_point.driver})")
+    logger.info(f"StopTransaction -> | mark connector as available (event={event}, driver={connector.driver})")
     payload = StopTransactionPayload(
         id_tag_info=asdict(IdTagInfo(status=AuthorizationStatus.accepted))
     )
-    logger.info(f"StopTransaction -> | prepared payload={payload} (event={event}, driver={charge_point.driver})")
+    logger.info(f"StopTransaction -> | prepared payload={payload} (event={event}, driver={connector.driver})")
     return payload

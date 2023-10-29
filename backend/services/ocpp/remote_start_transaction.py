@@ -7,6 +7,7 @@ from core.cache import ActionCache
 from core.fields import TransactionStatus
 from services.charge_points import get_charge_point, update_connector
 from views.actions import ActionView
+from views.charge_points import ChargePointUpdateStatusView
 
 
 @contextable
@@ -21,8 +22,8 @@ async def process_remote_start_transaction_call(
     charge_point = await get_charge_point(session, charge_point_id)
     logger.info(
         f"RemoteStartTransaction -> | Found charge point (charge_point_id={charge_point_id}, connector_id={connector_id}, id_tag={id_tag})")
-    data = dict(status=ChargePointStatus.preparing)
-    await charge_point.update_connector(session, connector_id, data)
+    data = ChargePointUpdateStatusView(status=ChargePointStatus.preparing)
+    await update_connector(session, charge_point_id, connector_id, data)
     logger.info(
         f"RemoteStartTransaction -> | Updated connector with data={data} (charge_point_id={charge_point_id}, connector_id={connector_id}, id_tag={id_tag})")
     payload = RemoteStartTransactionPayload(
