@@ -1,10 +1,5 @@
 from __future__ import annotations
 
-from copy import deepcopy
-from typing import Dict
-from uuid import uuid4
-
-from ocpp.v16.call import StatusNotificationPayload
 from ocpp.v16.enums import ChargePointStatus, ChargePointErrorCode
 from sqlalchemy import Column, String, ForeignKey, Enum, JSON, Integer, Sequence, Numeric, UniqueConstraint, \
     PrimaryKeyConstraint
@@ -105,11 +100,7 @@ class Driver(Person):
 
 class ChargePoint(Model):
     __tablename__ = "charge_points"
-    __table_args__ = (UniqueConstraint("id", "garage_id"),)
 
-    _id = Column(String, primary_key=True, index=True, default=lambda: str(uuid4()), unique=True)
-
-    id = Column(String, nullable=False)
     description = Column(String(124), nullable=True)
     status = Column(Enum(ChargePointStatus), default=ChargePointStatus.unavailable, index=True)
     vendor = Column(String, nullable=True)
@@ -123,17 +114,6 @@ class ChargePoint(Model):
 
     garage_id = Column(String, ForeignKey("garages.id"), nullable=False)
     garage = relationship("Garage", back_populates="charge_points")
-
-    async def update_connector(self, session, connector_id: int, payload: Dict) -> bool:
-        connectors = deepcopy(self.connectors)
-        for idx, data in enumerate(connectors):
-            connector = StatusNotificationPayload(**data)
-            if connector.connector_id == connector_id:
-                connectors[idx].update(payload)
-                self.connectors = connectors
-                session.add(self)
-                return True
-        return False
 
     def __repr__(self):
         return f"ChargePoint (id={self.id}, status={self.status}, location={self.location})"

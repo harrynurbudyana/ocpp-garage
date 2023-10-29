@@ -8,7 +8,7 @@ from ocpp.v16.enums import AuthorizationStatus, ChargePointStatus
 from pyocpp_contrib.decorators import response_call_result
 
 from core.fields import TransactionStatus
-from services.charge_points import get_charge_point
+from services.charge_points import get_charge_point, update_connector
 from services.drivers import is_driver_authorized
 from services.transactions import create_transaction
 from views.transactions import CreateTransactionView
@@ -35,8 +35,9 @@ async def process_start_transaction(session, event) -> StartTransactionPayload:
         view.status = TransactionStatus.faulted
 
     if status is AuthorizationStatus.accepted:
-        await charge_point.update_connector(
+        await update_connector(
             session,
+            event.charge_point_id,
             event.payload.connector_id,
             dict(status=ChargePointStatus.charging)
         )

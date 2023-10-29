@@ -5,7 +5,7 @@ from pyocpp_contrib.decorators import send_call, contextable, use_context
 
 from core.cache import ActionCache
 from core.fields import TransactionStatus
-from services.charge_points import get_charge_point
+from services.charge_points import get_charge_point, update_connector
 from views.actions import ActionView
 
 
@@ -58,4 +58,4 @@ async def process_remote_start_transaction_call_result(
     else:
         await cache.update_status(charge_point.garage_id, event.message_id, status=TransactionStatus.faulted)
         data = dict(status=ChargePointStatus.available)
-        await charge_point.update_connector(session, context.connector_id, data)
+        await update_connector(session, event.charge_point_id, context.connector_id, data)
