@@ -1,12 +1,31 @@
 from __future__ import annotations
 
 from ocpp.v16.enums import ChargePointStatus, ChargePointErrorCode
-from sqlalchemy import Column, String, ForeignKey, Enum, JSON, Integer, Sequence, Numeric, UniqueConstraint, \
-    PrimaryKeyConstraint
+from sqlalchemy import (
+    Column,
+    String,
+    ForeignKey,
+    Enum,
+    JSON,
+    ARRAY,
+    Integer,
+    Sequence,
+    Numeric,
+    UniqueConstraint,
+    PrimaryKeyConstraint,
+    Date
+)
 from sqlalchemy.orm import relationship
 
 from core.database import Model, Base
 from core.fields import TransactionStatus
+
+
+class SpotPrice(Model):
+    __tablename__ = "spot_prices"
+
+    date = Column(Date, nullable=False, unique=True)
+    hourly_prices = Column(ARRAY(Numeric(scale=2)))
 
 
 class Person(Model):

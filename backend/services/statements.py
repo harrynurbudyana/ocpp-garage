@@ -1,12 +1,54 @@
 import calendar
-from datetime import timedelta, datetime, time
+from datetime import timedelta, datetime, time, date
+from traceback import format_exc
 from typing import List, Type
 
+import arrow
+import httpx
 from jinja2 import Environment, FileSystemLoader
+from loguru import logger
+from sqlalchemy import select
 
-from core.settings import DAILY_HOURS_RANGE
-from models import Garage, Driver, Transaction
+from core.settings import (
+    NORDPOOL_REGION,
+    NORDPOLL_PRICES_REQUSTED_DATE_FORMAT,
+    NORDPOOL_PRICES_URL,
+    DAILY_HOURS_RANGE
+)
+from models import Garage, Driver, Transaction, SpotPrice
 from views.statements import TransactionsHourlyPeriod, StatementsTransaction, DriversStatement
+
+
+async def persist_daily_nordpool_price(session, target_date: date, region=NORDPOOL_REGION):
+    query = select(SpotPrice).where(SpotPrice.date == target_date)
+    result = await session.execute(query)
+    if result.scalars().first():
+        logger.info(f"The price for given date already exists (date={target_date})")
+        return
+
+    hourly_prices = {}
+
+    while not hourly_prices:
+        try:
+            url = NORDPOOL_PRICES_URL.format(target_date.strftime(NORDPOLL_PRICES_REQUSTED_DATE_FORMAT))
+            async with httpx.AsyncClient() as client:
+                response = await client.get(url)
+                data = response.json()
+        except Exception:
+            logger.error("Could not obtain data from nordpool, error=%r" % format_exc())
+            return
+        else:
+            for item in data["data"]["Rows"]:
+                end_hour = arrow.get(item["EndTime"]).hour
+                if any([arrow.get(item["StartTime"]).hour, end_hour]):
+                    idx = int(region[-1]) - 1
+                    value = item["Columns"][idx]["Value"].replace(",", ".")
+                    hourly_prices[end_hour] = float(value)
+
+        prices = [hourly_prices[key] for key in hourly_prices]
+        spot_price = SpotPrice(date=target_date, hourly_prices=prices)
+        logger.info(f"Successfully completed nordprices request (date={target_date}, hourly_prices={prices})")
+        session.add(spot_price)
 
 
 async def generate_hourly_ranges(

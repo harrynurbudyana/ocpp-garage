@@ -43,8 +43,13 @@ EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
 EMAIL_PORT = int(os.environ["EMAIL_PORT"])
 EMAIL_FROM = os.environ["EMAIL_FROM"]
 
+NORDPOOL_PRICES_URL = "https://www.nordpoolgroup.com/api/marketdata/page/23?currency=NOK&endDate={}"  # date format "28-10-2023"
+NORDPOLL_PRICES_REQUSTED_DATE_FORMAT = "%d-%m-%Y"
+
 NORDPOOL_REGION = os.environ["NORDPOOL_REGION"]
 assert NORDPOOL_REGION in [f"NO{i}" for i in range(1, 6)]
 
 DAILY_HOURS_RANGE = range(6, 22)
 STATIC_PATH = "/tmp/static"
+
+HTTP_TIMEOUT = 10
