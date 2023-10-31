@@ -42,7 +42,7 @@ async def persist_daily_nordpool_price(session, target_date: date, region=NORDPO
                 end_hour = arrow.get(item["EndTime"]).hour
                 if any([arrow.get(item["StartTime"]).hour, end_hour]):
                     idx = int(region[-1]) - 1
-                    value = item["Columns"][idx]["Value"].replace(",", ".")
+                    value = item["Columns"][idx]["Value"].replace(",", ".").replace(" ", "")
                     hourly_prices[end_hour] = float(value)
 
         prices = [hourly_prices[key] for key in hourly_prices]
