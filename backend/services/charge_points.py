@@ -4,7 +4,6 @@ from typing import List
 
 from pyocpp_contrib.v16.views.events import StatusNotificationCallEvent
 from sqlalchemy import select, update, func, or_, String, delete
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.sql import selectable
 
 import models as models
@@ -12,18 +11,21 @@ from models import ChargePoint
 from views.charge_points import CreateChargPointView, ChargePointUpdateStatusView
 
 
-async def create_connector(session, event: StatusNotificationCallEvent):
-    connector = models.Connector(
-        status=event.payload.status,
-        id=event.payload.connector_id,
-        charge_point_id=event.charge_point_id,
-        error_code=event.payload.error_code
-    )
-    session.add(connector)
-    try:
-        await session.commit()
-    except IntegrityError:
-        await session.rollback()
+async def create_or_update_connector(session, event: StatusNotificationCallEvent):
+    connector = await get_connector(session, event.charge_point_id, event.payload.connector_id)
+    if not connector:
+        connector = models.Connector(
+            id=event.payload.connector_id,
+            charge_point_id=event.charge_point_id,
+            error_code=event.payload.error_code
+        )
+        session.add(connector)
+    else:
+        data = ChargePointUpdateStatusView(
+            status=event.payload.status,
+            error_code=event.payload.error_code
+        )
+        await update_connector(session, event.charge_point_id, event.payload.connector_id, data)
 
 
 async def update_connectors(session, charge_point_id: str, data: ChargePointUpdateStatusView):
@@ -34,7 +36,7 @@ async def update_connectors(session, charge_point_id: str, data: ChargePointUpda
     )
 
 
-async def update_connector(session, charge_point_id: str, connector_id: int, data):
+async def update_connector(session, charge_point_id: str, connector_id: int, data: ChargePointUpdateStatusView):
     await session.execute(
         update(models.Connector) \
             .where(models.Connector.charge_point_id == charge_point_id,

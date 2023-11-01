@@ -174,6 +174,19 @@ class Transaction(Model):
     transaction_id = Column(Integer, transaction_id_seq, server_default=transaction_id_seq.next_value())
     status = Column(Enum(TransactionStatus), default=TransactionStatus.in_progress)
 
+    @property
+    def total_consumed_kw(self):
+        # Assuming we receive meters as watts.
+        return (self.meter_stop - self.meter_start) / 1000
+
+    @property
+    def total_session_minutes(self):
+        return (self.updated_at - self.created_at).total_seconds() / 60
+
+    @property
+    def consumption_per_minute(self):
+        return self.total_consumed_kw / self.total_session_minutes
+
     def __repr__(self):
         return f"Transaction (id={self.id}, " \
                f"garage_id={self.garage}, " \

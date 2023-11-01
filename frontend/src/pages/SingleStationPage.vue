@@ -39,17 +39,17 @@
         {{ station.location }}
       </v-card-title>
 
-      <v-card-text class="mb-10">
+      <v-card-text class="mb-5 mt-5">
         <v-chip :color="STATION_STATUS_COLOR[station.status.toLowerCase()]">
           <p class="text-medium-emphasis">
             {{ station.status }}
           </p>
         </v-chip>
         <div>
-          <div class="text-h6 mb-1">
-            {{ station.vendor }} / {{ station.model }}
+          <div class="text-h6 mt-5">
+            {{ station.vendor }} {{ station.model }}
           </div>
-          <div class="text-overline mb-1">{{ station.id }}</div>
+          <div class="text-overline">{{ station.id }}</div>
           <div class="text-caption">{{ station.description }}</div>
         </div>
       </v-card-text>
@@ -62,7 +62,11 @@
             <v-sheet>
               <v-btn
                 :disabled="
-                  loading || !isResetAvailable(station) || !progressReset
+                  loading ||
+                  !progressReset ||
+                  !station.connectors.length ||
+                  station.status.toLowerCase() !==
+                    STATION_STATUS.available.toLowerCase()
                 "
                 variant="outlined"
                 color="grey-darken-1"
@@ -92,23 +96,26 @@
     hide-delimiters
   >
     <v-carousel-item v-for="(connector, i) in station.connectors" :key="i">
-      <v-card max-width="100%" class="text-center" height="100%">
+      <v-card max-width="100%" class="text-center mt-9" height="100%">
         <v-card-title primary-title>
           <span class="mdi mdi-connection"></span>
           Connector {{ connector.id }}
         </v-card-title>
         <v-card-subtitle class="mt-10 mb-10">
-          <v-chip :color="STATION_STATUS_COLOR[connector.status.toLowerCase()]">
+          <v-chip
+            :color="STATION_STATUS_COLOR[connector.status.toLowerCase()]"
+            v-if="connector.error_code === 'NoError'"
+          >
             <p class="text-medium-emphasis">
               {{ connector.status }}
             </p>
           </v-chip>
+          <v-chip color="red" v-else>
+            <p class="text-medium-emphasis">
+              {{ connector.error_code }}
+            </p>
+          </v-chip>
         </v-card-subtitle>
-        <v-chip color="red" v-if="connector.error_code !== 'NoError'">
-          <p class="text-medium-emphasis">
-            {{ connector.error_code }}
-          </p>
-        </v-chip>
 
         <v-container>
           <v-row align="end" style="height: 170px">
@@ -116,16 +123,18 @@
               <v-btn
                 :disabled="
                   loading ||
+                  !progressReset ||
                   connector.status.toLowerCase() !==
                     STATION_STATUS.available.toLowerCase() ||
-                  !progressReset
+                  connector.error_code !== 'NoError' ||
+                  !connector.is_taken
                 "
                 variant="outlined"
                 color="grey-darken-1"
                 @click="
                   startRemoteTransaction({
                     charge_point_id: station.id,
-                    connector_id: connector.connector_id,
+                    connector_id: connector.id,
                   })
                 "
               >
@@ -142,16 +151,18 @@
               <v-btn
                 :disabled="
                   loading ||
-                  !isAvailable(station) ||
                   !progressUnlock ||
-                  !progressReset
+                  !progressReset ||
+                  connector.status.toLowerCase() !==
+                    STATION_STATUS.available.toLowerCase() ||
+                  connector.error_code !== 'NoError'
                 "
                 variant="outlined"
                 color="grey-darken-1"
                 @click="
                   unlockConnector({
                     stationId: station.id,
-                    connectorId: connector.connector_id,
+                    connectorId: connector.id,
                   })
                 "
               >
@@ -354,26 +365,6 @@ const isEditAllowed = (station) => {
   return (
     station.status.toLowerCase() === STATION_STATUS.unavailable.toLowerCase()
   );
-};
-
-const isAvailable = (station) => {
-  for (let key of Object.keys(station.connectors)) {
-    if (
-      station.connectors[key].status.toLowerCase() !==
-      STATION_STATUS.available.toLowerCase()
-    ) {
-      return false;
-    }
-  }
-  return true;
-};
-
-const isResetAvailable = (station) => {
-  if (Object.keys(station.connectors).length > 0) {
-    return isAvailable(station);
-  } else {
-    return false;
-  }
 };
 
 onMounted(() => {

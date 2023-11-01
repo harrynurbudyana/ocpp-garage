@@ -11,6 +11,7 @@ from views import PaginationView
 
 class ChargePointUpdateStatusView(BaseModel):
     status: ChargePointStatus
+    error_code: ChargePointErrorCode | None = None
 
 
 class CreateChargPointView(BaseModel):
@@ -33,6 +34,8 @@ class ChargePointView(BaseModel):
     id: str
     description: str | None = None
     status: ChargePointStatus
+    model: str | None = None
+    vendor: str | None = None
     connectors: List[SimpleConnectorView]
 
     class Config:

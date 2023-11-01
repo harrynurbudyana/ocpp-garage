@@ -19,10 +19,15 @@ from models import Garage, Driver, Transaction, SpotPrice
 from views.statements import TransactionsHourlyPeriod, StatementsTransaction, DriversStatement
 
 
-async def persist_daily_nordpool_price(session, target_date: date, region=NORDPOOL_REGION):
+async def get_spot_price(session, target_date: date) -> SpotPrice | None:
     query = select(SpotPrice).where(SpotPrice.date == target_date)
     result = await session.execute(query)
-    if result.scalars().first():
+    return result.scalars().first()
+
+
+async def persist_daily_nordpool_price(session, target_date: date, region=NORDPOOL_REGION):
+    spot_price = await get_spot_price(session, target_date)
+    if spot_price:
         logger.info(f"The price for given date already exists (date={target_date})")
         return
 
@@ -43,7 +48,7 @@ async def persist_daily_nordpool_price(session, target_date: date, region=NORDPO
                 if any([arrow.get(item["StartTime"]).hour, end_hour]):
                     idx = int(region[-1]) - 1
                     value = item["Columns"][idx]["Value"].replace(",", ".").replace(" ", "")
-                    hourly_prices[end_hour] = float(value)
+                    hourly_prices[end_hour] = value
 
         prices = [hourly_prices[key] for key in hourly_prices]
         spot_price = SpotPrice(date=target_date, hourly_prices=prices)
@@ -103,33 +108,86 @@ async def generate_hourly_ranges(
     return hour_ranges
 
 
-async def detect_rates_for_periods(
+async def add_grid_costs_for_periods(
         daily_rate: float,
         nightly_rate: float,
         views: List[TransactionsHourlyPeriod]
 ) -> List[TransactionsHourlyPeriod]:
     for view in views:
         if view.start.hour in DAILY_HOURS_RANGE:
-            view.rate = daily_rate
+            view.grid_cost = daily_rate
         else:
-            view.rate = nightly_rate
+            view.grid_cost = nightly_rate
     if views[-1].end.hour in DAILY_HOURS_RANGE:
-        views[-1].rate = daily_rate
+        views[-1].grid_cost = daily_rate
     else:
-        views[-1].rate = nightly_rate
+        views[-1].grid_cost = nightly_rate
+    return views
+
+
+async def add_spot_prices_for_periods(
+        session,
+        start_date: date,
+        end_date: date,
+        views: List[TransactionsHourlyPeriod]
+) -> List[TransactionsHourlyPeriod]:
+    first_date_prices = await get_spot_price(session, start_date)
+    last_date_prices = await get_spot_price(session, end_date)
+    coeff = 1000  # turn megawatts to kW
+    for view in views:
+        # prices are stored as mW
+        try:
+            view.nordpool_price = first_date_prices.hourly_prices[view.start.hour] / coeff
+        except IndexError:
+            view.nordpool_price = last_date_prices.hourly_prices[view.start.hour] / coeff
+    return views
+
+
+async def compute_total_cost_per_hour(
+        transaction: Transaction,
+        views: List[TransactionsHourlyPeriod]
+) -> List[TransactionsHourlyPeriod]:
+    for view in views:
+        start = datetime.strptime(f"{view.start.hour}:{view.start.minute}:{view.start.second}", "%H:%M:%S")
+        end = datetime.strptime(f"{view.end.hour}:{view.end.minute}:{view.end.second}", "%H:%M:%S")
+        hour = (end - start).total_seconds() / 3600
+        total_per_hour = hour * view.grid_cost
+        view.total_cost = total_per_hour + view.nordpool_price - view.government_rebate
+
+        consumption_per_current_hour = (transaction.consumption_per_minute * 60) * hour
+        view.per_kw_cost = view.total_cost / consumption_per_current_hour
     return views
 
 
 async def get_transactions_hourly_explication(
+        session,
         garage: Garage,
         transaction: Transaction
 ) -> List[TransactionsHourlyPeriod]:
-    hourly_ranges = await generate_hourly_ranges(transaction.created_at, transaction.updated_at)
-    hourly_ranges_with_rates = await detect_rates_for_periods(garage.daily_rate, garage.nightly_rate, hourly_ranges)
-    return hourly_ranges_with_rates
+    hourly_ranges = await generate_hourly_ranges(
+        transaction.created_at,
+        transaction.updated_at
+    )
+    hourly_ranges_with_grid_costs = await add_grid_costs_for_periods(
+        garage.daily_rate,
+        garage.nightly_rate, hourly_ranges
+    )
+    hourly_ranges_with_spotprices = await add_spot_prices_for_periods(
+        session,
+        transaction.created_at.date(),
+        transaction.updated_at.date(),
+        hourly_ranges_with_grid_costs
+    )
+    # Need to ensure validation before computing
+    hourly_ranges_with_spotprices = [TransactionsHourlyPeriod(**item.dict()) for item in hourly_ranges_with_spotprices]
+    hourly_ranges_with_total_costs = await compute_total_cost_per_hour(transaction, hourly_ranges_with_spotprices)
+    hourly_ranges_with_total_costs = [TransactionsHourlyPeriod(**item.dict()) for item in
+                                      hourly_ranges_with_total_costs]
+    return hourly_ranges_with_total_costs
 
 
 async def generate_statements_for_driver(
+        session,
         garage: Garage,
         driver: Driver,
         transactions: List[Transaction],
@@ -141,16 +199,26 @@ async def generate_statements_for_driver(
     total_cost = 0
     statement_items = []
     for transaction in transactions:
-        total_kw += (transaction.meter_stop - transaction.meter_start) / 1000
+        total_kw += transaction.total_consumed_kw
+        hourly_transactions = await get_transactions_hourly_explication(session, garage, transaction)
+        hours_count = len(hourly_transactions)
+
+        average_nordpool_price = sum([item.nordpool_price for item in hourly_transactions]) / hours_count
+        average_grid_cost = sum([item.grid_cost for item in hourly_transactions]) / hours_count
+
+        total_transaction_cost = sum([item.total_cost for item in hourly_transactions])
+
+        per_kw_cost = total_transaction_cost / transaction.total_consumed_kw
+
         transaction_view = StatementsTransaction(
             start=transaction.created_at,
             end=transaction.updated_at,
-            nordpool_price=0,
-            grid_cost=0,
+            nordpool_price=average_nordpool_price,
+            grid_cost=average_grid_cost,
             government_rebate=0,
-            total_cost=0,
-            per_kw_cost=0,
-            hours=await get_transactions_hourly_explication(garage, transaction)
+            total_cost=total_transaction_cost,
+            per_kw_cost=per_kw_cost,
+            hours=hourly_transactions
         )
         total_cost += transaction_view.total_cost
         statement_items.append(transaction_view)

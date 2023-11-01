@@ -152,7 +152,7 @@ const headers = [
     align: "center",
     width: "10%",
     sortable: false,
-    value: (v) => v.meter_stop - v.meter_start,
+    value: (v) => (v.meter_stop ? (v.meter_stop - v.meter_start) / 1000 : 0),
     key: "consumed",
   },
   {

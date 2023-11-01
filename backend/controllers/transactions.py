@@ -2,11 +2,11 @@ from typing import Tuple
 
 from fastapi import Depends, Request
 from loguru import logger
+from pyocpp_contrib.decorators import message_id_generator
 from starlette import status
 
 from core.database import get_contextual_session
 from models import Transaction
-from pyocpp_contrib.decorators import message_id_generator
 from routers import AuthenticatedRouter
 from services.ocpp.remote_start_transaction import process_remote_start_transaction_call
 from services.ocpp.remote_stop_transaction import process_remote_stop_transaction_call
@@ -65,7 +65,7 @@ async def remote_start_transaction(
 )
 async def remote_stop_transaction(garage_id, transaction_uuid: str):
     async with get_contextual_session() as session:
-        transaction = await get_transaction(session, garage_id, transaction_uuid)
+        transaction = await get_transaction(session, transaction_uuid)
         logger.info(f"RemoteStopTransaction -> | Start process call request (transaction={transaction})")
         await process_remote_stop_transaction_call(
             session,

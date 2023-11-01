@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 from loguru import logger
-from ocpp.v16.enums import Action, ChargePointStatus
+from ocpp.v16.enums import Action, ChargePointStatus, ChargePointErrorCode
 from pyocpp_contrib.decorators import prepare_event, message_id_generator
 from pyocpp_contrib.enums import ConnectionAction
 
@@ -60,6 +60,7 @@ async def process_event(event):
         if event.action is ConnectionAction.lost_connection:
             data = ChargePointUpdateStatusView(status=ChargePointStatus.unavailable)
             await update_charge_point(session, charge_point_id=event.charge_point_id, data=data)
+            data.error_code = ChargePointErrorCode.no_error
             await update_connectors(session, charge_point_id=event.charge_point_id, data=data)
 
         # Call result messages
