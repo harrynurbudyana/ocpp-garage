@@ -1,7 +1,7 @@
 version: "2.2"
 
 services:
-  rabbitmq-thnxel:
+  ocpp-rabbitmq:
     image: rabbitmq:3.12.0-management
     restart: always
     env_file:
@@ -17,10 +17,10 @@ services:
     networks:
       - app-network
 
-  db-thnxel:
+  ocpp-db:
     image: postgres:15.3-bullseye
     restart: always
-    container_name: csms-db-thnxel
+    container_name: ocpp-db
     volumes:
       - ./data/postgres:/data
     env_file:
@@ -38,8 +38,8 @@ services:
       - app-network
 
 
-  ws_server-thnxel:
-    container_name: csms-ws_server-thnxel
+  ocpp-gateway:
+    container_name: ocpp-gateway
     image: heroyooki/charge_point_node:thnxel-fenix-61045
     restart: always
     ports:
@@ -49,13 +49,13 @@ services:
     command: >
       sh -c "cd /usr/src/app && python main.py"
     depends_on:
-      rabbitmq-thnxel:
+      ocpp-rabbitmq:
         condition: service_healthy
     networks:
       - app-network
   
-  manager-thnxel:
-    container_name: csms-manager-thnxel
+  ocpp-manager:
+    container_name: ocpp-manager
     build:
       context: .
       dockerfile: Dockerfile
@@ -74,15 +74,15 @@ services:
       sh -c "cd /usr/src/csms/backend && alembic upgrade head &&
              uvicorn main:app --host 0.0.0.0 --port ${HTTP_SERVER_PORT} --reload"
     depends_on:
-      rabbitmq-thnxel:
+      ocpp-rabbitmq:
         condition: service_healthy
-      db-thnxel:
+      ocpp-db:
         condition: service_healthy
     healthcheck:
       test: "exit 0"
 
-  frontend-thnxel:
-    container_name: csms-frontend-thnxel
+  ocpp-frontend:
+    container_name: ocpp-frontend
     restart: always
     image: node:18.17-bullseye
     volumes:
@@ -96,22 +96,22 @@ services:
              yarn install && 
              yarn dev --port ${UI_SERVER_PORT} --host 0.0.0.0"
     depends_on:
-      manager-thnxel:
+      ocpp-manager:
         condition: service_healthy
 
-  nginx-thnxel:
+  ocpp-nginx:
     image: nginx:1.24.0-bullseye
     ports:
       - "80:80"
     volumes:
       - ./conf:/etc/nginx/conf.d
     depends_on:
-      - frontend-thnxel
+      - ocpp-frontend
     networks:
       - app-network
 
-  redis-thnxel:
-    container_name: csms-redis-thnxel
+  ocpp-redis:
+    container_name: ocpp-redis
     image: redis:4-buster
     networks:
       - app-network

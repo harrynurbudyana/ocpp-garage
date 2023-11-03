@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import List
 
-from pyocpp_contrib.v16.views.events import StatusNotificationCallEvent
 from sqlalchemy import select, update, func, or_, String, delete
 from sqlalchemy.sql import selectable
 
 import models as models
+from pyocpp_contrib.v16.views.events import StatusNotificationCallEvent
 from models import ChargePoint
 from views.charge_points import CreateChargPointView, ChargePointUpdateStatusView
 
