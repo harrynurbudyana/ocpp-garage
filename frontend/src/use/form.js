@@ -19,7 +19,7 @@ export function useSubmitForm({ itemSender, afterHandler }) {
 
   const closeModal = () => {
     dialog.value = false;
-    data.value = {};
+    data.value = null;
     clearError();
   };
 
