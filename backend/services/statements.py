@@ -95,15 +95,14 @@ async def generate_hourly_ranges(
     next_hour = start + timedelta(hours=1)
     start = next_hour
 
-    while True:
-        if start > end:
-            view = view_class(start=time(end.hour, 0, 0), end=time(end.hour, end.minute, end.second))
-            hour_ranges.append(view)
-            break
+    while start < end:
         next_hour = start + timedelta(hours=1)
         view = view_class(start=time(start.hour, 0, 0), end=time(next_hour.hour, 0, 0))
         hour_ranges.append(view)
         start = next_hour
+
+    view = view_class(start=time(end.hour, 0, 0), end=time(end.hour, end.minute, end.second))
+    hour_ranges[-1] = view
 
     return hour_ranges
 
@@ -150,6 +149,8 @@ async def compute_total_cost_per_hour(
     for view in views:
         start = datetime.strptime(f"{view.start.hour}:{view.start.minute}:{view.start.second}", "%H:%M:%S")
         end = datetime.strptime(f"{view.end.hour}:{view.end.minute}:{view.end.second}", "%H:%M:%S")
+        if end < start:
+            end += timedelta(days=1)
         hour = (end - start).total_seconds() / 3600
         total_per_hour = hour * view.grid_cost
         view.total_cost = total_per_hour + view.nordpool_price - view.government_rebate
