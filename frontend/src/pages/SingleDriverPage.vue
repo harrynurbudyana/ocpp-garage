@@ -128,6 +128,7 @@
                 <v-row>
                   <v-col cols="12" class="mt-7">
                     <v-autocomplete
+                      no-data-text="First, add at least one rebate."
                       :items="availableYears"
                       v-model="statementPeriod.year"
                       required
@@ -142,6 +143,7 @@
                 <v-row>
                   <v-col cols="12" class="mt-7">
                     <v-autocomplete
+                      :disabled="!statementPeriod.year"
                       :items="availableMonths"
                       v-model="statementPeriod.month"
                       required
