@@ -20,15 +20,16 @@
             </v-sheet>
           </v-col>
           <v-col cols="2" sm="4">
-            <v-sheet align="center" class="ml-8">
-              <VueDatePicker
-                v-model="month"
-                @update:model-value="handleDate"
-                month-picker
-              />
+            <v-sheet align="center">
+              <v-btn
+                variant="outlined"
+                color="blue-darken-1"
+                @click="openStatementModal"
+                >Statement
+              </v-btn>
             </v-sheet>
           </v-col>
-          <v-col>
+          <v-col cols="2" sm="4">
             <v-sheet align="right">
               <v-btn variant="outlined" color="red" @click="openConfirm()"
                 >Delete
@@ -120,6 +121,68 @@
   <v-form>
     <v-container>
       <v-row justify="center">
+        <v-dialog v-model="statementDialog" persistent width="400">
+          <v-card>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12" class="mt-7">
+                    <v-autocomplete
+                      :items="availableYears"
+                      v-model="statementPeriod.year"
+                      required
+                      label="Year"
+                      density="compact"
+                      variant="underlined"
+                      item-title="year"
+                      item-value="year"
+                    ></v-autocomplete>
+                  </v-col>
+                </v-row>
+                <v-row>
+                  <v-col cols="12" class="mt-7">
+                    <v-autocomplete
+                      :items="availableMonths"
+                      v-model="statementPeriod.month"
+                      required
+                      label="Month"
+                      density="compact"
+                      variant="underlined"
+                      item-title="name"
+                      item-value="month"
+                    ></v-autocomplete>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions class="mb-7">
+              <v-spacer></v-spacer>
+              <v-btn
+                color="blue-darken-1"
+                variant="text"
+                @click="closeStatementModal"
+                :disabled="loading"
+              >
+                Close
+              </v-btn>
+              <v-btn
+                color="blue-darken-1"
+                variant="text"
+                @click="requestStatement"
+                :loading="loading"
+                :disabled="!statementPeriod.month || !statementPeriod.year"
+              >
+                Download
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-row>
+    </v-container>
+  </v-form>
+  <v-form>
+    <v-container>
+      <v-row justify="center">
         <v-dialog v-model="dialog" persistent width="400">
           <v-card>
             <v-card-text>
@@ -186,8 +249,6 @@
 </template>
 
 <script setup>
-import VueDatePicker from "@vuepic/vue-datepicker";
-import "@vuepic/vue-datepicker/dist/main.css";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
@@ -205,11 +266,14 @@ import { menuItems } from "@/menu/driver-menu-items";
 import { DRIVERS_STATUS, STATION_STATUS_COLOR } from "@/components/enums";
 import ConfirmWindow from "@/components/dialogs/ConfirmWindow";
 import DataTable from "@/components/DataTable";
+import { listRebatesPeriods } from "@/services/government_rebates";
+import moment from "moment";
 
-const month = ref({
-  month: new Date().getMonth() - 1,
-  year: new Date().getFullYear(),
-});
+const statementPeriod = ref({});
+const statementDialog = ref(false);
+const availableMonths = ref([]);
+const availableYears = ref([]);
+
 const data = ref({});
 const stations = ref([]);
 const connectors = ref([]);
@@ -230,6 +294,25 @@ const requestConnectors = (value) => {
   );
 };
 
+const openStatementModal = () => {
+  statementDialog.value = true;
+  listRebatesPeriods().then((response) => {
+    for (let item of response) {
+      let date = new Date(item.period);
+      let obj = { year: date.getFullYear() };
+      if (
+        availableYears.value.filter((i) => i.year === obj.year).length === 0
+      ) {
+        availableYears.value.push(obj);
+      }
+      availableMonths.value.push({
+        name: moment(item.period).format("MMMM"),
+        month: date.getMonth() + 1,
+      });
+    }
+  });
+};
+
 const openModal = () => {
   listSimpleStations().then((response) => {
     dialog.value = true;
@@ -237,15 +320,21 @@ const openModal = () => {
   });
 };
 
-const handleDate = (value) => {
-  if (!value) return;
-  let { month, year } = value;
-  requestDriversReport({ driverId: driver.value.id, month: month + 1, year });
+const closeStatementModal = () => {
+  statementDialog.value = false;
+  statementPeriod.value = {};
+  availableMonths.value = [];
+  availableYears.value = [];
 };
 
 const closeModal = () => {
   dialog.value = false;
   data.value = {};
+};
+
+const requestStatement = () => {
+  requestDriversReport({ driverId: driver.value.id, ...statementPeriod.value });
+  closeStatementModal();
 };
 
 const manageDriver = () => {

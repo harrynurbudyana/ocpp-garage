@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 from typing import List
 
 from pydantic import BaseModel
@@ -8,6 +8,8 @@ from views import PaginationView
 
 class CreateGovernmentRebateView(BaseModel):
     value: float
+    month: int
+    year: int
 
 
 class UpdateGovernmentRebateView(BaseModel):
@@ -16,8 +18,15 @@ class UpdateGovernmentRebateView(BaseModel):
 
 class ReadGovernmentRebateView(BaseModel):
     id: str
-    created_at: datetime
+    period: date
     value: float
+
+    class Config:
+        orm_mode = True
+
+
+class RebatesPeriodView(BaseModel):
+    period: date
 
     class Config:
         orm_mode = True

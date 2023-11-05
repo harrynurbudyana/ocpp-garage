@@ -87,6 +87,7 @@ class GovernmentRebate(Model):
     __tablename__ = "government_rebates"
 
     value = Column(Numeric, nullable=False)
+    period = Column(Date, nullable=False)
 
     garage_id = Column(String, ForeignKey("garages.id"), nullable=True)
     garage = relationship("Garage", back_populates="government_rebates", lazy="joined")

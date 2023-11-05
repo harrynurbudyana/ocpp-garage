@@ -5,6 +5,12 @@ const { currentRoute } = router;
 
 const endpoint = "government-rebates";
 
+export function listRebatesPeriods() {
+  return request.get(
+    `/${currentRoute.value.params.garageId}/${endpoint}/periods`
+  );
+}
+
 export function listGovernmentRebates(params) {
   let searchParams = new URLSearchParams(params);
   return request.get(

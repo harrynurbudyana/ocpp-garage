@@ -11,6 +11,13 @@ from models import GovernmentRebate
 from views.government_rebates import CreateGovernmentRebateView, UpdateGovernmentRebateView
 
 
+async def list_available_rebates(session, garage_id: str) -> List[GovernmentRebate]:
+    query = select(GovernmentRebate) \
+        .where(GovernmentRebate.garage_id == garage_id).with_only_columns(GovernmentRebate.period)
+    result = await session.execute(query)
+    return result.unique().fetchall()
+
+
 async def build_government_rebates_query(extra_criterias: List | None = None) -> selectable:
     query = select(GovernmentRebate)
     if extra_criterias:
@@ -20,16 +27,21 @@ async def build_government_rebates_query(extra_criterias: List | None = None) ->
     return query
 
 
-async def create_government_rebate(session, garage_id: str, data: CreateGovernmentRebateView):
+async def create_or_update_government_rebate(session, garage_id: str, data: CreateGovernmentRebateView):
     query = await session.execute(
         select(GovernmentRebate) \
-            .where(extract("month", GovernmentRebate.created_at) == arrow.utcnow().month)
+            .where(extract("month", GovernmentRebate.period) == data.month,
+                   extract("year", GovernmentRebate.period) == data.year)
     )
     rebate = query.scalars().first()
     if rebate:
         rebate.value = data.value
     else:
-        rebate = GovernmentRebate(garage_id=garage_id, **data.dict())
+        rebate = GovernmentRebate(
+            garage_id=garage_id,
+            value=data.value,
+            period=arrow.get(year=data.year, month=data.month, day=1)
+        )
     session.add(rebate)
     return rebate
 

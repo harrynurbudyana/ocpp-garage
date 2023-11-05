@@ -54,10 +54,17 @@ async def build_transactions_query(search: str, extra_criterias: List | None = N
     return query
 
 
-async def find_drivers_transactions(session, driver: models.Driver, month: int, year: int) -> List[models.Transaction]:
+async def find_drivers_transactions(
+        session,
+        garage: models.Garage,
+        driver: models.Driver,
+        month: int,
+        year: int
+) -> List[models.Transaction]:
     query = select(models.Transaction) \
         .where(models.Transaction.driver == driver.email,
                models.Transaction.status == TransactionStatus.completed,
+               models.Transaction.garage == garage.id,
                extract("month", models.Transaction.created_at) == month,
                extract("year", models.Transaction.created_at) == year)
     result = await session.execute(query)

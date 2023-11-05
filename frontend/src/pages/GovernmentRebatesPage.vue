@@ -21,7 +21,6 @@
                 </v-col>
                 <v-col class="d-flex justify-end mb-6 mt-3">
                   <v-btn
-                    :disabled="!isActiveAddButton()"
                     :loading="loading"
                     color="blue-lighten-1"
                     class="ma-6 pa-2"
@@ -32,20 +31,6 @@
               </v-row>
             </template>
             <template v-slot:item.action="{ item }">
-              <v-hover v-slot="{ isHovering, props }" open-delay="100">
-                <v-btn
-                  class="mr-5"
-                  icon
-                  size="small"
-                  density="compact"
-                  :elevation="isHovering ? 12 : 2"
-                  :class="{ 'on-hover': isHovering }"
-                  v-bind="props"
-                  @click="editRebate(item)"
-                >
-                  <v-icon color="primary">mdi-square-edit-outline</v-icon>
-                </v-btn>
-              </v-hover>
               <v-hover v-slot="{ isHovering, props }" open-delay="100">
                 <v-btn
                   icon
@@ -72,13 +57,19 @@
   <v-form v-model="isValid">
     <v-container>
       <v-row justify="center">
-        <v-dialog v-model="dialog" persistent width="600">
-          <v-card>
+        <v-dialog v-model="dialog" persistent width="400">
+          <v-card height="400">
             <v-card-text>
               <v-container>
                 <v-row>
                   <v-col cols="12">
+                    <v-sheet width="100%">
+                      <VueDatePicker v-model="data.period" month-picker />
+                    </v-sheet>
+                  </v-col>
+                  <v-col cols="12" class="mt-16">
                     <v-text-field
+                      :disabled="!data.period"
                       :rules="rules.rebate.valueRules"
                       required
                       label="Rebate"
@@ -105,7 +96,7 @@
               <v-btn
                 color="blue-darken-1"
                 variant="text"
-                @click="sendData"
+                @click="() => handleRequest(data)"
                 :loading="loading"
                 :disabled="!isValid || loading"
               >
@@ -135,35 +126,6 @@ import { menuItems } from "@/menu/app-menu-items";
 import { useSubmitForm } from "@/use/form";
 import { rules } from "@/configs/validation";
 
-const isActiveAddButton = () => {
-  if (!items.value.length) {
-    return true;
-  }
-  return (
-    moment(String(items.value[0].created_at)).local().month() !==
-    moment().local().month()
-  );
-};
-
-const { currentPage, lastPage, fetchData, items } = usePagination({
-  itemsLoader: listGovernmentRebates,
-});
-
-const trashLoading = ref(false);
-
-const editRebate = (item) => {
-  data.value.value = item.columns.value;
-  openModal();
-};
-
-const removeRebate = (item) => {
-  trashLoading.value = true;
-  deleteGovernmentRebate(item.key).then(() => {
-    trashLoading.value = false;
-    fetchData();
-  });
-};
-
 const {
   loading,
   isValid,
@@ -178,6 +140,28 @@ const {
   afterHandler: () => fetchData(),
 });
 
+const { currentPage, lastPage, fetchData, items } = usePagination({
+  itemsLoader: listGovernmentRebates,
+});
+
+const trashLoading = ref(false);
+
+const handleRequest = (data) => {
+  let month = data.period.month + 1;
+  let year = data.period.year;
+  data.month = month;
+  data.year = year;
+  sendData();
+};
+
+const removeRebate = (item) => {
+  trashLoading.value = true;
+  deleteGovernmentRebate(item.key).then(() => {
+    trashLoading.value = false;
+    fetchData();
+  });
+};
+
 onMounted(() => {
   const { commit } = useStore();
   commit("setPageMenuItems", menuItems);
@@ -186,10 +170,10 @@ onMounted(() => {
 const headers = [
   {
     title: "Period",
-    key: "created_at",
+    key: "period",
     align: "right",
     value: (item) => {
-      let check = moment(String(item.created_at)).local();
+      let check = moment(String(item.period)).local();
       return `${check.format("YYYY")} - ${check.format("MMMM")}`;
     },
     sortable: false,

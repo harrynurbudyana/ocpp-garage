@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, List
 
 from fastapi import Depends
 from loguru import logger
@@ -7,16 +7,36 @@ from starlette import status
 from core.database import get_contextual_session
 from models import GovernmentRebate
 from routers import AuthenticatedRouter
-from services.government_rebates import build_government_rebates_query, create_government_rebate, \
-    update_government_rebate, remove_government_rebate
+from services.government_rebates import (
+    build_government_rebates_query,
+    create_or_update_government_rebate,
+    update_government_rebate,
+    remove_government_rebate,
+    list_available_rebates
+)
 from utils import params_extractor, paginate
-from views.government_rebates import PaginatedGovernmentRebatesView, CreateGovernmentRebateView, \
-    UpdateGovernmentRebateView, ReadGovernmentRebateView
+from views.government_rebates import (
+    PaginatedGovernmentRebatesView,
+    CreateGovernmentRebateView,
+    UpdateGovernmentRebateView,
+    ReadGovernmentRebateView,
+    RebatesPeriodView
+)
 
 government_rebates_router = AuthenticatedRouter(
     prefix="/{garage_id}/government-rebates",
     tags=["government-rebates"]
 )
+
+
+@government_rebates_router.get(
+    "/periods",
+    status_code=status.HTTP_200_OK,
+    response_model=List[RebatesPeriodView]
+)
+async def list_simple_rebates(garage_id: str):
+    async with get_contextual_session() as session:
+        return await list_available_rebates(session, garage_id)
 
 
 @government_rebates_router.get(
@@ -49,7 +69,7 @@ async def add_government_rebate(
 ):
     logger.info(f"Start create government rebate (data={data})")
     async with get_contextual_session() as session:
-        await create_government_rebate(session, garage_id, data)
+        await create_or_update_government_rebate(session, garage_id, data)
         await session.commit()
 
 
