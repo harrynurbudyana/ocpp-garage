@@ -128,7 +128,7 @@
                 <v-row>
                   <v-col cols="12" class="mt-7">
                     <v-autocomplete
-                      no-data-text="First, add at least one rebate."
+                      :no-data-text="noDataText"
                       :items="availableYears"
                       v-model="statementPeriod.year"
                       required
@@ -271,6 +271,7 @@ import DataTable from "@/components/DataTable";
 import { listRebatesPeriods } from "@/services/government_rebates";
 import moment from "moment";
 
+const noDataText = ref("Add at least one rebate.");
 const statementPeriod = ref({});
 const statementDialog = ref(false);
 const availableMonths = ref([]);
@@ -301,6 +302,13 @@ const openStatementModal = () => {
   listRebatesPeriods().then((response) => {
     for (let item of response) {
       let date = new Date(item.period);
+      let currentMonth = new Date().getMonth();
+      if (date.getMonth() === currentMonth) {
+        if (response.length === 1) {
+          noDataText.value = "Wait until the current month is over.";
+        }
+        continue;
+      }
       let obj = { year: date.getFullYear() };
       if (
         availableYears.value.filter((i) => i.year === obj.year).length === 0
