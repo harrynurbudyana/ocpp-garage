@@ -12,7 +12,7 @@ export const rules = new (function () {
 
   this.minLength = 3;
 
-  this.maxEmailLength = 25;
+  this.maxEmailLength = 20;
   this.emailRegex =
     /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
   this.maxFirstNameLength = 15;
@@ -213,6 +213,9 @@ export const rules = new (function () {
       (value) => {
         if (!this.emailRegex.test(value)) {
           return "Invalid email format.";
+        }
+        if (value?.length > this.maxEmailLength) {
+          return `Maximum ${this.maxEmailLength} characters required`;
         }
         return true;
       },
