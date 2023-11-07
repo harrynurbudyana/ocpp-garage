@@ -181,12 +181,12 @@ class Transaction(Model):
         return (self.meter_stop - self.meter_start) / 1000
 
     @property
-    def total_session_minutes(self):
-        return (self.updated_at - self.created_at).total_seconds() / 60
+    def total_session_seconds(self):
+        return (self.updated_at - self.created_at).total_seconds()
 
     @property
-    def consumption_per_minute(self):
-        return self.total_consumed_kw / self.total_session_minutes
+    def consumption_per_second(self):
+        return self.total_consumed_kw / self.total_session_seconds
 
     def __repr__(self):
         return f"Transaction (id={self.id}, " \

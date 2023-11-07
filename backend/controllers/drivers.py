@@ -146,7 +146,7 @@ async def generate_statement(
     async with get_contextual_session() as session:
         garage = await get_garage(session, garage_id)
         driver = await get_driver(session, garage_id, driver_id)
-        transactions = await find_drivers_transactions(session, garage, driver, month, year)
+        transactions = await find_drivers_transactions(session, driver, month, year)
         html = await generate_statements_for_driver(session, garage, driver, transactions, month, year)
     filename = driver.email.split("@")[0]
     filepath = os.path.join(STATIC_PATH, f"{filename}.pdf")

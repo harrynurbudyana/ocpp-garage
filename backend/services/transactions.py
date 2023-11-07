@@ -2,12 +2,11 @@ from __future__ import annotations
 
 from typing import List
 
-from sqlalchemy import update, select, or_, func, String, extract
+from sqlalchemy import update, select, or_, func, String, extract, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import selectable
 
 import models
-from core.fields import TransactionStatus
 from views.transactions import CreateTransactionView, UpdateTransactionView
 
 
@@ -56,16 +55,17 @@ async def build_transactions_query(search: str, extra_criterias: List | None = N
 
 async def find_drivers_transactions(
         session,
-        garage: models.Garage,
         driver: models.Driver,
         month: int,
         year: int
 ) -> List[models.Transaction]:
     query = select(models.Transaction) \
-        .where(models.Transaction.driver == driver.email,
-               models.Transaction.status == TransactionStatus.completed,
-               models.Transaction.garage == garage.id,
-               extract("month", models.Transaction.created_at) == month,
-               extract("year", models.Transaction.created_at) == year)
+        .where(models.Transaction.driver == driver.email) \
+        .where(or_(
+        and_(extract("month", models.Transaction.created_at) == month,
+             extract("year", models.Transaction.created_at) == year),
+        and_(extract("month", models.Transaction.updated_at) == month,
+             extract("year", models.Transaction.updated_at) == year)
+    )).order_by(models.Transaction.transaction_id.asc())
     result = await session.execute(query)
     return result.scalars().fetchall()

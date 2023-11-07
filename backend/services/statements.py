@@ -59,6 +59,7 @@ async def persist_daily_nordpool_price(session, target_date: date, region=NORDPO
 async def generate_hourly_ranges(
         start: datetime,
         end: datetime,
+        month: int,
         view_class: Type[TransactionsHourlyPeriod] = TransactionsHourlyPeriod
 ) -> List[TransactionsHourlyPeriod]:
     """
@@ -83,25 +84,44 @@ async def generate_hourly_ranges(
     """
     hour_ranges = []
 
-    next_hour = start + timedelta(hours=1)
-    if next_hour > end:
+    next_hour = start
+    last_hour = end
+
+    # When transaction covers two different months
+    if start.month < month:
+        while start.month < month:
+            start += timedelta(hours=1)
+            start = start.replace(minute=0, second=0)
+        next_hour = start
+    elif end.month > month:
+        while end.month > month:
+            end -= timedelta(hours=1)
+            end = end.replace(minute=0, second=0)
+        last_hour = end
+
+    logger.info(f"Pre generate statement (start={start}, end={end})")
+
+    # When transaction was going less than one hour
+    if start >= end:
         view = view_class(start=time(start.hour, start.minute, start.second),
                           end=time(end.hour, end.minute, end.second))
         hour_ranges.append(view)
         return hour_ranges
 
-    view = view_class(start=time(start.hour, start.minute, start.second), end=time(start.hour + 1, 0, 0))
-    hour_ranges.append(view)
-    next_hour = start + timedelta(hours=1)
-    start = next_hour
-
-    while start < end:
-        next_hour = start + timedelta(hours=1)
-        view = view_class(start=time(start.hour, 0, 0), end=time(next_hour.hour, 0, 0))
+    while next_hour < last_hour:
+        end_next_hour = next_hour + timedelta(hours=1)
+        end_next_hour = end_next_hour.replace(minute=0, second=0)
+        view = view_class(
+            start=time(next_hour.hour, next_hour.minute, next_hour.second),
+            end=time(end_next_hour.hour, 0, 0)
+        )
         hour_ranges.append(view)
-        start = next_hour
+        next_hour += timedelta(hours=1)
+        next_hour = next_hour.replace(minute=0, second=0)
 
-    view = view_class(start=time(end.hour, 0, 0), end=time(end.hour, end.minute, end.second))
+    view = view_class(start=time(last_hour.hour, 0, 0),
+                      end=time(last_hour.hour, last_hour.minute, last_hour.second)
+                      )
     hour_ranges[-1] = view
 
     return hour_ranges
@@ -149,13 +169,16 @@ async def compute_total_cost_per_hour(
     for view in views:
         start = datetime.strptime(f"{view.start.hour}:{view.start.minute}:{view.start.second}", "%H:%M:%S")
         end = datetime.strptime(f"{view.end.hour}:{view.end.minute}:{view.end.second}", "%H:%M:%S")
+        # end time can be less than start time 23:00 - 00:00
         if end < start:
             end += timedelta(days=1)
-        hour = (end - start).total_seconds() / 3600
-        total_per_hour = hour * view.grid_cost
-        view.total_cost = total_per_hour + view.nordpool_price - view.government_rebate
+        difference = (end - start).total_seconds()
+        hour = difference / 3600
+        total_grid_cost = hour * view.grid_cost
+        total_nordpool_cost = hour * view.nordpool_price
+        view.total_cost = total_grid_cost + total_nordpool_cost - view.government_rebate
 
-        consumption_per_current_hour = (transaction.consumption_per_minute * 60) * hour
+        consumption_per_current_hour = transaction.consumption_per_second * difference
         view.per_kw_cost = view.total_cost / consumption_per_current_hour
     return views
 
@@ -163,11 +186,13 @@ async def compute_total_cost_per_hour(
 async def get_transactions_hourly_explication(
         session,
         garage: Garage,
-        transaction: Transaction
+        transaction: Transaction,
+        month: int
 ) -> List[TransactionsHourlyPeriod]:
     hourly_ranges = await generate_hourly_ranges(
         transaction.created_at,
-        transaction.updated_at
+        transaction.updated_at,
+        month
     )
     hourly_ranges_with_grid_costs = await add_grid_costs_for_periods(
         garage.daily_rate,
@@ -201,15 +226,13 @@ async def generate_statements_for_driver(
     statement_items = []
     for transaction in transactions:
         total_kw += transaction.total_consumed_kw
-        hourly_transactions = await get_transactions_hourly_explication(session, garage, transaction)
+        hourly_transactions = await get_transactions_hourly_explication(session, garage, transaction, month)
         hours_count = len(hourly_transactions)
 
         average_nordpool_price = sum([item.nordpool_price for item in hourly_transactions]) / hours_count
         average_grid_cost = sum([item.grid_cost for item in hourly_transactions]) / hours_count
-
+        per_kw_cost = sum([item.per_kw_cost for item in hourly_transactions]) / hours_count
         total_transaction_cost = sum([item.total_cost for item in hourly_transactions])
-
-        per_kw_cost = total_transaction_cost / transaction.total_consumed_kw
 
         transaction_view = StatementsTransaction(
             start=transaction.created_at,
@@ -223,12 +246,14 @@ async def generate_statements_for_driver(
         )
         total_cost += transaction_view.total_cost
         statement_items.append(transaction_view)
+
+    per_kw_cost = total_cost / total_kw if all([total_cost, total_kw]) else 0
     statement = DriversStatement(
         month=calendar.month_name[month],
         year=year,
         total_kw=total_kw,
         total_cost=total_cost,
-        per_kw_cost=total_cost / total_kw if total_kw else 0,
+        per_kw_cost=per_kw_cost,
         name=f"{driver.first_name} {driver.last_name}",
         email=driver.email,
         garage_address=f"{garage.city}, {garage.street}",
