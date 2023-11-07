@@ -105,6 +105,10 @@ class Operator(Person):
     def is_superuser(self):
         return not bool(self.garage_id)
 
+    @property
+    def id_tag(self):
+        return self.email.split("@")[0]
+
 
 class Driver(Person):
     __tablename__ = "drivers"
