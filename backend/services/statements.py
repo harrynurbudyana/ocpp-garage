@@ -9,6 +9,7 @@ from jinja2 import Environment, FileSystemLoader
 from loguru import logger
 from sqlalchemy import select
 
+from core.database import get_contextual_session
 from core.settings import (
     NORDPOOL_REGION,
     NORDPOLL_PRICES_REQUSTED_DATE_FORMAT,
@@ -16,6 +17,7 @@ from core.settings import (
     DAILY_HOURS_RANGE
 )
 from models import Garage, Driver, Transaction, SpotPrice
+from services.government_rebates import get_rebate
 from views.statements import TransactionsHourlyPeriod, StatementsTransaction, DriversStatement
 
 
@@ -162,8 +164,11 @@ async def add_spot_prices_for_periods(
     return views
 
 
-async def compute_total_cost_per_hour(
+async def compute_costs_per_hour(
+        garage: Garage,
         transaction: Transaction,
+        month: int,
+        year: int,
         views: List[TransactionsHourlyPeriod]
 ) -> List[TransactionsHourlyPeriod]:
     for view in views:
@@ -175,11 +180,15 @@ async def compute_total_cost_per_hour(
         difference = (end - start).total_seconds()
         hour = difference / 3600
         total_grid_cost = hour * view.grid_cost
+        consumption_per_current_hour = transaction.consumption_per_second * difference
+
+        async with get_contextual_session() as session:
+            rebate = await get_rebate(session, garage.id, month, year)
+            view.government_rebate = consumption_per_current_hour * float(rebate.value)
         total_nordpool_cost = hour * view.nordpool_price
         view.total_cost = total_grid_cost + total_nordpool_cost - view.government_rebate
-
-        consumption_per_current_hour = transaction.consumption_per_second * difference
         view.per_kw_cost = view.total_cost / consumption_per_current_hour
+
     return views
 
 
@@ -187,7 +196,8 @@ async def get_transactions_hourly_explication(
         session,
         garage: Garage,
         transaction: Transaction,
-        month: int
+        month: int,
+        year: int
 ) -> List[TransactionsHourlyPeriod]:
     hourly_ranges = await generate_hourly_ranges(
         transaction.created_at,
@@ -206,7 +216,13 @@ async def get_transactions_hourly_explication(
     )
     # Need to ensure validation before computing
     hourly_ranges_with_spotprices = [TransactionsHourlyPeriod(**item.dict()) for item in hourly_ranges_with_spotprices]
-    hourly_ranges_with_total_costs = await compute_total_cost_per_hour(transaction, hourly_ranges_with_spotprices)
+    hourly_ranges_with_total_costs = await compute_costs_per_hour(
+        garage,
+        transaction,
+        month,
+        year,
+        hourly_ranges_with_spotprices
+    )
     hourly_ranges_with_total_costs = [TransactionsHourlyPeriod(**item.dict()) for item in
                                       hourly_ranges_with_total_costs]
     return hourly_ranges_with_total_costs
@@ -226,9 +242,15 @@ async def generate_statements_for_driver(
     statement_items = []
     for transaction in transactions:
         total_kw += transaction.total_consumed_kw
-        hourly_transactions = await get_transactions_hourly_explication(session, garage, transaction, month)
+        hourly_transactions = await get_transactions_hourly_explication(
+            session,
+            garage,
+            transaction,
+            month,
+            year
+        )
         hours_count = len(hourly_transactions)
-
+        rebate = await get_rebate(session, garage.id, month, year)
         average_nordpool_price = sum([item.nordpool_price for item in hourly_transactions]) / hours_count
         average_grid_cost = sum([item.grid_cost for item in hourly_transactions]) / hours_count
         per_kw_cost = sum([item.per_kw_cost for item in hourly_transactions]) / hours_count
@@ -239,7 +261,7 @@ async def generate_statements_for_driver(
             end=transaction.updated_at,
             nordpool_price=average_nordpool_price,
             grid_cost=average_grid_cost,
-            government_rebate=0,
+            government_rebate=transaction.total_consumed_kw * float(rebate.value),
             total_cost=total_transaction_cost,
             per_kw_cost=per_kw_cost,
             hours=hourly_transactions
