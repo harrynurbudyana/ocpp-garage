@@ -40,7 +40,7 @@ services:
 
   ocpp-gateway:
     container_name: ocpp-gateway
-    image: heroyooki/charge_point_node:thnxel-fenix-61045
+    image: "heroyooki/charge_point_node:${IMAGE_TAG}"
     restart: always
     ports:
       - "${WS_SERVER_PORT}:${WS_SERVER_PORT}"
