@@ -100,6 +100,7 @@ const stopTransaction = (item) => {
 };
 
 onMounted(() => {
+  interval = setInterval(() => fetchData(), 5000);
   const { commit } = useStore();
   commit("setPageMenuItems", menuItems);
 });

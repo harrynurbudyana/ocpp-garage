@@ -128,7 +128,7 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, onUnmounted } from "vue";
 import { useStore } from "vuex";
 import { dateAgo } from "@/filters/date";
 import DataTable from "@/components/DataTable";
@@ -165,6 +165,8 @@ const { currentPage, lastPage, fetchData, items, search } = usePagination({
   itemsLoader: listStations,
 });
 
+var interval = null;
+
 const onClickRow = ({ item }) => {
   if (getters.currentUser.is_superuser) {
     return;
@@ -177,6 +179,11 @@ const onClickRow = ({ item }) => {
 
 onMounted(() => {
   commit("setPageMenuItems", menuItems);
+  interval = setInterval(() => fetchData(), 5000);
+});
+
+onUnmounted(() => {
+  clearInterval(interval);
 });
 
 const headers = [
