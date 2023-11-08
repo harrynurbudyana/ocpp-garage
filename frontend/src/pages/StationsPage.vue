@@ -179,7 +179,7 @@ const onClickRow = ({ item }) => {
 
 onMounted(() => {
   commit("setPageMenuItems", menuItems);
-  interval = setInterval(() => fetchData(), 5000);
+  interval = setInterval(() => fetchData({ periodic: 1 }), 5000);
 });
 
 onUnmounted(() => {
