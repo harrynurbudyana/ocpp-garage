@@ -1,13 +1,19 @@
 from __future__ import annotations
 
+import asyncio
 from typing import List
 
+from loguru import logger
+from ocpp.v16.enums import ChargePointStatus
 from sqlalchemy import select, update, func, or_, String, delete
 from sqlalchemy.sql import selectable
 
 import models as models
-from pyocpp_contrib.v16.views.events import StatusNotificationCallEvent
+from core.database import get_contextual_session
 from models import ChargePoint
+from pyocpp_contrib.decorators import message_id_generator
+from pyocpp_contrib.v16.views.events import StatusNotificationCallEvent
+from utils import paginate
 from views.charge_points import CreateChargPointView, ChargePointUpdateStatusView
 
 
@@ -45,7 +51,7 @@ async def update_connector(session, charge_point_id: str, connector_id: int, dat
     )
 
 
-async def build_charge_points_query(search: str, extra_criterias: List | None = None) -> selectable:
+async def build_charge_points_query(search: str | None = None, extra_criterias: List | None = None) -> selectable:
     criterias = [
         ChargePoint.is_active.is_(True)
     ]
@@ -124,3 +130,32 @@ async def release_connector(session, driver_id: str, charge_point_id: str, conne
                                  models.Connector.charge_point_id == charge_point_id,
                                  models.Connector.id == connector_id) \
                           .values({"driver_id": None}))
+
+
+async def reset_all_stations():
+    from services.ocpp.reset import process_reset
+    
+    logger.info(f"Start reset all stations")
+    async with get_contextual_session() as session:
+        page = 1
+        size = 20
+
+        while True:
+            items, pagination = await paginate(session, build_charge_points_query, page, size)
+
+            for charge_point in [i[0] for i in items]:
+                data = ChargePointUpdateStatusView(status=ChargePointStatus.unavailable)
+                await update_charge_point(session, charge_point.id, data)
+                await update_connectors(session, charge_point.id, data)
+                await process_reset(
+                    session,
+                    charge_point_id=charge_point.id,
+                    message_id=message_id_generator(),
+                    callback=None
+                )
+            page += 1
+
+            await session.commit()
+            await asyncio.sleep(2)
+            if pagination.last_page < page:
+                return

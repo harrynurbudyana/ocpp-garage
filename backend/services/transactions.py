@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import selectable
 
 import models
+from core.fields import TransactionStatus
 from views.transactions import CreateTransactionView, UpdateTransactionView
 
 
@@ -35,6 +36,15 @@ async def get_transaction(session, transaction_id: str | int) -> models.Transact
     attr = models.Transaction.transaction_id if isinstance(transaction_id, int) else models.Transaction.id
     query = await session.execute(
         select(models.Transaction).where(attr == transaction_id))
+    return query.scalars().first()
+
+
+async def get_active_transaction(session, charge_point_id: str) -> models.Transaction | None:
+    query = await session.execute(
+        select(models.Transaction) \
+            .where(models.Transaction.charge_point == charge_point_id,
+                   models.Transaction.status == TransactionStatus.in_progress)
+    )
     return query.scalars().first()
 
 

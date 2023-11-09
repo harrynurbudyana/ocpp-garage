@@ -1,9 +1,6 @@
 import asyncio
 
 from loguru import logger
-from pyocpp_contrib.decorators import init_logger
-from pyocpp_contrib.queue.consumer import start_consume
-from pyocpp_contrib.settings import EVENTS_EXCHANGE_NAME
 
 from app import app
 from controllers.actions import actions_router
@@ -15,6 +12,10 @@ from controllers.grid_providers import grid_providers_router
 from controllers.operators import operators_public_router, operators_private_router
 from controllers.transactions import transactions_router
 from events import process_event
+from pyocpp_contrib.decorators import init_logger
+from pyocpp_contrib.queue.consumer import start_consume
+from pyocpp_contrib.settings import EVENTS_EXCHANGE_NAME
+from services.charge_points import reset_all_stations
 
 background_tasks = set()
 
@@ -28,6 +29,13 @@ async def startup():
         start_consume(exchange_name=EVENTS_EXCHANGE_NAME, on_message=process_event)
     )
     background_tasks.add(task)
+
+    # Everytime the server fails, we lose connections with station.
+    # After the server recovered, the stations status in database does not fit to the real stations status
+    # Thus, we need to reset all station everytime the server fails.
+    reset_task = asyncio.create_task(reset_all_stations())
+    await reset_task
+    background_tasks.add(reset_task)
 
 
 app.include_router(government_rebates_router)
