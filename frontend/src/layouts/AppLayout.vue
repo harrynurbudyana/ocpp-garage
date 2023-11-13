@@ -116,7 +116,12 @@
 
                   <template v-slot:subtitle>
                     <span class="text-caption"
-                      >station: {{ action.charge_point_id }}</span
+                      >station: {{ action.charge_point_id }}
+                      {{
+                        action.connector_id
+                          ? ` (${actions.connector_id})`
+                          : null
+                      }}</span
                     >
                   </template>
                   <v-divider v-if="i < MAX_ACTIONS_LENGTH - 1"></v-divider>

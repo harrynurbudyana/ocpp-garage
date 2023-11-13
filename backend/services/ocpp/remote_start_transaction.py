@@ -1,10 +1,10 @@
 from loguru import logger
 from ocpp.v16.call import RemoteStartTransactionPayload
 from ocpp.v16.enums import ChargePointStatus, Action, RemoteStartStopStatus
-from pyocpp_contrib.decorators import send_call, contextable, use_context
 
 from core.cache import ActionCache
 from core.fields import TransactionStatus
+from pyocpp_contrib.decorators import send_call, contextable, use_context
 from services.charge_points import get_charge_point, update_connector
 from views.actions import ActionView
 from views.charge_points import ChargePointUpdateStatusView
@@ -37,7 +37,8 @@ async def process_remote_start_transaction_call(
     action = ActionView(
         message_id=message_id,
         charge_point_id=charge_point_id,
-        body=f"Start transaction ({connector_id})"
+        connector_id=connector_id,
+        body=f"Start transaction"
     )
     await cache.insert(charge_point.garage_id, action)
 

@@ -1,10 +1,10 @@
 from loguru import logger
 from ocpp.v16.call import UnlockConnectorPayload
 from ocpp.v16.enums import Action, UnlockStatus
-from pyocpp_contrib.decorators import send_call, contextable, use_context
 
 from core.cache import ActionCache
 from core.fields import TransactionStatus
+from pyocpp_contrib.decorators import send_call, contextable, use_context
 from services.charge_points import get_charge_point
 from views.actions import ActionView
 
@@ -29,7 +29,8 @@ async def process_unlock_connector(
     action = ActionView(
         message_id=message_id,
         charge_point_id=charge_point_id,
-        body=f"Unlock connector ({connector_id})"
+        connector_id=connector_id,
+        body=f"Unlock connector"
     )
     await cache.insert(charge_point.garage_id, action)
 
