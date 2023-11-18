@@ -2,13 +2,17 @@ from __future__ import annotations
 
 from typing import List
 
+from async_stripe import stripe
 from sqlalchemy import select, update, func, or_, String, delete
 from sqlalchemy.sql import selectable
 
+from core import settings
 from models import Driver, Garage, Connector
 from services.charge_points import update_connector
 from views.charge_points import UpdateChargPointView
 from views.drivers import CreateDriverView, UpdateDriverView
+
+stripe.api_key = settings.STRIPE_API_KEY
 
 
 async def is_driver_authorized(driver: Driver):
@@ -41,8 +45,17 @@ async def get_driver(session, garage_id, driver_id) -> Driver | None:
     return result.scalars().first()
 
 
+async def find_driver(session, customer_id: str) -> Driver | None:
+    result = await session.execute(
+        select(Driver) \
+            .where(Driver.customer_id == customer_id)
+    )
+    return result.scalars().first()
+
+
 async def create_driver(session, garage_id: str, data: CreateDriverView):
-    driver = Driver(garage_id=garage_id, **data.dict())
+    customer = await stripe.Customer.create()
+    driver = Driver(garage_id=garage_id, customer_id=customer.id, **data.dict())
     session.add(driver)
     return driver
 
@@ -70,7 +83,9 @@ async def remove_driver(session, garage_id: str, driver_id: str) -> None:
     await session.execute(update(Connector) \
                           .where(Connector.driver_id == driver_id) \
                           .values({"driver_id": None}))
+    driver = await get_driver(session, garage_id, driver_id)
     query = delete(Driver) \
         .where(Driver.id == driver_id) \
         .where(Driver.garage_id == garage_id)
+    await stripe.Customer.delete(driver.customer_id)
     await session.execute(query)

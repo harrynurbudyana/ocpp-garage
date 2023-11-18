@@ -5,7 +5,6 @@ from typing import List, Type
 
 import arrow
 import httpx
-from jinja2 import Environment, FileSystemLoader
 from loguru import logger
 from sqlalchemy import select
 
@@ -228,15 +227,14 @@ async def get_transactions_hourly_explication(
     return hourly_ranges_with_total_costs
 
 
-async def generate_statements_for_driver(
+async def generate_statement_for_driver(
         session,
         garage: Garage,
         driver: Driver,
         transactions: List[Transaction],
         month: int,
         year: int
-):
-    env = Environment(loader=FileSystemLoader('templates/statements'))
+) -> DriversStatement:
     total_kw = 0
     total_cost = 0
     statement_items = []
@@ -281,5 +279,4 @@ async def generate_statements_for_driver(
         garage_address=f"{garage.city}, {garage.street}",
         transactions=statement_items
     )
-    template = env.get_template('driver.html')
-    return template.render(**statement.dict())
+    return statement

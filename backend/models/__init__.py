@@ -113,6 +113,7 @@ class Operator(Person):
 class Driver(Person):
     __tablename__ = "drivers"
 
+    customer_id = Column(String, nullable=True)
     billing_requisites = Column(JSON, default=dict())
     connectors = relationship("Connector",
                               back_populates="driver",

@@ -14,11 +14,38 @@ const routes = [
     },
   },
   {
+    path: "/payments/success",
+    name: "successPayment",
+    component: () =>
+      import(/* webpackChunkName: "home" */ "@/pages/PaymentSuccess.vue"),
+    meta: {
+      public: true,
+    },
+  },
+  {
+    path: "/404",
+    name: "404",
+    component: () =>
+      import(/* webpackChunkName: "home" */ "@/pages/NotFoundPage.vue"),
+    meta: {
+      public: true,
+    },
+  },
+  {
     path: "/login",
     name: "login",
     beforeEnter: PublicPageGuard,
     component: () =>
       import(/* webpackChunkName: "home" */ "@/pages/LoginPage.vue"),
+    meta: {
+      public: true,
+    },
+  },
+  {
+    path: "/payments/:token",
+    name: "payment",
+    component: () =>
+      import(/* webpackChunkName: "home" */ "@/pages/PaymentPage.vue"),
     meta: {
       public: true,
     },

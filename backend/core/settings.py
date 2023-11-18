@@ -53,3 +53,6 @@ DAILY_HOURS_RANGE = range(6, 22)
 STATIC_PATH = "/tmp/static"
 
 HTTP_TIMEOUT = 10
+
+STRIPE_PUBLIC_KEY = os.environ["STRIPE_PUBLIC_KEY"]
+STRIPE_API_KEY = os.environ["STRIPE_API_KEY"]

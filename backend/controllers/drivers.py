@@ -2,10 +2,12 @@ import os
 from typing import Tuple
 
 import pdfkit
-from fastapi import status, Depends, BackgroundTasks
+from fastapi import status, Depends, BackgroundTasks, Request
 from fastapi.responses import FileResponse
+from jinja2 import Environment, FileSystemLoader
 from loguru import logger
 
+from controllers.payments import payments_router
 from core.database import get_contextual_session
 from core.settings import STATIC_PATH
 from models import Driver
@@ -19,7 +21,8 @@ from services.drivers import (
     remove_driver
 )
 from services.garages import get_garage
-from services.statements import generate_statements_for_driver
+from services.payments import generate_payment_link
+from services.statements import generate_statement_for_driver
 from services.transactions import find_drivers_transactions
 from utils import params_extractor, paginate
 from views.drivers import (
@@ -137,6 +140,7 @@ async def remove_charge_point(
     status_code=status.HTTP_200_OK
 )
 async def generate_statement(
+        request: Request,
         background_task: BackgroundTasks,
         garage_id: str,
         driver_id: str,
@@ -147,7 +151,18 @@ async def generate_statement(
         garage = await get_garage(session, garage_id)
         driver = await get_driver(session, garage_id, driver_id)
         transactions = await find_drivers_transactions(session, driver, month, year)
-        html = await generate_statements_for_driver(session, garage, driver, transactions, month, year)
+        statement = await generate_statement_for_driver(session, garage, driver, transactions, month, year)
+    env = Environment(loader=FileSystemLoader('templates/statements'))
+    template = env.get_template('driver.html')
+    statement.payment_link = await generate_payment_link(
+        request,
+        payments_router,
+        driver,
+        statement.total_cost,
+        month,
+        year
+    )
+    html = template.render(**statement.dict())
     filename = driver.email.split("@")[0]
     filepath = os.path.join(STATIC_PATH, f"{filename}.pdf")
     pdfkit.from_string(html, filepath, verbose=True)

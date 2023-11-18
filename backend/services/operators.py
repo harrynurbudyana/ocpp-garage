@@ -14,7 +14,6 @@ from starlette.responses import Response
 from core.database import get_contextual_session
 from core.settings import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, UTC_DATETIME_FORMAT
 from core.utils import now
-from exceptions import NotAuthenticated
 from models import Operator
 from views.auth import AuthToken
 from views.operators import CreateOperatorView
@@ -90,6 +89,8 @@ async def refresh_token(request: Request, response: Response):
 
 class AuthRoute(APIRoute):
     def get_route_handler(self) -> Callable:
+        from exceptions import NotAuthenticated
+        
         original_route_handler = super().get_route_handler()
 
         async def custom_route_handler(request: Request) -> Response:

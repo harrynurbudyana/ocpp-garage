@@ -57,6 +57,7 @@ class StatementsTransaction(TransactionView):
 
 
 class DriversStatement(BaseModel):
+    payment_link: str | None = None
     month: str
     year: int
     total_kw: float
