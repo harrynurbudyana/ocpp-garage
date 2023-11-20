@@ -9,5 +9,6 @@ class NotAuthenticatedResponse(BaseModel):
 
 
 class AuthToken(BaseModel):
-    operator: str
+    garage_id: str | None = None
+    user_id: str
     expired: str

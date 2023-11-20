@@ -2,14 +2,12 @@ from copy import deepcopy
 
 from loguru import logger
 from ocpp.v16.enums import Action, ChargePointStatus, ChargePointErrorCode
-from pyocpp_contrib.decorators import prepare_event, message_id_generator
-from pyocpp_contrib.enums import ConnectionAction
 
 from core.database import get_contextual_session
+from pyocpp_contrib.decorators import prepare_event, message_id_generator
+from pyocpp_contrib.enums import ConnectionAction
 from services.charge_points import update_charge_point, update_connectors
-from services.ocpp.authorize import process_authorize
 from services.ocpp.boot_notification import process_boot_notification
-from services.ocpp.change_availability import process_change_availability_call_result
 from services.ocpp.change_configuration import process_change_configration_call, configuration
 from services.ocpp.heartbeat import process_heartbeat
 from services.ocpp.meter_values import process_meter_values
@@ -41,8 +39,6 @@ async def process_event(event):
             await process_stop_transaction(session, deepcopy(event))
         if event.action is Action.StartTransaction:
             await process_start_transaction(session, deepcopy(event))
-        if event.action is Action.Authorize:
-            await process_authorize(session, deepcopy(event))
         if event.action is Action.SecurityEventNotification:
             await process_security_event_notification(session, deepcopy(event))
         if event.action is Action.BootNotification:
@@ -68,8 +64,6 @@ async def process_event(event):
             await process_remote_start_transaction_call_result(session, deepcopy(event))
         if event.action is Action.RemoteStopTransaction:
             await process_remote_stop_transaction_call_result(session, deepcopy(event))
-        if event.action is Action.ChangeAvailability:
-            await process_change_availability_call_result(session, deepcopy(event))
         if event.action is Action.Reset:
             await process_reset_call_result(session, deepcopy(event))
         if event.action is Action.UnlockConnector:

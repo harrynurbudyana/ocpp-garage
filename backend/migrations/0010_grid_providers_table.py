@@ -7,10 +7,11 @@ Create Date: 2023-10-20 09:43:23.358144
 """
 import csv
 import os
-from uuid import uuid4
 
 import sqlalchemy as sa
 from alembic import op
+
+from core.database import generate_default_id
 
 # revision identifiers, used by Alembic.
 revision = '0010'
@@ -26,7 +27,7 @@ with open(os.path.join(BASE_DIR, "NorwayELPrices.csv")) as csv_file:
     next(reader, None)
     for row in reader:
         data.append(dict(
-            id=str(uuid4()),
+            id=generate_default_id(),
             postnummer=row[0],
             region=row[1],
             name=row[2],
@@ -44,7 +45,7 @@ def upgrade() -> None:
                                      sa.Column('name', sa.String(), nullable=False),
                                      sa.Column('daily_rate', sa.Numeric(precision=2, scale=2), nullable=True),
                                      sa.Column('nightly_rate', sa.Numeric(precision=2, scale=2), nullable=True),
-                                     sa.Column('id', sa.String(), nullable=False),
+                                     sa.Column('id', sa.String(length=20), nullable=False),
                                      sa.Column('created_at', sa.DateTime(), nullable=True),
                                      sa.Column('updated_at', sa.DateTime(), nullable=True),
                                      sa.Column('is_active', sa.Boolean(), nullable=True),

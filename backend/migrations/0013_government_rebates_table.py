@@ -20,7 +20,7 @@ def upgrade() -> None:
     op.create_table('government_rebates',
                     sa.Column('value', sa.Numeric(), nullable=False),
                     sa.Column('garage_id', sa.String(), nullable=True),
-                    sa.Column('id', sa.String(), nullable=False),
+                    sa.Column('id', sa.String(length=20), nullable=False),
                     sa.Column('created_at', sa.DateTime(), nullable=True),
                     sa.Column('updated_at', sa.DateTime(), nullable=True),
                     sa.Column('is_active', sa.Boolean(), nullable=True),

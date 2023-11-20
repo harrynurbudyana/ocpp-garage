@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from services.operators import AuthRoute
+from services.auth import AuthRoute
 
 
 class AuthenticatedRouter(APIRouter):

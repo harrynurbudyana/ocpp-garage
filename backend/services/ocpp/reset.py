@@ -50,10 +50,11 @@ async def process_reset_call_result(
 
     charge_point = await get_charge_point(session, event.charge_point_id)
 
-    if ResetStatus(event.payload.status) is ResetStatus.accepted:
-        data = ChargePointUpdateStatusView(status=ChargePointStatus.available)
-        await update_charge_point(session, charge_point_id=charge_point.id, data=data)
+    # After every server startup, the platfrom set all stations as unavailable.
+    data = ChargePointUpdateStatusView(status=ChargePointStatus.available)
+    await update_charge_point(session, charge_point_id=charge_point.id, data=data)
 
+    if ResetStatus(event.payload.status) is ResetStatus.accepted:
         # Soft reset station can be requested after server startup
         # We need to ensure that station is not charging
         active_transaction = await get_active_transaction(session, event.charge_point_id)

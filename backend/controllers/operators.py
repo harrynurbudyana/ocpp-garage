@@ -10,10 +10,11 @@ from core.fields import NotificationType
 from exceptions import NotAuthenticated
 from models import Operator
 from routers import AnonymousRouter, AuthenticatedRouter
+from services.auth import create_token, cookie_name, pwd_context, generate_random_password
 from services.garages import list_simple_garages
 from services.notifications import send_notification
-from services.operators import pwd_context, get_operator, create_token, cookie_name, build_operators_query, \
-    create_operator, generate_random_password
+from services.operators import get_operator, build_operators_query, \
+    create_operator
 from utils import params_extractor, paginate
 from views.operators import LoginView, PaginatedOperatorsView, ReadOperatorGaragesView, CreateOperatorView
 
@@ -59,7 +60,7 @@ async def login(response: Response, data: LoginView):
         if not pwd_context.verify(data.password, operator.password):
             raise NotAuthenticated(detail=error_message)
 
-    token = await create_token(operator.id)
+    token = await create_token(operator.garage_id, operator.id)
     response.set_cookie(cookie_name, token)
     response = ReadOperatorGaragesView(operator=operator)
     async with get_contextual_session() as session:

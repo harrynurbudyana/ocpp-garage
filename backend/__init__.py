@@ -21,7 +21,7 @@ app.add_middleware(
 
 @app.middleware("authentication")
 async def refresh_auth_token(request: Request, call_next):
-    from services.operators import cookie_name, refresh_token
+    from services.auth import cookie_name, refresh_token
 
     response: Response = await call_next(request)
     if HTTPStatus(response.status_code) is HTTPStatus.UNAUTHORIZED:

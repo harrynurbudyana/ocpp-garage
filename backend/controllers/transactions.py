@@ -53,7 +53,7 @@ async def remote_start_transaction(
             session,
             charge_point_id=data.charge_point_id,
             connector_id=data.connector_id,
-            id_tag=request.state.operator.id_tag,
+            id_tag=request.state.user.id_tag,
             message_id=message_id_generator()
         )
         await session.commit()

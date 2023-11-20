@@ -36,6 +36,10 @@ class Person(Model):
     last_name = Column(String(24), nullable=False, unique=False)
     address = Column(String(48), nullable=False, unique=False)
 
+    @property
+    def id_tag(self):
+        return self.id
+
     def __repr__(self) -> str:
         return f"Driver: {self.id}, {self.email}"
 
@@ -104,10 +108,6 @@ class Operator(Person):
     @property
     def is_superuser(self):
         return not bool(self.garage_id)
-
-    @property
-    def id_tag(self):
-        return self.email.split("@")[0]
 
 
 class Driver(Person):
