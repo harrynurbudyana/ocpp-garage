@@ -1,3 +1,5 @@
+### The application's internals described [here](https://docs.google.com/document/d/1creKl0rNEWSN2G-6Wucqz96a-7sLhqn5fX9o02pi1GI/edit?usp=sharing).
+
 ### Simple start
 
 - ```$ cp .env.backend .env```
