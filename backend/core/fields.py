@@ -10,3 +10,4 @@ class TransactionStatus(str, Enum):
 
 class NotificationType(str, Enum):
     new_operator_invited = "new_operator_invited"
+    friendly_reminder = "friendly_reminder"

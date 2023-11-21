@@ -100,8 +100,7 @@ async def retrieve_garage_drivers(
 async def add_operator(
         garage_id: str,
         data: CreateOperatorView,
-        background_tasks: BackgroundTasks,
-        request: Request
+        background_tasks: BackgroundTasks
 ):
     logger.info(f"Start create driver (data={data})")
 
@@ -116,5 +115,5 @@ async def add_operator(
         send_notification,
         data.email,
         NotificationType.new_operator_invited,
-        dict(request=request, password=password)
+        dict(password=password)
     )

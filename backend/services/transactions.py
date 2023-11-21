@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
-from sqlalchemy import update, select, or_, func, String, extract, and_
+from sqlalchemy import update, select, or_, func, String, extract, and_, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import selectable
 
@@ -79,3 +79,22 @@ async def find_drivers_transactions(
     )).order_by(models.Transaction.transaction_id.asc())
     result = await session.execute(query)
     return result.scalars().fetchall()
+
+
+async def find_prevmonth_drivers_transaction(session, driver: models.Driver):
+    query = select(
+        extract('year', models.Transaction.created_at).label('year'),
+        extract('month', models.Transaction.created_at).label('month'),
+        func.count().label('count')
+    ).where(
+        text('driver=:id').bindparams(id=driver.id),
+        func.DATE_TRUNC('month', models.Transaction.created_at) != func.DATE_TRUNC('month', func.NOW())
+    ).group_by(
+        extract('year', models.Transaction.created_at),
+        extract('month', models.Transaction.created_at)
+    ).order_by(
+        extract('year', models.Transaction.created_at).desc(),
+        extract('month', models.Transaction.created_at).desc()
+    )
+    result = await session.execute(query)
+    return result.first()

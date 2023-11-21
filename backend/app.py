@@ -9,7 +9,10 @@ from starlette.requests import Request
 
 from core.database import get_contextual_session
 from core.settings import ALLOWED_ORIGIN
+from services.drivers import update_driver
+from services.notifications import send_reminder_to_debtors
 from services.statements import persist_daily_nordpool_price
+from views.drivers import UpdateDriverView
 
 app = FastAPI()
 
@@ -31,6 +34,17 @@ async def watch_nordpool_prices():
         target_date = arrow.now().shift(days=-1).date()
         await persist_daily_nordpool_price(session, target_date)
         await session.commit()
+
+
+@aiocron.crontab("0 0 7 * *")
+async def send_friendly_reminder():
+    await send_reminder_to_debtors()
+
+
+@aiocron.crontab("0 0 15 * *")
+async def send_friendly_reminder():
+    view = UpdateDriverView(is_active=False)
+    await send_reminder_to_debtors(update_driver, view)
 
 
 @app.middleware("authentication")

@@ -5,6 +5,9 @@ import os
 from loguru import logger
 
 DEBUG = os.environ.get("DEBUG") == "1"
+BASE_PATH = os.path.abspath(os.path.dirname(os.path.dirname(os.path.curdir)))
+
+TEMPLATES_DIR = os.path.join(BASE_PATH, "templates")
 
 DB_NAME = os.environ["DB_NAME"]
 DB_PASSWORD = os.environ["DB_PASSWORD"]
