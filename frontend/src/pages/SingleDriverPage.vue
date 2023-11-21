@@ -22,6 +22,7 @@
           <v-col cols="2" sm="4">
             <v-sheet align="center">
               <v-btn
+                :disabled="!driver.is_active"
                 variant="outlined"
                 color="blue-darken-1"
                 @click="openStatementModal"
