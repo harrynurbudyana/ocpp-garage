@@ -23,7 +23,8 @@ class InitTransactionView(BaseModel):
 
 
 class UpdateTransactionView(BaseModel):
-    meter_stop: int
+    meter_stop: int | None = None
+    status: TransactionStatus | None = None
 
 
 class Transaction(BaseModel):

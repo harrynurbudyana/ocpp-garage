@@ -38,11 +38,3 @@ async def paginate(
     )
 
     return items, pagination
-
-
-def now():
-    return arrow.utcnow()
-
-
-def generate_message_id() -> str:
-    return str(uuid4())

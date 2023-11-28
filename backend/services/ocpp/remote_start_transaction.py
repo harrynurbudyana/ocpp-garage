@@ -59,5 +59,5 @@ async def process_remote_start_transaction_call_result(
         await cache.update_status(charge_point.garage_id, event.message_id, status=TransactionStatus.completed)
     else:
         await cache.update_status(charge_point.garage_id, event.message_id, status=TransactionStatus.faulted)
-        data = dict(status=ChargePointStatus.available)
+        data = ChargePointUpdateStatusView(status=ChargePointStatus.available)
         await update_connector(session, event.charge_point_id, context.connector_id, data)

@@ -3,6 +3,7 @@ from copy import deepcopy
 from loguru import logger
 from ocpp.v16.enums import Action, ChargePointStatus, ChargePointErrorCode
 
+from core.fields import TransactionStatus
 from core.database import get_contextual_session
 from pyocpp_contrib.decorators import prepare_event, message_id_generator
 from pyocpp_contrib.enums import ConnectionAction
@@ -20,6 +21,8 @@ from services.ocpp.status_notification import process_status_notification
 from services.ocpp.stop_transaction import process_stop_transaction
 from services.ocpp.unlock_connector import process_unlock_connector_call_result
 from views.charge_points import ChargePointUpdateStatusView
+from services.transactions import cancel_transactions
+from views.transactions import UpdateTransactionView
 
 
 @prepare_event
@@ -58,6 +61,8 @@ async def process_event(event):
             await update_charge_point(session, charge_point_id=event.charge_point_id, data=data)
             data.error_code = ChargePointErrorCode.no_error
             await update_connectors(session, charge_point_id=event.charge_point_id, data=data)
+            data = UpdateTransactionView(status=TransactionStatus.faulted)
+            await cancel_transactions(session, charge_point_id=event.charge_point_id, data=data)
 
         # Call result messages
         if event.action is Action.RemoteStartTransaction:

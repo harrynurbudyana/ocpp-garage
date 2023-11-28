@@ -31,6 +31,17 @@ async def update_transaction(
             .values(**data.dict())
     )
 
+async def cancel_transactions(
+        session: AsyncSession,
+        charge_point_id: str,
+        data: UpdateTransactionView
+):
+    await session.execute(
+        update(models.Transaction) \
+            .where(models.Transaction.charge_point == charge_point_id) \
+            .values(**data.dict())
+    )
+
 
 async def get_transaction(session, transaction_id: str | int) -> models.Transaction | None:
     attr = models.Transaction.transaction_id if isinstance(transaction_id, int) else models.Transaction.id

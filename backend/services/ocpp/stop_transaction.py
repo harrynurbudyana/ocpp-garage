@@ -19,7 +19,6 @@ async def process_stop_transaction(session, event) -> StopTransactionPayload:
     logger.info(f"StopTransaction -> | start process call event (event={event})")
 
     view = UpdateTransactionView(
-        transaction_id=event.payload.transaction_id,
         meter_stop=event.payload.meter_stop
     )
     await update_transaction(session, event.payload.transaction_id, view)
