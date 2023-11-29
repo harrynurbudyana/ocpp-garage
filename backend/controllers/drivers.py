@@ -8,10 +8,12 @@ from jinja2 import Environment, FileSystemLoader
 from loguru import logger
 
 from controllers.payments import payments_router
+from core.cache import Cache
 from core.database import get_contextual_session
 from core.settings import STATIC_PATH
+from exceptions import NotFound
 from models import Driver
-from routers import AuthenticatedRouter
+from routers import AuthenticatedRouter, AnonymousRouter
 from services.charge_points import release_connector
 from services.drivers import (
     build_drivers_query,
@@ -36,6 +38,10 @@ drivers_router = AuthenticatedRouter(
     prefix="/{garage_id}/drivers",
     tags=["drivers"]
 )
+
+anonymous_driver_router = AnonymousRouter()
+
+cache = Cache()
 
 
 @drivers_router.get(
@@ -72,18 +78,24 @@ async def retrieve_driver(
         return await get_driver(session, garage_id, driver_id)
 
 
-@drivers_router.post(
-    "/",
+@anonymous_driver_router.post(
+    "/{garage_id}/drivers",
     status_code=status.HTTP_201_CREATED,
 )
 async def add_driver(
         garage_id: str,
         data: CreateDriverView
 ):
+    result = await cache.get(data.id)
+    if not result:
+        raise NotFound
+
     logger.info(f"Start create driver (data={data})")
     async with get_contextual_session() as session:
         await create_driver(session, garage_id, data)
         await session.commit()
+
+    await cache.conn.delete(data.id)
 
 
 @drivers_router.put(

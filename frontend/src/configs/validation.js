@@ -6,7 +6,8 @@ export const rules = new (function () {
   this.maxManufacturerLength = 15;
   this.maxSerialNumberLength = 30;
   this.maxModelLength = 15;
-  this.maxPasswordLength = 30;
+  this.maxPasswordLength = 20;
+  this.minPasswordLength = 5;
 
   this.maxLoginLength = 24;
 
@@ -116,6 +117,10 @@ export const rules = new (function () {
     passwordRules: [
       ...this.common,
       (value) => {
+        let v = value.trim();
+        if (!v.length) {
+          return `Minimum ${this.minPasswordLength} characters required`;
+        }
         if (value?.length > this.maxPasswordLength) {
           return `Maximum ${this.maxPasswordLength} characters required`;
         }

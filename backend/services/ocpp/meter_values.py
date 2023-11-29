@@ -12,7 +12,7 @@ async def process_meter_values(session, event) -> MeterValuesPayload:
     logger.info(f"Start process meter values (charge_point={event.charge_point_id}, payload={event.payload})")
     if event.payload.transaction_id:
         for sampled_value in event.payload.meter_value or []:
-            for meter in sampled_value.get("sampledValue", []):
+            for meter in sampled_value.get("sampledValue", []) or sampled_value.get("sampled_value", []):
                 value = meter.get("value")
                 try:
                     value = int(value)

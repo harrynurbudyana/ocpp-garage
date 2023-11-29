@@ -1,3 +1,5 @@
+import { Role } from "@/components/enums";
+
 export const menuItems = [
   {
     name: "Garages",
@@ -14,19 +16,28 @@ export const menuItems = [
     getPath: ({ currentGarage }) => `/${currentGarage?.id}/stations`,
   },
   {
-    name: "Drivers",
-    key: "drivers",
-    icon: "mdi mdi-card-account-details-outline",
-    isVisible: ({ currentGarage }) => !!currentGarage,
-    getPath: ({ currentGarage }) => `/${currentGarage?.id}/drivers`,
+    name: "Statements",
+    key: "statements",
+    icon: "mdi mdi-receipt-text-outline",
+    isVisible: ({ currentGarage, currentUser }) =>
+      !!currentGarage && currentUser.role === Role.resident,
+    getPath: ({ currentGarage }) => `/${currentGarage?.id}/stations`,
   },
   {
-    name: "Operators",
-    key: "operators",
+    name: "Residents",
+    key: "residents",
+    icon: "mdi mdi-card-account-details-outline",
+    isVisible: ({ currentGarage, currentUser }) =>
+      !!currentGarage && currentUser.role !== Role.resident,
+    getPath: ({ currentGarage }) => `/${currentGarage?.id}/residents`,
+  },
+  {
+    name: "Employees",
+    key: "employees",
     icon: "mdi mdi-account-tie",
     isVisible: ({ currentUser, currentGarage }) =>
       !!currentGarage && currentUser.is_superuser,
-    getPath: ({ currentGarage }) => `/${currentGarage?.id}/operators`,
+    getPath: ({ currentGarage }) => `/${currentGarage?.id}/employees`,
   },
   {
     name: "Government Rebates",
@@ -40,14 +51,8 @@ export const menuItems = [
     name: "Transactions",
     key: "transactions",
     icon: "mdi mdi-battery-charging-high",
-    isVisible: ({ currentGarage }) => !!currentGarage,
+    isVisible: ({ currentGarage, currentUser }) =>
+      !!currentGarage && currentUser.role !== "resident",
     getPath: ({ currentGarage }) => `/${currentGarage?.id}/transactions`,
-  },
-  {
-    name: "Settings",
-    key: "settings",
-    icon: "mdi mdi-tune",
-    isVisible: ({ currentGarage }) => !!currentGarage,
-    getPath: ({ currentGarage }) => `/${currentGarage?.id}/settings`,
   },
 ];

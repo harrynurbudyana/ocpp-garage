@@ -14,9 +14,6 @@ export function listOperators(params) {
   );
 }
 
-export function addOperator(data) {
-  return request.post(
-    `/${currentRoute.value.params.garageId}/${endpoint}/`,
-    data
-  );
+export function addOperator({ garageId, data }) {
+  return request.post(`/${garageId}/${endpoint}`, data);
 }

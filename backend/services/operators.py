@@ -24,16 +24,18 @@ async def build_operators_query(search: str, extra_criterias: List | None = None
     return query
 
 
-async def get_operator(session: AsyncSession, value) -> Operator:
-    result = await session.execute(select(Operator).where(or_(Operator.email == value, Operator.id == value)))
-    return result.scalars().first()
+async def get_operator(session: AsyncSession, value: str) -> Operator | None:
+    result = await session.execute(
+        select(Operator) \
+            .where(or_(Operator.id == value, Operator.email == value))
+    )
+    operator = result.scalars().first()
+    return operator
 
 
 async def create_operator(session: AsyncSession, garage_id: str | None, data: CreateOperatorView) -> Operator:
     from services.auth import pwd_context
 
-    if not data.password:
-        raise ValueError(f"Received empty 'password' field for operator. Need to set a value (data={data})")
     data.password = pwd_context.hash(data.password)
     operator = Operator(**data.dict())
     operator.garage_id = garage_id

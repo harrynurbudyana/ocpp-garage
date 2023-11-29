@@ -31,7 +31,7 @@
                 </v-col>
                 <v-col class="d-flex justify-end mb-6 mt-3">
                   <v-btn
-                    v-if="!getters.currentUser.is_superuser"
+                    v-if="getters.currentUser.role === Role.employee"
                     color="blue-lighten-1"
                     class="ma-6 pa-2"
                     @click="openModal"
@@ -135,7 +135,7 @@ import DataTable from "@/components/DataTable";
 import { rules } from "@/configs/validation";
 import router from "@/router";
 
-import { STATION_STATUS_COLOR } from "@/components/enums";
+import { Role, STATION_STATUS_COLOR } from "@/components/enums";
 import { usePagination } from "@/use/pagination";
 import { addStation, listStations } from "@/services/stations";
 import { menuItems } from "@/menu/app-menu-items";

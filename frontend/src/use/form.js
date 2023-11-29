@@ -1,12 +1,18 @@
 import { reactive, ref } from "vue";
 
-export function useSubmitForm({ itemSender, afterHandler }) {
+export function useSubmitForm({ itemSender, afterHandler, predefinedValue }) {
   const loading = ref(false);
   const isValid = ref(false);
   const dialog = ref(false);
   const data = reactive({});
   const errors = ref({});
   const showError = ref(false);
+
+  if (predefinedValue !== undefined) {
+    for (let key in predefinedValue) {
+      data[key] = predefinedValue[key];
+    }
+  }
 
   const clearError = () => {
     showError.value = false;

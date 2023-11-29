@@ -11,6 +11,18 @@ class Cache:
     def __init__(self, host=settings.REDIS_HOST):
         self.conn = redis.from_url(f"redis://{host}")
 
+    async def set(self, key, value, expire=None):
+        await self.conn.set(key, json.dumps(value))
+        if expire:
+            await self.conn.expire(key, expire)
+
+    async def get(self, key):
+        context: bytes | None = await self.conn.get(key)
+        try:
+            return json.loads(context.decode())
+        except AttributeError:
+            return context
+
 
 class ActionCache(Cache):
     max_actions_length = 30

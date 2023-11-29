@@ -13,11 +13,12 @@ export function deleteDriver(driverId) {
   );
 }
 
-export function addDriver(data) {
-  return request.post(
-    `/${currentRoute.value.params.garageId}/${endpoint}/`,
-    data
-  );
+export function addDriver({ garageId, data }) {
+  return request.post(`/${garageId}/${endpoint}`, data);
+}
+
+export function checkInvitationLink(userId) {
+  return request.get(`/${endpoint}/signup/${userId}`);
 }
 
 export function listDrivers(params) {

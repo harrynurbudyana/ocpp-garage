@@ -1,7 +1,7 @@
 .DS_Store
 node_modules/
 /dist/
-data
+db_data
 .env
 .env.local
 __pycache__
@@ -20,7 +20,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
-/data/
+/db_data/
 
 pyocpp_contrib
 tests

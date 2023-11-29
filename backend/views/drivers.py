@@ -2,15 +2,19 @@ from typing import List
 
 from pydantic import BaseModel
 
+from core.fields import Role
 from views import PaginationView
 from views.charge_points import ConnectorView
 
 
 class CreateDriverView(BaseModel):
+    address: str
     email: str
     first_name: str
+    id: str
     last_name: str
-    address: str
+    password: str
+    role: Role = Role.resident
 
 
 class UpdateDriverView(BaseModel):

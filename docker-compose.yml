@@ -7,8 +7,8 @@ services:
     env_file:
       - .env
     ports:
-      - "5673:${RABBITMQ_PORT}"
-      - "15673:${RABBITMQ_UI_PORT}"
+      - "${RABBITMQ_PORT}:${RABBITMQ_PORT}"
+      - "${RABBITMQ_UI_PORT}:${RABBITMQ_UI_PORT}"
     environment:
       RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
       RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASS}"
@@ -22,16 +22,16 @@ services:
     restart: always
     container_name: ocpp-db
     volumes:
-      - ./data/postgres:/data
+      - ./db_data/postgres:/var/lib/postgres
     env_file:
       - .env
     ports:
-      - "5433:${DB_PORT}"
+      - "${DB_PORT}:${DB_PORT}"
     environment:
       POSTGRES_USER: "${DB_USER}"
       POSTGRES_PASSWORD: "${DB_PASSWORD}"
       POSTGRES_DB: "${DB_NAME}"
-      PGDATA: "/data"
+      PGDATA: "/var/lib/postgres"
     healthcheck:
       test: "exit 0"
     networks:

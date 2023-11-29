@@ -4,6 +4,6 @@ export const menuItems = [
     key: "drivers",
     icon: "mdi mdi-arrow-left",
     isVisible: () => true,
-    getPath: ({ currentGarage }) => `/${currentGarage?.id}/drivers`,
+    getPath: ({ currentGarage }) => `/${currentGarage?.id}/residents`,
   },
 ];

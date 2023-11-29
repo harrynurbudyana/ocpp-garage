@@ -20,14 +20,14 @@ function _processSuccessfulLogout(commit) {
 }
 
 function _processSuccessfulLogin(commit, userData) {
-  let operator = userData.operator;
+  let user = userData.user;
   let garages = userData.garages;
   commit("setAuthorized");
-  commit("setUser", operator);
+  commit("setUser", user);
   commit("setGarages", garages);
   commit("setCurrentGarage", garages);
 
-  if (operator.is_superuser) {
+  if (user.is_superuser) {
     router.push("/garages");
   } else {
     router.push(`${garages[0].id}/stations`);
@@ -51,7 +51,7 @@ export default {
     },
     getUser({ commit }) {
       return request.get("/me").then((responseBody) => {
-        commit("setUser", responseBody.operator);
+        commit("setUser", responseBody.user);
         commit("setGarages", responseBody.garages);
         commit("setCurrentGarage", responseBody.garages);
       });

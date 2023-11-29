@@ -18,7 +18,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 
 from core.database import Model, Base
-from core.fields import TransactionStatus
+from core.fields import TransactionStatus, Role
 
 
 class SpotPrice(Model):
@@ -31,17 +31,23 @@ class SpotPrice(Model):
 class Person(Model):
     __abstract__ = True
 
+    password = Column(String(124), nullable=True, unique=False)
     email = Column(String(48), nullable=False, unique=True)
     first_name = Column(String(24), nullable=False, unique=False)
     last_name = Column(String(24), nullable=False, unique=False)
     address = Column(String(48), nullable=False, unique=False)
+    role = Column(Enum(Role), nullable=True)
 
     @property
     def id_tag(self):
         return self.id
 
+    @property
+    def is_superuser(self):
+        return not bool(self.garage_id)
+
     def __repr__(self) -> str:
-        return f"Driver: {self.id}, {self.email}"
+        return f"Person: {self.id}, {self.email}"
 
 
 class GridProvider(Model):
@@ -100,14 +106,8 @@ class GovernmentRebate(Model):
 class Operator(Person):
     __tablename__ = "operators"
 
-    password = Column(String(124), nullable=False, unique=False)
-
     garage_id = Column(String, ForeignKey("garages.id"), nullable=True)
     garage = relationship("Garage", back_populates="operators", lazy="joined")
-
-    @property
-    def is_superuser(self):
-        return not bool(self.garage_id)
 
 
 class Driver(Person):

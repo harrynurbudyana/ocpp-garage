@@ -4,12 +4,13 @@ from loguru import logger
 
 from app import app
 from controllers.actions import actions_router
+from controllers.auth import auth_public_router, auth_router
 from controllers.charge_points import charge_points_router, anonymous_charge_points_router
-from controllers.drivers import drivers_router
+from controllers.drivers import drivers_router, anonymous_driver_router
 from controllers.garages import garages_router
 from controllers.government_rebates import government_rebates_router
 from controllers.grid_providers import grid_providers_router
-from controllers.operators import operators_public_router, operators_private_router
+from controllers.operators import operators_private_router, anonymous_operators_router
 from controllers.payments import payments_router
 from controllers.transactions import transactions_router
 from events import process_event
@@ -39,6 +40,9 @@ async def startup():
     background_tasks.add(reset_task)
 
 
+app.include_router(auth_router)
+app.include_router(anonymous_operators_router)
+app.include_router(anonymous_driver_router)
 app.include_router(payments_router)
 app.include_router(government_rebates_router)
 app.include_router(grid_providers_router)
@@ -47,6 +51,6 @@ app.include_router(actions_router)
 app.include_router(transactions_router)
 app.include_router(anonymous_charge_points_router)
 app.include_router(drivers_router)
-app.include_router(operators_public_router)
+app.include_router(auth_public_router)
 app.include_router(operators_private_router)
 app.include_router(charge_points_router)

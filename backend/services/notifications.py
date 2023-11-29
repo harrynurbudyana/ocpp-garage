@@ -21,12 +21,12 @@ from views.notifications import PaymentReminderView
 templates = Jinja2Templates(directory="../templates/email")
 
 templates_mapper = {
-    NotificationType.new_operator_invited: "invitation.html",
+    NotificationType.new_user_invited: "invitation.html",
     NotificationType.friendly_reminder: "friendly_payment_reminder.html"
 }
 
 subjects = {
-    NotificationType.new_operator_invited: "You were invited.",
+    NotificationType.new_user_invited: "You were invited.",
     NotificationType.friendly_reminder: "Payment reminder."
 }
 

@@ -2,41 +2,18 @@ from typing import List
 
 from pydantic import BaseModel
 
+from core.fields import Role
 from views import PaginationView
-from views.garages import ShortGarageView
 
 
 class CreateOperatorView(BaseModel):
-    email: str
-    password: str | None = None
-    first_name: str
-    last_name: str
     address: str
-
-
-class LoginView(BaseModel):
     email: str
+    first_name: str
+    id: str
+    last_name: str
     password: str
-
-
-class OperatorView(BaseModel):
-    email: str
-    first_name: str | None = None
-    last_name: str | None = None
-    is_superuser: bool
-    is_active: bool
-
-    class Config:
-        orm_mode = True
-
-
-class ReadOperatorGaragesView(BaseModel):
-    operator: OperatorView
-    garages: List[ShortGarageView] = []
-
-    class Config:
-        arbitrary_types_allowed = True
-        orm_mode = True
+    role: Role = Role.employee
 
 
 class SimpleOperatorView(BaseModel):

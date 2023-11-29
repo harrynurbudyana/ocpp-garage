@@ -4,7 +4,7 @@
       <v-col cols="12" sm="12">
         <v-sheet min-height="80vh">
           <data-table
-            title="Operators"
+            title="Employees"
             :items="items"
             :headers="headers"
             :current-page="currentPage"
@@ -68,40 +68,6 @@
                       v-model="data.email"
                       density="compact"
                       variant="underlined"
-                      validate-on="lazy blur"
-                      @input="clearError"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      required
-                      label="First Name"
-                      :rules="rules.driver.firstNameRules"
-                      v-model="data.first_name"
-                      density="compact"
-                      variant="underlined"
-                      validate-on="lazy blur"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      :rules="rules.driver.lastNameRules"
-                      label="Last Name"
-                      required
-                      v-model="data.last_name"
-                      density="compact"
-                      variant="underlined"
-                      validate-on="lazy blur"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      :rules="rules.driver.addressRules"
-                      label="Address"
-                      required
-                      v-model="data.address"
-                      density="compact"
-                      variant="underlined"
                       @input="clearError"
                     ></v-text-field>
                   </v-col>
@@ -136,15 +102,16 @@
 </template>
 
 <script setup>
-import { addOperator, listOperators } from "@/services/operators";
+import { listOperators } from "@/services/operators";
 import { usePagination } from "@/use/pagination";
 import DataTable from "@/components/DataTable";
-import { OPERATORS_STATUS } from "@/components/enums";
+import { OPERATORS_STATUS, Role } from "@/components/enums";
 import { onMounted } from "vue";
 import { useStore } from "vuex";
 import { menuItems } from "@/menu/app-menu-items";
 import { useSubmitForm } from "@/use/form";
 import { rules } from "@/configs/validation";
+import { inviteUser } from "@/services/auth";
 
 const {
   loading,
@@ -158,10 +125,11 @@ const {
   closeModal,
   sendData,
 } = useSubmitForm({
-  itemSender: addOperator,
+  itemSender: inviteUser,
   afterHandler: () => {
     fetchData();
   },
+  predefinedValue: { role: Role.employee },
 });
 
 const { currentPage, lastPage, search, items, fetchData } = usePagination({

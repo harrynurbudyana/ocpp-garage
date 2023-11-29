@@ -19,3 +19,8 @@ class CountersView(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class LoginView(BaseModel):
+    email: str
+    password: str

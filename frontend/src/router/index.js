@@ -14,6 +14,15 @@ const routes = [
     },
   },
   {
+    path: "/signup/:userId",
+    name: "signUp",
+    component: () =>
+      import(/* webpackChunkName: "home" */ "@/pages/SighUpPage.vue"),
+    meta: {
+      public: true,
+    },
+  },
+  {
     path: "/payments/success",
     name: "successPayment",
     component: () =>
@@ -85,13 +94,13 @@ const routes = [
         },
       },
       {
-        path: ":garageId/drivers",
+        path: ":garageId/residents",
         name: "drivers",
         component: () =>
           import(/* webpackChunkName: "home" */ "@/pages/DriversPage"),
       },
       {
-        path: ":garageId/drivers/:driverId",
+        path: ":garageId/residents/:driverId",
         name: "SingleDriver",
         component: () =>
           import(/* webpackChunkName: "home" */ "@/pages/SingleDriverPage.vue"),
@@ -100,13 +109,13 @@ const routes = [
         },
       },
       {
-        path: ":garageId/operators",
+        path: ":garageId/employees",
         name: "operators",
         component: () =>
           import(/* webpackChunkName: "home" */ "@/pages/OperatorsPage"),
       },
       {
-        path: ":garageId/operators/:operatorId",
+        path: ":garageId/employees/:operatorId",
         name: "SingleOperator",
         component: () =>
           import(

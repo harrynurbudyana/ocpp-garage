@@ -55,3 +55,8 @@ export const ACTION_STATUS_COLOR = {
   completed: "#0ee018",
   faulted: "#DC184CFF",
 };
+
+export const Role = {
+  resident: "resident",
+  employee: "employee",
+};

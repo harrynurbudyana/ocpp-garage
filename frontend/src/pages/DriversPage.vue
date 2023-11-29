@@ -4,7 +4,7 @@
       <v-col cols="12" sm="12">
         <v-sheet height="80vh">
           <data-table
-            title="Drivers"
+            title="Residents"
             :items="items"
             :headers="headers"
             :current-page="currentPage"
@@ -70,39 +70,6 @@
                       v-model="data.email"
                       density="compact"
                       variant="underlined"
-                      validate-on="lazy blur"
-                      @input="clearError"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      label="First Name"
-                      :rules="rules.driver.firstNameRules"
-                      v-model="data.first_name"
-                      density="compact"
-                      variant="underlined"
-                      validate-on="lazy blur"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      :rules="rules.driver.lastNameRules"
-                      label="Last Name"
-                      required
-                      v-model="data.last_name"
-                      density="compact"
-                      variant="underlined"
-                      validate-on="lazy blur"
-                    ></v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                      :rules="rules.driver.addressRules"
-                      label="Address"
-                      required
-                      v-model="data.address"
-                      density="compact"
-                      variant="underlined"
                       @input="clearError"
                     ></v-text-field>
                   </v-col>
@@ -143,9 +110,10 @@ import DataTable from "@/components/DataTable";
 import router from "@/router";
 import { rules } from "@/configs/validation";
 
-import { DRIVERS_STATUS } from "@/components/enums";
+import { DRIVERS_STATUS, Role } from "@/components/enums";
 import { usePagination } from "@/use/pagination";
-import { addDriver, listDrivers } from "@/services/drivers";
+import { listDrivers } from "@/services/drivers";
+import { inviteUser } from "@/services/auth";
 import { menuItems } from "@/menu/app-menu-items";
 import { useSubmitForm } from "@/use/form";
 
@@ -163,10 +131,11 @@ const {
   closeModal,
   sendData,
 } = useSubmitForm({
-  itemSender: addDriver,
+  itemSender: inviteUser,
   afterHandler: () => {
     fetchData();
   },
+  predefinedValue: { role: Role.resident },
 });
 
 const { currentPage, lastPage, fetchData, items, search } = usePagination({

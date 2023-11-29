@@ -391,7 +391,7 @@ const unbindStation = (item) => {
 
 const removeDriver = (driverId) => {
   return deleteDriver(driverId).then(() => {
-    router.push({ name: "drivers" });
+    router.push({ name: "residents" });
   });
 };
 

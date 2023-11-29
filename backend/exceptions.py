@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 from http import HTTPStatus
 from traceback import format_exc

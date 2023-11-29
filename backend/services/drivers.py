@@ -66,17 +66,23 @@ async def get_driver(session, garage_id, driver_id) -> Driver | None:
     return result.scalars().first()
 
 
-async def find_driver(session, customer_id: str) -> Driver | None:
+async def find_driver(session, value: str) -> Driver | None:
     result = await session.execute(
         select(Driver) \
-            .where(Driver.customer_id == customer_id)
+            .where(or_(Driver.customer_id == value, Driver.email == value))
     )
     return result.scalars().first()
 
 
 async def create_driver(session, garage_id: str, data: CreateDriverView):
+    from services.auth import pwd_context
+
+    data.password = pwd_context.hash(data.password)
     customer = await stripe.Customer.create()
-    driver = Driver(garage_id=garage_id, customer_id=customer.id, **data.dict())
+    driver = Driver(
+        garage_id=garage_id,
+        customer_id=customer.id,
+        **data.dict())
     session.add(driver)
     return driver
 
