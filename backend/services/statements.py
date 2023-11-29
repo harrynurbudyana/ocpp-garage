@@ -7,6 +7,7 @@ import arrow
 import httpx
 from loguru import logger
 from sqlalchemy import select
+from sqlalchemy.sql import selectable
 
 from core.database import get_contextual_session
 from core.settings import (
@@ -15,9 +16,20 @@ from core.settings import (
     NORDPOOL_PRICES_URL,
     DAILY_HOURS_RANGE
 )
-from models import Garage, Driver, Transaction, SpotPrice
+from models import Garage, Driver, Transaction, SpotPrice, Statement
 from services.government_rebates import get_rebate
 from views.statements import TransactionsHourlyPeriod, StatementsTransaction, DriversStatement
+
+
+async def build_statements_query(search: str | None = None, extra_criterias: List | None = None) -> selectable:
+    criterias = []
+    if extra_criterias:
+        criterias.extend(extra_criterias)
+    query = select(Statement).outerjoin(Driver)
+    for criteria in criterias:
+        query = query.where(criteria)
+    query = query.order_by(Statement.created_at.desc())
+    return query
 
 
 async def get_spot_price(session, target_date: date) -> SpotPrice | None:

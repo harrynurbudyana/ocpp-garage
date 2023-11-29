@@ -13,7 +13,8 @@ from sqlalchemy import (
     Numeric,
     UniqueConstraint,
     PrimaryKeyConstraint,
-    Date
+    Date,
+    Boolean
 )
 from sqlalchemy.orm import relationship
 
@@ -121,6 +122,22 @@ class Driver(Person):
 
     garage_id = Column(String, ForeignKey("garages.id"), nullable=False)
     garage = relationship("Garage", back_populates="drivers", lazy="joined")
+
+    statements = relationship("Statement",
+                              back_populates="driver",
+                              lazy="joined")
+
+
+class Statement(Model):
+    __tablename__ = "statements"
+
+    year = Column(Integer)
+    month = Column(Integer)
+    sum = Column(Numeric)
+    is_active = Column(Boolean, default=False)
+
+    driver_id = Column(String, ForeignKey("drivers.id"), nullable=False)
+    driver = relationship("Driver", back_populates="statements", lazy="joined")
 
 
 class ChargePoint(Model):

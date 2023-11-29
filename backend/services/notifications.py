@@ -10,7 +10,7 @@ from loguru import logger
 from core import settings
 from core.database import get_contextual_session
 from core.fields import NotificationType
-from core.settings import EMAIL_HOST, EMAIL_PORT, EMAIL_FROM
+from core.settings import EMAIL_HOST, EMAIL_PORT, EMAIL_FROM, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
 from services.drivers import build_drivers_query, is_driver_debtor
 from services.statements import generate_statement_for_driver
 from services.transactions import find_drivers_transactions
@@ -40,6 +40,8 @@ class EmailService:
         message['From'] = EMAIL_FROM
         message['To'] = to
         s = smtplib.SMTP(EMAIL_HOST, EMAIL_PORT)
+        s.starttls()
+        s.login(EMAIL_HOST_USER, EMAIL_HOST_PASSWORD)
         s.send_message(message)
         s.quit()
 

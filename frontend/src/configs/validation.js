@@ -13,7 +13,7 @@ export const rules = new (function () {
 
   this.minLength = 3;
 
-  this.maxEmailLength = 20;
+  this.maxEmailLength = 30;
   this.emailRegex =
     /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i;
   this.maxFirstNameLength = 15;

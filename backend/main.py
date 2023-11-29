@@ -12,6 +12,7 @@ from controllers.government_rebates import government_rebates_router
 from controllers.grid_providers import grid_providers_router
 from controllers.operators import operators_private_router, anonymous_operators_router
 from controllers.payments import payments_router
+from controllers.statements import statements_router
 from controllers.transactions import transactions_router
 from events import process_event
 from pyocpp_contrib.decorators import init_logger
@@ -40,6 +41,7 @@ async def startup():
     background_tasks.add(reset_task)
 
 
+app.include_router(statements_router)
 app.include_router(auth_router)
 app.include_router(anonymous_operators_router)
 app.include_router(anonymous_driver_router)

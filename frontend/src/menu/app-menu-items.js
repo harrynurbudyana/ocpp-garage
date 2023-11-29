@@ -21,7 +21,7 @@ export const menuItems = [
     icon: "mdi mdi-receipt-text-outline",
     isVisible: ({ currentGarage, currentUser }) =>
       !!currentGarage && currentUser.role === Role.resident,
-    getPath: ({ currentGarage }) => `/${currentGarage?.id}/stations`,
+    getPath: ({ currentGarage }) => `/${currentGarage?.id}/statements`,
   },
   {
     name: "Residents",

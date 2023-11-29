@@ -3,6 +3,8 @@ from typing import List
 
 from pydantic import BaseModel, validator
 
+from views import PaginationView
+
 
 class TransactionView(BaseModel):
     start: time
@@ -71,3 +73,18 @@ class DriversStatement(BaseModel):
     @validator("per_kw_cost", always=True)
     def format_per_kw_cost(cls, value, values, config, field):
         return round(value, 2)
+
+
+class StatementView(BaseModel):
+    month: int
+    year: int
+    sum: float
+    is_active: bool
+
+    class Config:
+        orm_mode = True
+
+
+class PaginatedStatementsView(BaseModel):
+    items: List[StatementView]
+    pagination: PaginationView
