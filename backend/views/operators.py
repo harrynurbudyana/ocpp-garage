@@ -10,7 +10,7 @@ class CreateOperatorView(BaseModel):
     address: str
     email: str
     first_name: str
-    id: str
+    id: str | None = None
     last_name: str
     password: str
     role: Role = Role.employee

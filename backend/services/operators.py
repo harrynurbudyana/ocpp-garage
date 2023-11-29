@@ -37,7 +37,7 @@ async def create_operator(session: AsyncSession, garage_id: str | None, data: Cr
     from services.auth import pwd_context
 
     data.password = pwd_context.hash(data.password)
-    operator = Operator(**data.dict())
+    operator = Operator(**data.dict(exclude_none=True))
     operator.garage_id = garage_id
     session.add(operator)
     return operator
