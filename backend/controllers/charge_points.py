@@ -1,12 +1,13 @@
 from typing import Tuple, List
 
-from fastapi import status, Depends, HTTPException
+from fastapi import status, Depends, HTTPException, Request
 from loguru import logger
-from pyocpp_contrib.decorators import message_id_generator
 
 from core.database import get_contextual_session
+from core.fields import Role
 from exceptions import NotFound
-from models import ChargePoint
+from models import ChargePoint, Connector
+from pyocpp_contrib.decorators import message_id_generator
 from routers import AuthenticatedRouter, AnonymousRouter
 from services.charge_points import (
     get_charge_point,
@@ -57,6 +58,7 @@ async def retrieve_simple_charge_points(garage_id: str) -> List[ChargePoint]:
 )
 async def list_charge_points(
         garage_id: str,
+        request: Request,
         search: str = "",
         params: Tuple = Depends(params_extractor)
 ) -> PaginatedChargePointsView:
@@ -64,6 +66,8 @@ async def list_charge_points(
         criterias = [
             ChargePoint.garage_id == garage_id
         ]
+        if Role(request.state.user.role) is Role.resident:
+            criterias.append(Connector.driver_id == request.state.user.id)
         items, pagination = await paginate(
             session,
             lambda: build_charge_points_query(search, extra_criterias=criterias),

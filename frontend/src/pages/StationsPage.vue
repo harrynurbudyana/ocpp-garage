@@ -168,7 +168,10 @@ const { currentPage, lastPage, fetchData, items, search } = usePagination({
 var interval = null;
 
 const onClickRow = ({ item }) => {
-  if (getters.currentUser.is_superuser) {
+  if (
+    getters.currentUser.is_superuser ||
+    getters.currentUser.role === Role.resident
+  ) {
     return;
   }
   router.push({
