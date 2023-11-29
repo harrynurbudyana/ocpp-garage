@@ -4,7 +4,7 @@
       <v-col cols="12" sm="12">
         <v-sheet min-height="80vh">
           <data-table
-            title="Employees"
+            title="Managers"
             :items="items"
             :headers="headers"
             :current-page="currentPage"

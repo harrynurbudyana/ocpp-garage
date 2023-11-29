@@ -32,12 +32,12 @@ export const menuItems = [
     getPath: ({ currentGarage }) => `/${currentGarage?.id}/residents`,
   },
   {
-    name: "Employees",
+    name: "Managers",
     key: "employees",
     icon: "mdi mdi-account-tie",
     isVisible: ({ currentUser, currentGarage }) =>
       !!currentGarage && currentUser.is_superuser,
-    getPath: ({ currentGarage }) => `/${currentGarage?.id}/employees`,
+    getPath: ({ currentGarage }) => `/${currentGarage?.id}/managers`,
   },
   {
     name: "Government Rebates",

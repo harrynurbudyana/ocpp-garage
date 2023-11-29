@@ -115,7 +115,7 @@ const routes = [
         },
       },
       {
-        path: ":garageId/employees",
+        path: ":garageId/managers",
         name: "operators",
         component: () =>
           import(/* webpackChunkName: "home" */ "@/pages/OperatorsPage"),
