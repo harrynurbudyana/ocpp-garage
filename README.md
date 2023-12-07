@@ -3,8 +3,12 @@
 ### Simple start
 
 - ```$ cp .env.backend .env```
+- ```echo GITHUB_TOKEN=<token> >> .env```
 - ```$ cp .env.frontend frontend/.env.local```
 - ```$ docker-compose up --build -d```
+
+- ```echo -e '$d\nw\nq'| ed .env```
+
 - ```docker exec -it ocpp-manager stripe login --interactive --project-name <project name>```
 - ```docker exec -it -d ocpp-manager stripe listen --forward-to "http://localhost:<port>/stripe-webhook"```
 
