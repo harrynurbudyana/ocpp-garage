@@ -9,7 +9,6 @@ from starlette.requests import Request
 
 from core.database import get_contextual_session
 from core.settings import ALLOWED_ORIGIN
-from services.statements import persist_daily_nordpool_price
 from views.drivers import UpdateDriverView
 
 app = FastAPI()
@@ -23,15 +22,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@aiocron.crontab("0 * * * *")
-async def watch_nordpool_prices():
-    logger.info("Start request nordpool prices")
-    async with get_contextual_session() as session:
-        target_date = arrow.now().shift(days=-1).date()
-        await persist_daily_nordpool_price(session, target_date)
-        await session.commit()
 
 
 @aiocron.crontab("0 0 7 * *")

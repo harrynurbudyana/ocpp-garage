@@ -38,37 +38,6 @@ async def get_spot_price(session, target_date: date) -> SpotPrice | None:
     return result.scalars().first()
 
 
-async def persist_daily_nordpool_price(session, target_date: date, region=NORDPOOL_REGION):
-    spot_price = await get_spot_price(session, target_date)
-    if spot_price:
-        logger.info(f"The price for given date already exists (date={target_date})")
-        return
-
-    hourly_prices = {}
-
-    while not hourly_prices:
-        try:
-            url = NORDPOOL_PRICES_URL.format(target_date.strftime(NORDPOLL_PRICES_REQUSTED_DATE_FORMAT))
-            async with httpx.AsyncClient() as client:
-                response = await client.get(url)
-                data = response.json()
-        except Exception:
-            logger.error("Could not obtain data from nordpool, error=%r" % format_exc())
-            return
-        else:
-            for item in data["data"]["Rows"]:
-                end_hour = arrow.get(item["EndTime"]).hour
-                if any([arrow.get(item["StartTime"]).hour, end_hour]):
-                    idx = int(region[-1]) - 1
-                    value = item["Columns"][idx]["Value"].replace(",", ".").replace(" ", "")
-                    hourly_prices[end_hour] = value
-
-        prices = [hourly_prices[key] for key in hourly_prices]
-        spot_price = SpotPrice(date=target_date, hourly_prices=prices)
-        logger.info(f"Successfully completed nordprices request (date={target_date}, hourly_prices={prices})")
-        session.add(spot_price)
-
-
 async def generate_hourly_ranges(
         start: datetime,
         end: datetime,

@@ -22,13 +22,6 @@ from core.database import Model, Base
 from core.fields import TransactionStatus, Role
 
 
-class SpotPrice(Model):
-    __tablename__ = "spot_prices"
-
-    date = Column(Date, nullable=False, unique=True)
-    hourly_prices = Column(ARRAY(Numeric(scale=2)))
-
-
 class Person(Model):
     __abstract__ = True
 
