@@ -65,7 +65,7 @@ async def exception_handler(request: Request, exc):
     context = {
         "path": request.url,
         "params": request.query_params,
-        "body": request.json(),
+        "body": await request.json(),
         "method": request.method,
         "state": request.state
     }

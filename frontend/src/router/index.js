@@ -14,24 +14,6 @@ const routes = [
     },
   },
   {
-    path: "/signup/:userId",
-    name: "signUp",
-    component: () =>
-      import(/* webpackChunkName: "home" */ "@/pages/SighUpPage.vue"),
-    meta: {
-      public: true,
-    },
-  },
-  {
-    path: "/payments/success",
-    name: "successPayment",
-    component: () =>
-      import(/* webpackChunkName: "home" */ "@/pages/PaymentSuccess.vue"),
-    meta: {
-      public: true,
-    },
-  },
-  {
     path: "/404",
     name: "404",
     component: () =>
@@ -41,20 +23,20 @@ const routes = [
     },
   },
   {
-    path: "/login",
-    name: "login",
-    beforeEnter: PublicPageGuard,
+    path: "/signup/:userId",
+    name: "SignUp",
     component: () =>
-      import(/* webpackChunkName: "home" */ "@/pages/LoginPage.vue"),
+      import(/* webpackChunkName: "home" */ "@/pages/Users/SighUpPage.vue"),
     meta: {
       public: true,
     },
   },
   {
-    path: "/payments/:token",
-    name: "payment",
+    path: "/login",
+    name: "Login",
+    beforeEnter: PublicPageGuard,
     component: () =>
-      import(/* webpackChunkName: "home" */ "@/pages/PaymentPage.vue"),
+      import(/* webpackChunkName: "home" */ "@/pages/Users/LoginPage.vue"),
     meta: {
       public: true,
     },
@@ -66,66 +48,51 @@ const routes = [
     children: [
       {
         path: "garages",
-        name: "garages",
+        name: "Garages",
         component: () =>
-          import(/* webpackChunkName: "home" */ "@/pages/GaragesPage"),
+          import(
+            /* webpackChunkName: "home" */ "@/pages/Garages/GaragesPage.vue"
+          ),
       },
       {
         path: "garages/:garageId",
-        name: "SingleGarage",
+        name: "GarageDetail",
         component: () =>
-          import(/* webpackChunkName: "home" */ "@/pages/SingleGaragePage"),
+          import(
+            /* webpackChunkName: "home" */ "@/pages/Garages/GarageDetailPage.vue"
+          ),
       },
       {
         path: ":garageId/stations",
-        name: "stations",
+        name: "Stations",
         component: () =>
-          import(/* webpackChunkName: "home" */ "@/pages/StationsPage.vue"),
-      },
-      {
-        path: ":garageId/statements",
-        name: "statements",
-        component: () =>
-          import(/* webpackChunkName: "home" */ "@/pages/StatementsPage.vue"),
+          import(
+            /* webpackChunkName: "home" */ "@/pages/Stations/StationsPage.vue"
+          ),
       },
       {
         path: ":garageId/stations/:stationId",
-        name: "SingleStation",
+        name: "StationDetail",
         component: () =>
           import(
-            /* webpackChunkName: "home" */ "@/pages/SingleStationPage.vue"
+            /* webpackChunkName: "home" */ "@/pages/Stations/StationDetailPage.vue"
           ),
         meta: {
           hasBackButton: true,
         },
       },
       {
-        path: ":garageId/residents",
-        name: "drivers",
+        path: ":garageId/users",
+        name: "Users",
         component: () =>
-          import(/* webpackChunkName: "home" */ "@/pages/DriversPage"),
+          import(/* webpackChunkName: "home" */ "@/pages/Users/UsersPage"),
       },
       {
-        path: ":garageId/residents/:driverId",
-        name: "SingleDriver",
-        component: () =>
-          import(/* webpackChunkName: "home" */ "@/pages/SingleDriverPage.vue"),
-        meta: {
-          hasBackButton: true,
-        },
-      },
-      {
-        path: ":garageId/managers",
-        name: "operators",
-        component: () =>
-          import(/* webpackChunkName: "home" */ "@/pages/OperatorsPage"),
-      },
-      {
-        path: ":garageId/employees/:operatorId",
-        name: "SingleOperator",
+        path: ":garageId/users/:driverId",
+        name: "UserDetail",
         component: () =>
           import(
-            /* webpackChunkName: "home" */ "@/pages/SingleOperatorPage.vue"
+            /* webpackChunkName: "home" */ "@/pages/Users/UserDetailPage.vue"
           ),
         meta: {
           hasBackButton: true,
@@ -133,23 +100,15 @@ const routes = [
       },
       {
         path: ":garageId/transactions",
-        name: "transactions",
+        name: "Transactions",
         component: () =>
-          import(/* webpackChunkName: "home" */ "@/pages/TransactionsPage"),
-      },
-      {
-        path: ":garageId/government-rebates",
-        name: "government-rebates",
-        component: () =>
-          import(
-            /* webpackChunkName: "home" */ "@/pages/GovernmentRebatesPage"
-          ),
+          import(/* webpackChunkName: "home" */ "@/pages/TransactionsPage.vue"),
       },
       {
         path: ":garageId/settings",
-        name: "settings",
+        name: "Settings",
         component: () =>
-          import(/* webpackChunkName: "home" */ "@/pages/SettingsPage"),
+          import(/* webpackChunkName: "home" */ "@/pages/SettingsPage.vue"),
       },
     ],
   },

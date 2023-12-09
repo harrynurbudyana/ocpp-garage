@@ -14,5 +14,5 @@ class NotificationType(str, Enum):
 
 
 class Role(str, Enum):
-    resident = "resident"
-    employee = "employee"
+    admin = "admin"
+    operator = "operator"

@@ -57,6 +57,6 @@ export const ACTION_STATUS_COLOR = {
 };
 
 export const Role = {
-  resident: "resident",
-  employee: "employee",
+  resident: "admin",
+  employee: "operator",
 };

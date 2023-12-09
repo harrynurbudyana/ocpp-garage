@@ -1,58 +1,39 @@
-import { Role } from "@/components/enums";
-
 export const menuItems = [
   {
     name: "Garages",
-    key: "garages",
+    key: "Garages",
     icon: "mdi mdi-garage-variant-lock",
     isVisible: ({ currentUser }) => currentUser.is_superuser,
     getPath: () => "/garages",
   },
   {
     name: "Stations",
-    key: "stations",
+    key: "Stations",
     icon: "mdi mdi-ev-station",
     isVisible: ({ currentGarage }) => !!currentGarage,
     getPath: ({ currentGarage }) => `/${currentGarage?.id}/stations`,
   },
   {
-    name: "Statements",
-    key: "statements",
-    icon: "mdi mdi-receipt-text-outline",
-    isVisible: ({ currentGarage, currentUser }) =>
-      !!currentGarage && currentUser.role === Role.resident,
-    getPath: ({ currentGarage }) => `/${currentGarage?.id}/statements`,
-  },
-  {
-    name: "Residents",
-    key: "residents",
-    icon: "mdi mdi-card-account-details-outline",
-    isVisible: ({ currentGarage, currentUser }) =>
-      !!currentGarage && currentUser.role !== Role.resident,
-    getPath: ({ currentGarage }) => `/${currentGarage?.id}/residents`,
-  },
-  {
-    name: "Managers",
-    key: "employees",
+    name: "Users",
+    key: "Users",
     icon: "mdi mdi-account-tie",
     isVisible: ({ currentUser, currentGarage }) =>
-      !!currentGarage && currentUser.is_superuser,
-    getPath: ({ currentGarage }) => `/${currentGarage?.id}/managers`,
-  },
-  {
-    name: "Government Rebates",
-    key: "government-rebates",
-    icon: "mdi mdi-cash-refund",
-    isVisible: ({ currentGarage, currentUser }) =>
-      !!currentGarage && currentUser.is_superuser,
-    getPath: ({ currentGarage }) => `/${currentGarage?.id}/government-rebates`,
+      !!currentGarage && (currentUser.is_superuser || currentUser.is_admin),
+    getPath: ({ currentGarage }) => `/${currentGarage?.id}/users`,
   },
   {
     name: "Transactions",
-    key: "transactions",
+    key: "Transactions",
     icon: "mdi mdi-battery-charging-high",
-    isVisible: ({ currentGarage, currentUser }) =>
-      !!currentGarage && currentUser.role !== "resident",
+    isVisible: ({ currentGarage }) => !!currentGarage,
     getPath: ({ currentGarage }) => `/${currentGarage?.id}/transactions`,
+  },
+  {
+    name: "Settings",
+    key: "Settings",
+    icon: "mdi mdi-cog-outline",
+    isVisible: ({ currentGarage, currentUser }) =>
+      !!currentGarage && (currentUser.is_superuser || currentUser.is_admin),
+    getPath: ({ currentGarage }) => `/${currentGarage?.id}/settings`,
   },
 ];

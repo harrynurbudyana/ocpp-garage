@@ -9,7 +9,6 @@ from views import PaginationView
 
 class CreateTransactionView(BaseModel):
     garage: str
-    driver: str
     meter_start: int
     meter_start: int
     charge_point: str
@@ -32,7 +31,6 @@ class Transaction(BaseModel):
     meter_start: int
     meter_stop: int | None = None
     charge_point: str
-    driver: str
     connector: int
     status: TransactionStatus
     created_at: datetime

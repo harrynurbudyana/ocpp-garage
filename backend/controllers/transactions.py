@@ -10,14 +10,14 @@ from pyocpp_contrib.decorators import message_id_generator
 from routers import AuthenticatedRouter
 from services.ocpp.remote_start_transaction import process_remote_start_transaction_call
 from services.ocpp.remote_stop_transaction import process_remote_stop_transaction_call
-from services.transactions import build_transactions_query, get_transaction
+from services.transactions import build_transactions_query, get_transaction_or_404
 from utils import params_extractor, paginate
 from views.transactions import PaginatedTransactionsView, InitTransactionView
 
-transactions_router = AuthenticatedRouter(prefix="/{garage_id}/transactions", tags=["transactions"])
+private_router = AuthenticatedRouter(prefix="/{garage_id}/transactions", tags=["transactions"])
 
 
-@transactions_router.get(
+@private_router.get(
     "/",
     status_code=status.HTTP_200_OK
 )
@@ -38,7 +38,7 @@ async def list_transactions(
         return PaginatedTransactionsView(items=[item[0] for item in items], pagination=pagination)
 
 
-@transactions_router.post(
+@private_router.post(
     "/",
     status_code=status.HTTP_204_NO_CONTENT
 )
@@ -59,13 +59,13 @@ async def remote_start_transaction(
         await session.commit()
 
 
-@transactions_router.put(
-    "/{transaction_uuid}",
+@private_router.put(
+    "/{transaction_id}",
     status_code=status.HTTP_204_NO_CONTENT
 )
-async def remote_stop_transaction(garage_id, transaction_uuid: str):
+async def remote_stop_transaction(garage_id, transaction_id: int):
     async with get_contextual_session() as session:
-        transaction = await get_transaction(session, transaction_uuid)
+        transaction = await get_transaction_or_404(session, transaction_id)
         logger.info(f"RemoteStopTransaction -> | Start process call request (transaction={transaction})")
         await process_remote_stop_transaction_call(
             session,

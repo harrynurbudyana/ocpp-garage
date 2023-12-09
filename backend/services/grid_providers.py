@@ -1,13 +1,19 @@
+from typing import List
+
 from sqlalchemy import select, func, or_
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from models import GridProvider
 
 
-async def retrieve_grid_providers(session, region, search: str):
+async def retrieve_grid_providers(
+        session: AsyncSession,
+        search: str
+) -> List[GridProvider]:
     criterias = [
         GridProvider.is_active.is_(True)
     ]
-    query = select(GridProvider).where(GridProvider.region == region)
+    query = select(GridProvider)
     for criteria in criterias:
         query = query.where(criteria)
 

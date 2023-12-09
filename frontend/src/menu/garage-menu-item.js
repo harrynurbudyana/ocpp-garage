@@ -1,7 +1,7 @@
 export const menuItems = [
   {
     name: "Garages",
-    key: "garages",
+    key: "Garages",
     icon: "mdi mdi-arrow-left",
     isVisible: () => true,
     getPath: () => "/garages",

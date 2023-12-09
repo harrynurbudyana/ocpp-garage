@@ -4,11 +4,11 @@ export default (to, from, next) => {
   if (!store.getters.isAuthorized) {
     // Not-authorized user tries to reach forbidden pages => redirect to "Login" page
     next({
-      name: "login",
+      name: "Login",
     });
   } else {
     if (
-      ["Garages", "SingleGarage"].includes(to.name) &&
+      ["Garages", "GarageDetail"].includes(to.name) &&
       !store.getters.currentUser.is_superuser
     ) {
       next({

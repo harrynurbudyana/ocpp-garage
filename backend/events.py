@@ -1,12 +1,33 @@
 from copy import deepcopy
+from typing import Union
 
 from loguru import logger
 from ocpp.v16.enums import Action, ChargePointStatus, ChargePointErrorCode
 
-from core.fields import TransactionStatus
 from core.database import get_contextual_session
+from core.fields import TransactionStatus
 from pyocpp_contrib.decorators import prepare_event, message_id_generator
 from pyocpp_contrib.enums import ConnectionAction
+from pyocpp_contrib.v16.views.events import (
+    LostConnectionEvent,
+    StatusNotificationCallEvent,
+    BootNotificationCallEvent,
+    HeartbeatCallEvent,
+    SecurityEventNotificationCallEvent,
+    AuthorizeCallEvent,
+    StartTransactionCallEvent,
+    StopTransactionCallEvent,
+    MeterValuesCallEvent,
+    ClearCacheCallResultEvent,
+    ChangeConfigurationCallResultEvent,
+    ChangeAvailabilityCallResultEvent,
+    DataTransferCallResultEvent,
+    GetConfigurationCallResultEvent,
+    RemoteStartTransactionCallResultEvent,
+    RemoteStopTransactionCallResultEvent,
+    ResetCallResultEvent,
+    UnlockConnectorCallResultEvent
+)
 from services.charge_points import update_charge_point, update_connectors
 from services.ocpp.boot_notification import process_boot_notification
 from services.ocpp.change_configuration import process_change_configration_call, configuration
@@ -20,13 +41,32 @@ from services.ocpp.start_transaction import process_start_transaction
 from services.ocpp.status_notification import process_status_notification
 from services.ocpp.stop_transaction import process_stop_transaction
 from services.ocpp.unlock_connector import process_unlock_connector_call_result
-from views.charge_points import ChargePointUpdateStatusView
 from services.transactions import cancel_transactions
+from views.charge_points import UpdateChargPointView
 from views.transactions import UpdateTransactionView
 
 
 @prepare_event
-async def process_event(event):
+async def process_event(event: Union[
+    LostConnectionEvent,
+    StatusNotificationCallEvent,
+    BootNotificationCallEvent,
+    HeartbeatCallEvent,
+    SecurityEventNotificationCallEvent,
+    AuthorizeCallEvent,
+    StartTransactionCallEvent,
+    StopTransactionCallEvent,
+    MeterValuesCallEvent,
+    ClearCacheCallResultEvent,
+    ChangeConfigurationCallResultEvent,
+    ChangeAvailabilityCallResultEvent,
+    DataTransferCallResultEvent,
+    GetConfigurationCallResultEvent,
+    RemoteStartTransactionCallResultEvent,
+    RemoteStopTransactionCallResultEvent,
+    ResetCallResultEvent,
+    UnlockConnectorCallResultEvent
+]):
     if isinstance(event, dict):
         logger.error(f"Could not recognize event from the station (event={event}.)")
         return
@@ -57,7 +97,7 @@ async def process_event(event):
         if event.action is Action.Heartbeat:
             await process_heartbeat(session, deepcopy(event))
         if event.action is ConnectionAction.lost_connection:
-            data = ChargePointUpdateStatusView(status=ChargePointStatus.unavailable)
+            data = UpdateChargPointView(status=ChargePointStatus.unavailable)
             await update_charge_point(session, charge_point_id=event.charge_point_id, data=data)
             data.error_code = ChargePointErrorCode.no_error
             await update_connectors(session, charge_point_id=event.charge_point_id, data=data)

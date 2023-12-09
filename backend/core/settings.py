@@ -5,9 +5,9 @@ import os
 from loguru import logger
 
 DEBUG = os.environ.get("DEBUG") == "1"
-BASE_PATH = os.path.abspath(os.path.dirname(os.path.dirname(os.path.curdir)))
+BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(os.path.curdir)))
 
-TEMPLATES_DIR = os.path.join(BASE_PATH, "templates")
+TEMPLATES_DIR = os.path.join(BASE_DIR, "templates")
 
 DB_NAME = os.environ["DB_NAME"]
 DB_PASSWORD = os.environ["DB_PASSWORD"]
@@ -46,12 +46,6 @@ EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
 EMAIL_PORT = int(os.environ["EMAIL_PORT"])
 EMAIL_FROM = os.environ["EMAIL_FROM"]
 
-NORDPOOL_PRICES_URL = "https://www.nordpoolgroup.com/api/marketdata/page/23?currency=NOK&endDate={}"  # date format "28-10-2023"
-NORDPOLL_PRICES_REQUSTED_DATE_FORMAT = "%d-%m-%Y"
-
-NORDPOOL_REGION = os.environ["NORDPOOL_REGION"]
-assert NORDPOOL_REGION in [f"NO{i}" for i in range(1, 6)]
-
 DAILY_HOURS_RANGE = range(6, 22)
 STATIC_PATH = "/tmp/static"
 
@@ -61,3 +55,6 @@ STRIPE_PUBLIC_KEY = os.environ["STRIPE_PUBLIC_KEY"]
 STRIPE_API_KEY = os.environ["STRIPE_API_KEY"]
 
 INVITATION_LINK_EXPIRE_AFTER = int(os.environ["INVITATION_LINK_EXPIRE_AFTER"])
+HEARTBEAT_INTERVAL = 60
+
+MAX_ACTIONS_LENGTH = 30

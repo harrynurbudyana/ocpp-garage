@@ -31,7 +31,11 @@
       permanent
       @click="rail = false"
     >
-      <v-list-item prepend-icon="mdi mdi-land-plots-marker" title="NO1" nav>
+      <v-list-item
+        prepend-icon="mdi mdi-land-plots-marker"
+        :title="getters.currentUser.first_name"
+        nav
+      >
         <template v-slot:append>
           <v-btn
             variant="text"

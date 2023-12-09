@@ -1,20 +1,14 @@
 from http import HTTPStatus
 
-import aiocron
-import arrow
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
-from loguru import logger
 from starlette.requests import Request
 
-from core.database import get_contextual_session
 from core.settings import ALLOWED_ORIGIN
-from views.drivers import UpdateDriverView
 
 app = FastAPI()
 
 origins = [ALLOWED_ORIGIN]
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -22,22 +16,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@aiocron.crontab("0 0 7 * *")
-async def send_friendly_reminder():
-    from services.notifications import send_reminder_to_debtors
-
-    await send_reminder_to_debtors()
-
-
-@aiocron.crontab("0 0 15 * *")
-async def send_friendly_reminder():
-    from services.notifications import send_reminder_to_debtors
-    from services.drivers import update_driver
-
-    view = UpdateDriverView(is_active=False)
-    await send_reminder_to_debtors(update_driver, view)
 
 
 @app.middleware("authentication")

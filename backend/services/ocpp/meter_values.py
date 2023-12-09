@@ -1,14 +1,19 @@
 from loguru import logger
 from ocpp.v16.call_result import MeterValuesPayload
 from ocpp.v16.enums import Action
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from pyocpp_contrib.decorators import response_call_result
+from pyocpp_contrib.v16.views.events import MeterValuesCallEvent
 from services.transactions import update_transaction
 from views.transactions import UpdateTransactionView
 
 
 @response_call_result(Action.MeterValues)
-async def process_meter_values(session, event) -> MeterValuesPayload:
+async def process_meter_values(
+        session: AsyncSession,
+        event: MeterValuesCallEvent
+) -> MeterValuesPayload:
     logger.info(f"Start process meter values (charge_point={event.charge_point_id}, payload={event.payload})")
     if event.payload.transaction_id:
         for sampled_value in event.payload.meter_value or []:

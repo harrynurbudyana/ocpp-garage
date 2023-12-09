@@ -3,22 +3,34 @@ import asyncio
 from loguru import logger
 
 from app import app
-from controllers.actions import actions_router
-from controllers.auth import auth_public_router, auth_router
-from controllers.charge_points import charge_points_router, anonymous_charge_points_router
-from controllers.drivers import drivers_router, anonymous_driver_router
-from controllers.garages import garages_router
-from controllers.government_rebates import government_rebates_router
-from controllers.grid_providers import grid_providers_router
-from controllers.operators import operators_private_router, anonymous_operators_router
-from controllers.payments import payments_router
-from controllers.statements import statements_router
-from controllers.transactions import transactions_router
+from controllers.actions import (
+    private_router as actions_private_router
+)
+from controllers.auth import (
+    public_router as auth_public_router,
+    private_router as auth_private_router
+)
+from controllers.charge_points import (
+    public_router as charge_point_public_router,
+    private_router as charge_point_private_router
+)
+from controllers.garages import (
+    private_router as garages_private_router
+)
+from controllers.grid_providers import (
+    private_router as grid_provider_private_router
+)
+from controllers.transactions import (
+    private_router as transactions_private_router
+)
+from controllers.users import (
+    private_router as users_private_router,
+    public_router as users_public_router
+)
 from events import process_event
 from pyocpp_contrib.decorators import init_logger
 from pyocpp_contrib.queue.consumer import start_consume
 from pyocpp_contrib.settings import EVENTS_EXCHANGE_NAME
-from services.charge_points import reset_all_stations
 
 background_tasks = set()
 
@@ -33,26 +45,20 @@ async def startup():
     )
     background_tasks.add(task)
 
-    # Everytime the server fails, we lose connections with station.
-    # After the server recovered, the stations status in database does not fit to the real stations status
-    # Thus, we need to reset all station everytime the server fails.
-    reset_task = asyncio.create_task(reset_all_stations())
-    await reset_task
-    background_tasks.add(reset_task)
 
+app.include_router(grid_provider_private_router)
 
-app.include_router(statements_router)
-app.include_router(auth_router)
-app.include_router(anonymous_operators_router)
-app.include_router(anonymous_driver_router)
-app.include_router(payments_router)
-app.include_router(government_rebates_router)
-app.include_router(grid_providers_router)
-app.include_router(garages_router)
-app.include_router(actions_router)
-app.include_router(transactions_router)
-app.include_router(anonymous_charge_points_router)
-app.include_router(drivers_router)
+app.include_router(actions_private_router)
+
 app.include_router(auth_public_router)
-app.include_router(operators_private_router)
-app.include_router(charge_points_router)
+app.include_router(auth_private_router)
+
+app.include_router(charge_point_public_router)
+app.include_router(charge_point_private_router)
+
+app.include_router(garages_private_router)
+
+app.include_router(transactions_private_router)
+
+app.include_router(users_private_router)
+app.include_router(users_public_router)

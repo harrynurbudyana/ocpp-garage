@@ -9,11 +9,6 @@ from pydantic import BaseModel
 from views import PaginationView
 
 
-class ChargePointUpdateStatusView(BaseModel):
-    status: ChargePointStatus
-    error_code: ChargePointErrorCode | None = None
-
-
 class CreateChargPointView(BaseModel):
     id: str
     description: str | None = None
@@ -24,10 +19,10 @@ class CreateChargPointView(BaseModel):
 
 
 class UpdateChargPointView(BaseModel):
-    driver_id: str | None = None
     description: str | None = None
     location: str | None = None
     status: ChargePointStatus | None = None
+    error_code: ChargePointErrorCode | None = None
 
 
 class ChargePointView(BaseModel):
@@ -36,7 +31,7 @@ class ChargePointView(BaseModel):
     status: ChargePointStatus
     model: str | None = None
     vendor: str | None = None
-    connectors: List[SimpleConnectorView]
+    connectors: List[SimpleConnectorView] = []
 
     class Config:
         orm_mode = True
@@ -56,7 +51,6 @@ class SimpleConnectorView(BaseModel):
     id: int
     status: ChargePointStatus
     error_code: ChargePointErrorCode
-    is_taken: bool
 
     class Config:
         orm_mode = True

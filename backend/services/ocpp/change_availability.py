@@ -1,7 +1,9 @@
 from loguru import logger
 from ocpp.v16.call import ChangeAvailabilityPayload
 from ocpp.v16.enums import AvailabilityType, Action
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from pyocpp_contrib.v16.views.events import ChangeAvailabilityCallResultEvent
 from pyocpp_contrib.decorators import send_call, contextable, use_context
 
 
@@ -20,8 +22,8 @@ async def process_change_availability(
 
 @use_context
 async def process_change_availability_call_result(
-        session,
-        event,
+        session: AsyncSession,
+        event: ChangeAvailabilityCallResultEvent,
         context: ChangeAvailabilityPayload | None = None
 ):
     logger.info(f"<- ChangeAvailability | start process call result response (event={event}, context={context})")
