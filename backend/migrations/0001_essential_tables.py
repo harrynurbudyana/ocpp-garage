@@ -138,7 +138,7 @@ def upgrade() -> None:
                                       'weak_signal', name='chargepointerrorcode'), nullable=True),
                     sa.Column('charge_point_id', sa.String(), nullable=False),
                     sa.ForeignKeyConstraint(['charge_point_id'], ['charge_points.id'], ondelete='CASCADE'),
-                    sa.PrimaryKeyConstraint('id'),
+                    sa.PrimaryKeyConstraint('id', 'charge_point_id'),
                     sa.UniqueConstraint('id', 'charge_point_id')
                     )
 

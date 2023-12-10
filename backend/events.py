@@ -3,9 +3,6 @@ from typing import Union
 
 from loguru import logger
 from ocpp.v16.enums import Action, ChargePointStatus, ChargePointErrorCode
-
-from core.database import get_contextual_session
-from core.fields import TransactionStatus
 from pyocpp_contrib.decorators import prepare_event, message_id_generator
 from pyocpp_contrib.enums import ConnectionAction
 from pyocpp_contrib.v16.views.events import (
@@ -28,6 +25,9 @@ from pyocpp_contrib.v16.views.events import (
     ResetCallResultEvent,
     UnlockConnectorCallResultEvent
 )
+
+from core.database import get_contextual_session
+from core.fields import TransactionStatus
 from services.charge_points import update_charge_point, update_connectors
 from services.ocpp.boot_notification import process_boot_notification
 from services.ocpp.change_configuration import process_change_configration_call, configuration
@@ -41,7 +41,7 @@ from services.ocpp.start_transaction import process_start_transaction
 from services.ocpp.status_notification import process_status_notification
 from services.ocpp.stop_transaction import process_stop_transaction
 from services.ocpp.unlock_connector import process_unlock_connector_call_result
-from services.transactions import cancel_transactions
+from services.transactions import cancel_in_progress_transactions
 from views.charge_points import UpdateChargPointView
 from views.transactions import UpdateTransactionView
 
@@ -102,7 +102,7 @@ async def process_event(event: Union[
             data.error_code = ChargePointErrorCode.no_error
             await update_connectors(session, charge_point_id=event.charge_point_id, data=data)
             data = UpdateTransactionView(status=TransactionStatus.faulted)
-            await cancel_transactions(session, charge_point_id=event.charge_point_id, data=data)
+            await cancel_in_progress_transactions(session, charge_point_id=event.charge_point_id, data=data)
 
         # Call result messages
         if event.action is Action.RemoteStartTransaction:

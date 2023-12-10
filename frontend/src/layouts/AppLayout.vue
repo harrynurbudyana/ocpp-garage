@@ -122,9 +122,7 @@
                     <span class="text-caption"
                       >station: {{ action.charge_point_id }}
                       {{
-                        action.connector_id
-                          ? ` (${actions.connector_id})`
-                          : null
+                        action.connector_id ? ` (${action.connector_id})` : null
                       }}</span
                     >
                   </template>

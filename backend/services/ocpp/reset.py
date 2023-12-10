@@ -1,5 +1,6 @@
 from loguru import logger
-from ocpp.v16.call import ResetPayload
+from ocpp.v16.call import ResetPayload as CallResetPayload
+from ocpp.v16.call_result import ResetPayload as CallResultResetPayload
 from ocpp.v16.enums import ResetType, Action, ResetStatus
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -27,8 +28,8 @@ async def process_reset(
         charge_point_id: str,
         message_id: str,
         callback=after_reset
-) -> ResetPayload:
-    payload = ResetPayload(type=ResetType.soft)
+) -> CallResetPayload:
+    payload = CallResetPayload(type=ResetType.soft)
     logger.info(f"Reset -> | prepared payload={payload}")
 
     if callback:
@@ -42,7 +43,7 @@ async def process_reset(
 async def process_reset_call_result(
         session: AsyncSession,
         event: ResetCallResultEvent,
-        context: ResetPayload | None = None
+        context: CallResultResetPayload | None = None
 ):
     logger.info(f"<- Reset | start process call result response (event={event}, context={context})")
     charge_point = await get_charge_point_or_404(session, event.charge_point_id)

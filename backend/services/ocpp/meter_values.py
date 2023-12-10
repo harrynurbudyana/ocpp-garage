@@ -3,6 +3,7 @@ from ocpp.v16.call_result import MeterValuesPayload
 from ocpp.v16.enums import Action
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from core.fields import TransactionStatus
 from pyocpp_contrib.decorators import response_call_result
 from pyocpp_contrib.v16.views.events import MeterValuesCallEvent
 from services.transactions import update_transaction
@@ -20,8 +21,7 @@ async def process_meter_values(
             for meter in sampled_value.get("sampledValue", []) or sampled_value.get("sampled_value", []):
                 value = meter.get("value")
                 try:
-                    value = int(value)
-                    data = UpdateTransactionView(meter_stop=value)
+                    data = UpdateTransactionView(meter_stop=int(value), status=TransactionStatus.in_progress)
                 except TypeError:
                     continue
                 await update_transaction(session, event.payload.transaction_id, data)

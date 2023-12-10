@@ -24,7 +24,8 @@ async def create_or_update_connector(
         connector = Connector(
             id=event.payload.connector_id,
             charge_point_id=event.charge_point_id,
-            error_code=event.payload.error_code
+            error_code=event.payload.error_code,
+            status=event.payload.status
         )
         session.add(connector)
     else:

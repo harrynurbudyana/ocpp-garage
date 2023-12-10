@@ -10,7 +10,7 @@ from sqlalchemy import (
     Sequence,
     Numeric,
     UniqueConstraint,
-    Boolean
+    Boolean, PrimaryKeyConstraint
 )
 from sqlalchemy.orm import relationship
 
@@ -111,9 +111,10 @@ class Connector(Base):
 
     __table_args__ = (
         UniqueConstraint("id", "charge_point_id"),
+        PrimaryKeyConstraint("id", "charge_point_id")
     )
 
-    id = Column(Integer, Sequence('connector_id_seq'), primary_key=True)
+    id = Column(Integer, nullable=False)
     status = Column(Enum(ChargePointStatus), default=ChargePointStatus.unavailable)
     error_code = Column(Enum(ChargePointErrorCode), default=ChargePointErrorCode.no_error)
 

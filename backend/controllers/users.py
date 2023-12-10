@@ -3,9 +3,9 @@ from typing import Tuple
 
 from fastapi import Request, Depends
 from loguru import logger
+from pyocpp_contrib.cache import get_connection
 from starlette import status
 
-from core.cache import get_connection
 from core.database import get_contextual_session
 from models import User
 from routers import AuthenticatedRouter, AnonymousRouter

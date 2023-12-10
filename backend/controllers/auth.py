@@ -3,11 +3,11 @@ import json
 
 from fastapi import Request
 from loguru import logger
+from pyocpp_contrib.cache import get_connection
 from starlette import status
 from starlette.background import BackgroundTasks
 from starlette.responses import Response
 
-from core.cache import get_connection
 from core.database import get_contextual_session
 from core.fields import Role
 from exceptions import NotAuthenticated, NotFound

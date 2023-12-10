@@ -1,8 +1,8 @@
 import json
 from typing import List, Dict
 
-from core.cache import get_connection
 from core.settings import MAX_ACTIONS_LENGTH
+from pyocpp_contrib.cache import get_connection
 from views.actions import ActionView
 
 

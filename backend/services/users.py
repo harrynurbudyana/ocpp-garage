@@ -1,13 +1,13 @@
 from typing import List
 
 from passlib.context import CryptContext
+from pyocpp_contrib.cache import get_connection
 from sqlalchemy import select, or_, func, String
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import selectable
 from starlette.background import BackgroundTasks
 
 from core import settings
-from core.cache import get_connection
 from core.database import generate_default_id
 from core.fields import NotificationType
 from exceptions import NotFound
@@ -57,7 +57,7 @@ async def invite_user(
 
     data.garage_id = garage_id
     data.id = generate_default_id()
-    
+
     connection = await get_connection()
     await connection.set(data.id, data.json())
     await connection.expire(data.id, settings.INVITATION_LINK_EXPIRE_AFTER)
