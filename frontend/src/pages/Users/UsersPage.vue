@@ -34,7 +34,7 @@
                     color="blue-lighten-1"
                     class="ma-6 pa-2"
                     @click="openModal"
-                    >add
+                    >invite
                   </v-btn>
                 </v-col>
               </v-row>
@@ -92,7 +92,7 @@
                 :loading="loading"
                 :disabled="!isValid || loading"
               >
-                Add
+                Send
               </v-btn>
             </v-card-actions>
           </v-card>
