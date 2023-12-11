@@ -3,12 +3,13 @@ from typing import List
 from passlib.context import CryptContext
 from pyocpp_contrib.cache import get_connection
 from sqlalchemy import select, or_, func, String
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import selectable
 from starlette.background import BackgroundTasks
 
 from core import settings
-from core.database import generate_default_id
+from core.database import generate_default_id, get_contextual_session
 from core.fields import NotificationType
 from exceptions import NotFound
 from models import User
@@ -54,6 +55,13 @@ async def invite_user(
         background_tasks: BackgroundTasks
 ):
     from services.notifications import send_notification
+
+    async with get_contextual_session() as session:
+        try:
+            await get_user_or_404(session, data.email)
+            raise IntegrityError("", "", f"Key (email)=({data.email}) already exists.")
+        except NotFound:
+            pass
 
     data.garage_id = garage_id
     data.id = generate_default_id()

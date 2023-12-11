@@ -31,7 +31,7 @@ export const menuItems = [
   {
     name: "Settings",
     key: "Settings",
-    icon: "mdi mdi-cog-outline",
+    icon: "mdi mdi-tune",
     isVisible: ({ currentGarage, currentUser }) =>
       !!currentGarage && (currentUser.is_superuser || currentUser.is_admin),
     getPath: ({ currentGarage }) => `/${currentGarage?.id}/settings`,
