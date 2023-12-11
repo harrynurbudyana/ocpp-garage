@@ -7,6 +7,7 @@ from core.database import get_contextual_session
 from core.settings import WS_SERVER_PORT
 from emulator import TEST_CHARGE_POINT_NAME, init_test_station, drop_test_station
 from emulator.charge_point import ChargePoint
+from services.ocpp.remote_start_transaction import process_remote_start_transaction_call
 from services.ocpp.reset import process_reset
 from services.ocpp.unlock_connector import process_unlock_connector
 
@@ -48,6 +49,16 @@ async def run_tests(charge_point_id):
                 connector_id=1,
                 message_id=message_id_generator()
             )
+        print("  --- Start remote transaction.")
+        async with get_contextual_session() as session:
+            await process_remote_start_transaction_call(
+                session,
+                charge_point_id=charge_point_id,
+                connector_id=1,
+                id_tag="some id tag",
+                message_id=message_id_generator()
+            )
+            await session.commit()
 
         await asyncio.sleep(5)
         print(" --- Completed.")

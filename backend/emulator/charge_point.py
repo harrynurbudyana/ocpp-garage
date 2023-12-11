@@ -15,7 +15,7 @@ from ocpp.v16.enums import (
     ChargePointStatus,
     ResetType,
     ResetStatus,
-    UnlockStatus
+    UnlockStatus, RemoteStartStopStatus
 )
 
 from core import settings
@@ -34,16 +34,55 @@ class ChargePoint(cp):
         assert conf in configuration, "Got invalid configuration from the server."
         return call_result.ChangeConfigurationPayload(status=ConfigurationStatus.accepted)
 
+    @on(Action.RemoteStartTransaction)
+    async def remote_start_transaction(self, connector_id, id_tag):
+        assert connector_id == 1
+        async with get_contextual_session() as session:
+            charge_point = await get_charge_point_or_404(session, self.id)
+            actions = await get_all_actions(charge_point.garage.id)
+            for action in actions:
+                action_view = ActionView(**action)
+                if "Start transaction" in action_view.body:
+                    assert TransactionStatus(action_view.status) is TransactionStatus.pending
+                    assert action_view.charge_point_id == self.id
+                    break
+            else:
+                raise Exception("Could not find action.")
+            connector = await get_connector_or_404(session, charge_point.id, connector_id)
+            assert ChargePointStatus(connector.status) is ChargePointStatus.preparing
+            return call_result.RemoteStartTransactionPayload(status=RemoteStartStopStatus.accepted)
+
+    @after(Action.RemoteStartTransaction)
+    async def after_remote_start_transaction(self, connector_id, id_tag):
+        await asyncio.sleep(1)
+        async with get_contextual_session() as session:
+            charge_point = await get_charge_point_or_404(session, self.id)
+            actions = await get_all_actions(charge_point.garage.id)
+            for action in actions:
+                action_view = ActionView(**action)
+                if "Start transaction" in action_view.body:
+                    assert TransactionStatus(action_view.status) is TransactionStatus.completed
+                    assert action_view.charge_point_id == self.id
+                    break
+            else:
+                raise Exception("Could not find action.")
+            connector = await get_connector_or_404(session, charge_point.id, connector_id)
+            assert ChargePointStatus(connector.status) is ChargePointStatus.preparing
+
     @on(Action.UnlockConnector)
     async def unlock_connector(self, connector_id):
         assert connector_id == 1
         async with get_contextual_session() as session:
             charge_point = await get_charge_point_or_404(session, self.id)
             actions = await get_all_actions(charge_point.garage.id)
-            last_action = ActionView(**actions[0])
-            assert TransactionStatus(last_action.status) is TransactionStatus.pending
-            assert last_action.charge_point_id == self.id
-            assert "Unlock" in last_action.body
+            for action in actions:
+                action_view = ActionView(**action)
+                if "Unlock" in action_view.body:
+                    assert TransactionStatus(action_view.status) is TransactionStatus.pending
+                    assert action_view.charge_point_id == self.id
+                    break
+            else:
+                raise Exception("Could not find action.")
             return call_result.UnlockConnectorPayload(status=UnlockStatus.unlocked)
 
     @after(Action.UnlockConnector)
@@ -52,10 +91,14 @@ class ChargePoint(cp):
         async with get_contextual_session() as session:
             charge_point = await get_charge_point_or_404(session, self.id)
             actions = await get_all_actions(charge_point.garage.id)
-            last_action = ActionView(**actions[0])
-            assert TransactionStatus(last_action.status) is TransactionStatus.completed
-            assert last_action.charge_point_id == self.id
-            assert "Unlock" in last_action.body
+            for action in actions:
+                action_view = ActionView(**action)
+                if "Unlock" in action_view.body:
+                    assert TransactionStatus(action_view.status) is TransactionStatus.completed
+                    assert action_view.charge_point_id == self.id
+                    break
+            else:
+                raise Exception("Could not find action.")
 
     @on(Action.Reset)
     async def reset(self, type):
@@ -63,10 +106,14 @@ class ChargePoint(cp):
         async with get_contextual_session() as session:
             charge_point = await get_charge_point_or_404(session, self.id)
             actions = await get_all_actions(charge_point.garage.id)
-            last_action = ActionView(**actions[0])
-            assert TransactionStatus(last_action.status) is TransactionStatus.pending
-            assert last_action.charge_point_id == self.id
-            assert last_action.body == "Reset station"
+            for action in actions:
+                action_view = ActionView(**action)
+                if "Reset station" in action_view.body:
+                    assert TransactionStatus(action_view.status) is TransactionStatus.pending
+                    assert action_view.charge_point_id == self.id
+                    break
+            else:
+                raise Exception("Could not find action.")
             return call_result.ResetPayload(status=ResetStatus.accepted)
 
     @after(Action.Reset)
@@ -75,10 +122,14 @@ class ChargePoint(cp):
         async with get_contextual_session() as session:
             charge_point = await get_charge_point_or_404(session, self.id)
             actions = await get_all_actions(charge_point.garage.id)
-            last_action = ActionView(**actions[0])
-            assert TransactionStatus(last_action.status) is TransactionStatus.completed
-            assert last_action.charge_point_id == self.id
-            assert last_action.body == "Reset station"
+            for action in actions:
+                action_view = ActionView(**action)
+                if "Start transaction" in action_view.body:
+                    assert TransactionStatus(action_view.status) is TransactionStatus.completed
+                    assert action_view.charge_point_id == self.id
+                    break
+            else:
+                raise Exception("Could not find action.")
 
     async def send_boot_notification(self):
         request = call.BootNotificationPayload(
