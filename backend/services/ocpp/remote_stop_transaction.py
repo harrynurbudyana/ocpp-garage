@@ -1,12 +1,11 @@
 from loguru import logger
 from ocpp.v16.call import RemoteStopTransactionPayload
 from ocpp.v16.enums import Action, RemoteStartStopStatus
+from pyocpp_contrib.decorators import send_call, contextable, use_context
+from pyocpp_contrib.v16.views.events import RemoteStopTransactionCallResultEvent
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.fields import TransactionStatus
-from models import Transaction
-from pyocpp_contrib.decorators import send_call, contextable, use_context
-from pyocpp_contrib.v16.views.events import RemoteStopTransactionCallResultEvent
 from services.actions import extend_actions_list, update_actions_status
 from services.charge_points import get_charge_point_or_404
 from views.actions import ActionView
@@ -17,17 +16,14 @@ from views.actions import ActionView
 async def process_remote_stop_transaction_call(
         session: AsyncSession,
         charge_point_id: str,
-        transaction: Transaction,
+        transaction_id: int,
         message_id: str
 ) -> RemoteStopTransactionPayload:
-    transaction.status = TransactionStatus.pending
-    logger.info(
-        f"RemoteStopTransaction -> | updated transactions status={transaction.status} (charge_point_id={charge_point_id}, transaction={transaction})")
-    payload = RemoteStopTransactionPayload(transaction_id=transaction.transaction_id)
+    payload = RemoteStopTransactionPayload(transaction_id=transaction_id)
     charge_point = await get_charge_point_or_404(session, charge_point_id)
 
     logger.info(
-        f"RemoteStopTransaction -> | prepared payload={payload} (charge_point_id={charge_point_id}, transaction={transaction})")
+        f"RemoteStopTransaction -> | prepared payload={payload} (charge_point_id={charge_point_id})")
 
     action = ActionView(
         message_id=message_id,

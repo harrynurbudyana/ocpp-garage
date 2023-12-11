@@ -9,6 +9,7 @@ from ocpp.v16.call_result import (
     StatusNotificationPayload,
     HeartbeatPayload, StartTransactionPayload
 )
+from ocpp.v16.datatypes import SampledValue, MeterValue
 from ocpp.v16.enums import (
     Action,
     ConfigurationStatus,
@@ -16,7 +17,7 @@ from ocpp.v16.enums import (
     ChargePointStatus,
     ResetType,
     ResetStatus,
-    UnlockStatus, RemoteStartStopStatus
+    UnlockStatus, RemoteStartStopStatus, ReadingContext, Measurand, UnitOfMeasure, ValueFormat, Location
 )
 
 from core import settings
@@ -27,6 +28,15 @@ from services.charge_points import get_charge_point_or_404, get_connector_or_404
 from services.ocpp.change_configuration import configuration
 from services.transactions import get_transaction_or_404
 from views.actions import ActionView
+
+meter_value_power_active_import = SampledValue(
+    value='0',
+    context=ReadingContext.sample_periodic,
+    format=ValueFormat.raw,
+    measurand=Measurand.energy_active_import_register,
+    location=Location.outlet,
+    unit=UnitOfMeasure.w
+)
 
 
 class ChargePoint(cp):
@@ -51,6 +61,21 @@ class ChargePoint(cp):
             else:
                 raise Exception("Could not find action.")
             return call_result.RemoteStartTransactionPayload(status=RemoteStartStopStatus.accepted)
+
+    @on(Action.RemoteStopTransaction)
+    async def remote_stop_transaction(self, transaction_id):
+        async with get_contextual_session() as session:
+            charge_point = await get_charge_point_or_404(session, self.id)
+            actions = await get_all_actions(charge_point.garage.id)
+            for action in actions:
+                action_view = ActionView(**action)
+                if "Stop transaction" in action_view.body:
+                    assert TransactionStatus(action_view.status) is TransactionStatus.pending
+                    assert action_view.charge_point_id == self.id
+                    break
+            else:
+                raise Exception("Could not find action.")
+            return call_result.RemoteStopTransactionPayload(status=RemoteStartStopStatus.accepted)
 
     @after(Action.RemoteStartTransaction)
     async def after_remote_start_transaction(self, connector_id, id_tag):
@@ -132,6 +157,28 @@ class ChargePoint(cp):
             else:
                 raise Exception("Could not find action.")
 
+    async def send_meter_values(self, transaction_id):
+        step = 100
+        for i in range(5):
+            await asyncio.sleep(1)
+            value = str(int(meter_value_power_active_import.value) + step)
+            meter_value_power_active_import.value = value
+            request = call.MeterValuesPayload(
+                transaction_id=transaction_id,
+                connector_id=1,
+                meter_value=[
+                    MeterValue(
+                        timestamp=arrow.utcnow().isoformat(),
+                        sampled_value=[meter_value_power_active_import]
+                    )
+                ]
+            )
+            await self.call(request)
+            await asyncio.sleep(1)
+            async with get_contextual_session() as session:
+                transaction = await get_transaction_or_404(session, transaction_id)
+                assert transaction.meter_stop == int(value)
+
     async def send_boot_notification(self):
         request = call.BootNotificationPayload(
             charge_point_model="test",
@@ -196,3 +243,18 @@ class ChargePoint(cp):
             assert transaction.charge_point == self.id
             assert transaction.meter_start == 0
             assert TransactionStatus(transaction.status) is TransactionStatus.in_progress
+            return response.transaction_id
+
+    async def stop_transaction(self, transaction_id):
+        request = call.StopTransactionPayload(
+            transaction_id=transaction_id,
+            meter_stop=1000,
+            timestamp=arrow.utcnow().isoformat()
+        )
+        response = await self.call(request)
+        assert response.id_tag_info["status"] == "Accepted"
+        await asyncio.sleep(1)
+        async with get_contextual_session() as session:
+            transaction = await get_transaction_or_404(session, transaction_id)
+            assert transaction.meter_stop == request.meter_stop
+            assert TransactionStatus(transaction.status) is TransactionStatus.completed

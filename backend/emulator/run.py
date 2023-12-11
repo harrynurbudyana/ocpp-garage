@@ -8,6 +8,7 @@ from core.settings import WS_SERVER_PORT
 from emulator import TEST_CHARGE_POINT_NAME, init_test_station, drop_test_station_with_transactions
 from emulator.charge_point import ChargePoint
 from services.ocpp.remote_start_transaction import process_remote_start_transaction_call
+from services.ocpp.remote_stop_transaction import process_remote_stop_transaction_call
 from services.ocpp.reset import process_reset
 from services.ocpp.unlock_connector import process_unlock_connector
 
@@ -26,12 +27,15 @@ async def run_tests(charge_point_id):
         print(" --- Start send boot notification.")
         await asyncio.sleep(2)
         await cp.send_boot_notification()
+
         print(" --- Start send status notifications.")
         await asyncio.sleep(2)
         await cp.send_status_notification()
+
         print(" --- Start send heartbeat.")
         await asyncio.sleep(2)
         await cp.send_heartbeat()
+
         print(" --- Start request reset.")
         await asyncio.sleep(3)
         async with get_contextual_session() as session:
@@ -40,6 +44,7 @@ async def run_tests(charge_point_id):
                 charge_point_id=charge_point_id,
                 message_id=message_id_generator()
             )
+
         print(" --- Start request unlock connector.")
         await asyncio.sleep(3)
         async with get_contextual_session() as session:
@@ -49,7 +54,8 @@ async def run_tests(charge_point_id):
                 connector_id=1,
                 message_id=message_id_generator()
             )
-        print("  --- Start remote transaction.")
+
+        print(" --- Start remote transaction.")
         await asyncio.sleep(3)
         async with get_contextual_session() as session:
             await process_remote_start_transaction_call(
@@ -60,8 +66,28 @@ async def run_tests(charge_point_id):
                 message_id=message_id_generator()
             )
             await session.commit()
+
         print(" --- Start new transaction.")
-        await cp.start_transaction()
+        await asyncio.sleep(3)
+        transaction_id = await cp.start_transaction()
+
+        print(" --- Start send meter values")
+        await asyncio.sleep(3)
+        await cp.send_meter_values(transaction_id)
+
+        print(" --- Stop remote transaction.")
+        await asyncio.sleep(3)
+        await process_remote_stop_transaction_call(
+            session,
+            charge_point_id=charge_point_id,
+            transaction_id=transaction_id,
+            message_id=message_id_generator()
+        )
+        await session.commit()
+        
+        print(" --- Stop transaction.")
+        await asyncio.sleep(3)
+        await cp.stop_transaction(transaction_id)
 
         await asyncio.sleep(5)
         print(" --- Completed.")

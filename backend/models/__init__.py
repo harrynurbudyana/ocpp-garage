@@ -137,7 +137,6 @@ class Transaction(Model):
         return f"Transaction (id={self.id}, " \
                f"garage_id={self.garage}, " \
                f"charge_point={self.charge_point}, " \
-               f"transaction_id={self.id}, " \
                f"status={self.status}, " \
                f"meter_start={self.meter_start}, " \
                f"meter_stop={self.meter_stop})"
