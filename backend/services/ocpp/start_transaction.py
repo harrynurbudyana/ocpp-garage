@@ -5,10 +5,10 @@ from ocpp.v16.call_result import StartTransactionPayload
 from ocpp.v16.datatypes import IdTagInfo
 from ocpp.v16.enums import Action
 from ocpp.v16.enums import AuthorizationStatus, ChargePointStatus
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from pyocpp_contrib.decorators import response_call_result
 from pyocpp_contrib.v16.views.events import StartTransactionCallEvent
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from services.charge_points import (
     get_charge_point_or_404,
     update_connector,
@@ -30,7 +30,6 @@ async def process_start_transaction(
     # It is a good practice to always create transaction
     view = CreateTransactionView(
         garage=charge_point.garage.id,
-        driver=connector.driver.email,
         meter_start=event.payload.meter_start,
         charge_point=charge_point.id,
         connector=connector.id
@@ -43,7 +42,7 @@ async def process_start_transaction(
         data
     )
     logger.info(
-        f"StartTransaction -> | allowed charging (charge_point_id={charge_point.id}, driver={connector.driver}, connectors={charge_point.connectors})")
+        f"StartTransaction -> | allowed charging (charge_point_id={charge_point.id}, connectors={charge_point.connectors})")
 
     transaction = await create_transaction(session, view)
     await session.flush()
@@ -51,9 +50,9 @@ async def process_start_transaction(
         f"StartTransaction -> | created new transaction with data={view} (charge_point_id={charge_point.id}, transaction={transaction})")
 
     payload = StartTransactionPayload(
-        transaction_id=transaction.transaction_id,
+        transaction_id=transaction.id,
         id_tag_info=asdict(IdTagInfo(status=AuthorizationStatus.accepted))
     )
     logger.info(
-        f"StartTransaction -> | prepared payload={payload}, charge_point_id={charge_point.id}, driver={connector.driver}")
+        f"StartTransaction -> | prepared payload={payload}, charge_point_id={charge_point.id}")
     return payload

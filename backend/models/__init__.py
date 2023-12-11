@@ -127,7 +127,6 @@ class Transaction(Model):
 
     id = Column(Integer, Sequence('transaction_id_seq'), primary_key=True)
     garage = Column(String, nullable=False)
-    driver = Column(String, nullable=False)
     meter_start = Column(Integer, nullable=False)
     meter_stop = Column(Integer, nullable=True)
     charge_point = Column(String, nullable=False)

@@ -5,7 +5,7 @@ from pyocpp_contrib.decorators import message_id_generator
 
 from core.database import get_contextual_session
 from core.settings import WS_SERVER_PORT
-from emulator import TEST_CHARGE_POINT_NAME, init_test_station, drop_test_station
+from emulator import TEST_CHARGE_POINT_NAME, init_test_station, drop_test_station_with_transactions
 from emulator.charge_point import ChargePoint
 from services.ocpp.remote_start_transaction import process_remote_start_transaction_call
 from services.ocpp.reset import process_reset
@@ -50,6 +50,7 @@ async def run_tests(charge_point_id):
                 message_id=message_id_generator()
             )
         print("  --- Start remote transaction.")
+        await asyncio.sleep(3)
         async with get_contextual_session() as session:
             await process_remote_start_transaction_call(
                 session,
@@ -59,6 +60,8 @@ async def run_tests(charge_point_id):
                 message_id=message_id_generator()
             )
             await session.commit()
+        print(" --- Start new transaction.")
+        await cp.start_transaction()
 
         await asyncio.sleep(5)
         print(" --- Completed.")
@@ -71,7 +74,7 @@ async def main():
     await run_tests(TEST_CHARGE_POINT_NAME)
 
     await asyncio.sleep(3)
-    await drop_test_station(TEST_CHARGE_POINT_NAME)
+    await drop_test_station_with_transactions(TEST_CHARGE_POINT_NAME)
 
 
 if __name__ == '__main__':
