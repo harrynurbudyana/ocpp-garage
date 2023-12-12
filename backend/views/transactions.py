@@ -19,6 +19,7 @@ class CreateTransactionView(BaseModel):
 class InitTransactionView(BaseModel):
     charge_point_id: str
     connector_id: int
+    limit: int
 
 
 class UpdateTransactionView(BaseModel):
