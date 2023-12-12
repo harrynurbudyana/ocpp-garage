@@ -6,6 +6,7 @@ from pyocpp_contrib.v16.views.events import RemoteStopTransactionCallResultEvent
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.fields import TransactionStatus
+from models import Transaction
 from services.actions import extend_actions_list, update_actions_status
 from services.charge_points import get_charge_point_or_404
 from views.actions import ActionView
@@ -16,10 +17,10 @@ from views.actions import ActionView
 async def process_remote_stop_transaction_call(
         session: AsyncSession,
         charge_point_id: str,
-        transaction_id: int,
+        transaction: Transaction,
         message_id: str
 ) -> RemoteStopTransactionPayload:
-    payload = RemoteStopTransactionPayload(transaction_id=transaction_id)
+    payload = RemoteStopTransactionPayload(transaction_id=transaction.id)
     charge_point = await get_charge_point_or_404(session, charge_point_id)
 
     logger.info(
