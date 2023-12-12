@@ -30,6 +30,13 @@ configuration = [
         key=ConfigurationKey.meter_values_sampled_data,
         # Energy imported by EV (Wh or kWh)
         value=Measurand.energy_active_import_register
+    ),
+    ChangeConfigurationPayload(
+        # Interval (from successful authorization) until incipient charging session
+        # is automatically canceled due to failure of EV user to (correctly)
+        # insert the charging cable connector(s) into the appropriate connector(s).
+        key=ConfigurationKey.connection_time_out,
+        value=300  # 5 minutes
     )
 ]
 
