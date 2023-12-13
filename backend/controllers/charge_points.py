@@ -2,11 +2,11 @@ from typing import Tuple, List
 
 from fastapi import status, Depends, HTTPException
 from loguru import logger
+from pyocpp_contrib.decorators import message_id_generator
 
 from core.database import get_contextual_session
 from exceptions import NotFound
 from models import ChargePoint
-from pyocpp_contrib.decorators import message_id_generator
 from routers import AuthenticatedRouter, AnonymousRouter
 from services.charge_points import (
     get_charge_point_or_404,
