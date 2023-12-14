@@ -52,7 +52,6 @@ const watchProgress = () => {
     data.value = response;
     if (response.status !== TRANSACTIONS_STATUS.in_progress) {
       completed.value = true;
-      clearInterval(interval);
     }
     percentage.value = computePercentage({
       meterStart: response.meter_start,
