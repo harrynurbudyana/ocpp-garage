@@ -99,10 +99,23 @@
   >
     <v-carousel-item v-for="(connector, i) in station.connectors" :key="i">
       <v-card max-width="100%" class="text-center mt-9" height="100%">
+        <v-btn
+          icon
+          size="30"
+          density="compact"
+          class="mr-3 mdi mdi-qrcode-scan"
+          @click="
+            () =>
+              downloadQRCode({
+                stationId: station.id,
+                connectorId: connector.id,
+              })
+          "
+        ></v-btn>
         <v-card-title primary-title>
-          <span class="mdi mdi-connection"></span>
           Connector {{ connector.id }}
         </v-card-title>
+
         <v-card-subtitle class="mt-10 mb-10">
           <v-chip
             :color="STATION_STATUS_COLOR[connector.status.toLowerCase()]"
@@ -120,34 +133,7 @@
         </v-card-subtitle>
 
         <v-container>
-          <v-row align="end" style="height: 170px">
-            <v-col>
-              <v-btn
-                :disabled="
-                  loading ||
-                  !progressReset ||
-                  connector.status.toLowerCase() !==
-                    STATION_STATUS.available.toLowerCase() ||
-                  connector.error_code !== 'NoError'
-                "
-                variant="outlined"
-                color="grey-darken-1"
-                @click="
-                  startRemoteTransaction({
-                    charge_point_id: station.id,
-                    connector_id: connector.id,
-                  })
-                "
-              >
-                <v-progress-circular
-                  size="20"
-                  color="#0ee018"
-                  v-model="progressStart"
-                  class="mr-2"
-                ></v-progress-circular>
-                Start
-              </v-btn>
-            </v-col>
+          <v-row align="center" style="height: 120px">
             <v-col>
               <v-btn
                 :disabled="
@@ -252,6 +238,7 @@ import { useConfirm } from "@/use/dialogs";
 
 import {
   deleteStation,
+  downloadQRCode,
   getStation,
   softResetStation,
   updateConnector,

@@ -6,6 +6,24 @@ import HomePageGuard from "@/router/guards/home-page-guard";
 
 const routes = [
   {
+    path: "/:stationId/connectors/:connectorId",
+    name: "Payment",
+    component: () =>
+      import(/* webpackChunkName: "home" */ "@/pages/PaymentPage.vue"),
+    meta: {
+      public: true,
+    },
+  },
+  {
+    path: "/transactions/:trackId",
+    name: "Progress",
+    component: () =>
+      import(/* webpackChunkName: "home" */ "@/pages/ProgressPage.vue"),
+    meta: {
+      public: true,
+    },
+  },
+  {
     path: "/",
     name: "Home",
     beforeEnter: HomePageGuard,

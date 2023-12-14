@@ -1,6 +1,8 @@
 import { request } from "@/api";
 import router from "@/router";
 
+const API_URL = import.meta.env.VITE_API_URL.trim("/");
+
 const { currentRoute } = router;
 
 const endpoint = "charge_points";
@@ -27,12 +29,6 @@ export function listStations(queryParams) {
   );
 }
 
-export function listSimpleStations() {
-  return request.get(
-    `/${currentRoute.value.params.garageId}/${endpoint}/autocomplete/`
-  );
-}
-
 export function getStation(stationId) {
   return request.get(
     `/${currentRoute.value.params.garageId}/${endpoint}/${stationId}`
@@ -56,4 +52,14 @@ export function softResetStation(stationId) {
   return request.patch(
     `/${currentRoute.value.params.garageId}/${endpoint}/${stationId}`
   );
+}
+
+export function downloadQRCode({ stationId, connectorId }) {
+  const link = document.createElement("a");
+  link.href = `${API_URL}/${stationId}/connectors/${connectorId}/qrcode`;
+  link.target = "_blank";
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }

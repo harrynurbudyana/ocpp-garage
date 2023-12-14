@@ -23,6 +23,9 @@ async def process_remote_stop_transaction_call(
     payload = RemoteStopTransactionPayload(transaction_id=transaction.id)
     charge_point = await get_charge_point_or_404(session, charge_point_id)
 
+    transaction.status = TransactionStatus.pending
+    session.add(transaction)
+
     logger.info(
         f"RemoteStopTransaction -> | prepared payload={payload} (charge_point_id={charge_point_id})")
 

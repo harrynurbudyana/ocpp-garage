@@ -55,7 +55,10 @@ async def process_remote_start_transaction_call(
         )
     )
 
-    data = UpdateChargPointView(status=ChargePointStatus.preparing)
+    data = UpdateChargPointView(
+        status=ChargePointStatus.preparing,
+        latest_limit=limit
+    )
     await update_connector(session, charge_point_id, connector_id, data)
     logger.info(
         f"RemoteStartTransaction -> | Updated connector with data={data} (charge_point_id={charge_point_id}, connector_id={connector_id}, id_tag={id_tag})")

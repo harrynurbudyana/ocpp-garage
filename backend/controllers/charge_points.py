@@ -1,10 +1,15 @@
+import os
 from typing import Tuple, List
 
-from fastapi import status, Depends, HTTPException
+import segno
+from fastapi import status, Depends, HTTPException, Request
+from fastapi.responses import FileResponse
 from loguru import logger
 from pyocpp_contrib.decorators import message_id_generator
+from starlette.background import BackgroundTasks
 
 from core.database import get_contextual_session
+from core.settings import STATIC_PATH
 from exceptions import NotFound
 from models import ChargePoint
 from routers import AuthenticatedRouter, AnonymousRouter
@@ -161,3 +166,25 @@ async def reset(garage_id: str, charge_point_id: str):
             charge_point_id=charge_point_id,
             message_id=message_id_generator()
         )
+
+
+@public_router.get(
+    "/{charge_point_id}/connectors/{connector_id}/qrcode",
+    status_code=status.HTTP_200_OK
+)
+async def generate_qr_code(
+        charge_point_id: str,
+        connector_id: int,
+        request: Request,
+        background_task: BackgroundTasks
+):
+    filepath = os.path.join(STATIC_PATH, f"{charge_point_id}_{connector_id}.png")
+    link = f"{request.base_url.scheme}://{request.base_url.hostname}/{charge_point_id}/connectors/{connector_id}"
+    qrcode = segno.make_qr(link)
+    qrcode.save(
+        filepath,
+        scale=5,
+        light="lightblue"
+    )
+    background_task.add_task(os.remove, filepath)
+    return FileResponse(filepath, media_type="image/png", filename=filepath.replace(STATIC_PATH + "/", ""))

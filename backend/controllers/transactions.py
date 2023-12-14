@@ -1,3 +1,4 @@
+import asyncio
 from typing import Tuple
 
 from fastapi import Depends, Request
@@ -6,15 +7,38 @@ from pyocpp_contrib.decorators import message_id_generator
 from starlette import status
 
 from core.database import get_contextual_session
+from exceptions import NotFound
 from models import Transaction
-from routers import AuthenticatedRouter
+from routers import AuthenticatedRouter, AnonymousRouter
 from services.ocpp.remote_start_transaction import process_remote_start_transaction_call
 from services.ocpp.remote_stop_transaction import process_remote_stop_transaction_call
 from services.transactions import build_transactions_query, get_transaction_or_404
 from utils import params_extractor, paginate
-from views.transactions import PaginatedTransactionsView, InitTransactionView
+from views.transactions import (
+    PaginatedTransactionsView,
+    InitTransactionView,
+    ProgressView
+)
 
 private_router = AuthenticatedRouter(prefix="/{garage_id}/transactions", tags=["transactions"])
+public_router = AnonymousRouter()
+
+
+@public_router.get(
+    "/transactions/{track_id}",
+    response_model=ProgressView
+)
+async def track_transaction_progress(track_id: str):
+    exc = NotFound(detail="There are no any current transactions.")
+    max_iterations = 60
+    async with get_contextual_session() as session:
+        while max_iterations:
+            try:
+                return await get_transaction_or_404(session, track_id)
+            except NotFound:
+                max_iterations -= 1
+                await asyncio.sleep(1)
+        raise exc
 
 
 @private_router.get(

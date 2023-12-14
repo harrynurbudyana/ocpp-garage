@@ -14,6 +14,8 @@ class CreateTransactionView(BaseModel):
     charge_point: str
     connector: int
     status: TransactionStatus | None = None
+    limit: int
+    track_id: str
 
 
 class InitTransactionView(BaseModel):
@@ -36,6 +38,18 @@ class Transaction(BaseModel):
     status: TransactionStatus
     created_at: datetime
     updated_at: datetime | None = None
+    limit: int
+
+    class Config:
+        orm_mode = True
+
+
+class ProgressView(BaseModel):
+    meter_stop: int | None = 0
+    status: TransactionStatus
+    created_at: datetime
+    updated_at: datetime | None = None
+    limit: int
 
     class Config:
         orm_mode = True

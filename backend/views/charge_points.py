@@ -23,6 +23,7 @@ class UpdateChargPointView(BaseModel):
     location: str | None = None
     status: ChargePointStatus | None = None
     error_code: ChargePointErrorCode | None = None
+    latest_limit: int | None = None
 
 
 class ChargePointView(BaseModel):

@@ -2,14 +2,42 @@ from __future__ import annotations
 
 from typing import List
 
+from pyocpp_contrib.cache import get_connection
 from sqlalchemy import update, select, or_, func, String
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import selectable
 
+from core import settings
 from core.fields import TransactionStatus
 from exceptions import NotFound
 from models import Transaction
 from views.transactions import CreateTransactionView, UpdateTransactionView
+
+
+def _make_key_for_cache(charge_point_id: str, connector_id: int) -> str:
+    return f"{charge_point_id}_{connector_id}"
+
+
+async def memorize_track_id(charge_point_id: str, connector_id: int, track_id: str):
+    # We need a track id before the transaction to be created.
+    connection = await get_connection()
+    key = _make_key_for_cache(charge_point_id, connector_id)
+    await connection.set(key, track_id)
+    await connection.expire(key, settings.TRANSACTION_TRACK_ID_EXPIRE_AFTER)
+
+
+async def recall_track_id_or_404(charge_point_id: str, connector_id: int) -> str:
+    connection = await get_connection()
+    key = _make_key_for_cache(charge_point_id, connector_id)
+    context: bytes | None = await connection.get(key)
+    try:
+        track_id = context.decode()
+        await connection.delete(key)
+    except AttributeError:
+        track_id = None
+    if not track_id:
+        raise NotFound
+    return track_id
 
 
 async def create_transaction(
@@ -48,10 +76,13 @@ async def cancel_in_progress_transactions(
 
 async def get_transaction_or_404(
         session: AsyncSession,
-        id: int
+        id: int | str
 ) -> Transaction:
-    query = await session.execute(
-        select(Transaction).where(Transaction.id == id))
+    expr = select(Transaction)
+    if isinstance(id, int):
+        query = await session.execute(expr.where(Transaction.id == id))
+    if isinstance(id, str):
+        query = await session.execute(expr.where(Transaction.track_id == id))
     transaction = query.scalars().first()
     if not transaction:
         raise NotFound(detail="The transaction is not found.")

@@ -17,7 +17,7 @@
                 <v-col md="5">
                   <v-card-item class="ma-6 pa-2">
                     <v-text-field
-                      label="Id, Status, Location or Driver"
+                      label="Id, Status or Location"
                       density="compact"
                       variant="outlined"
                       append-inner-icon="mdi-magnify"

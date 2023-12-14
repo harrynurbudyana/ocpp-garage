@@ -16,7 +16,7 @@
                 <v-col md="5">
                   <v-card-item class="ma-6 pa-2">
                     <v-text-field
-                      label="Driver or Station"
+                      label="Station"
                       density="compact"
                       variant="outlined"
                       append-inner-icon="mdi-magnify"
@@ -94,6 +94,7 @@ const isStopStransactionAllowed = (item) => {
 };
 
 const stopTransaction = (item) => {
+  item.selectable.status = TRANSACTIONS_STATUS.pending;
   remoteStopTransaction(item.key).finally(() => {
     fetchData();
   });
@@ -110,13 +111,6 @@ onUnmounted(() => {
 });
 
 const headers = [
-  {
-    title: "Driver",
-    key: "driver",
-    align: "center",
-    sortable: false,
-    width: "15%",
-  },
   {
     title: "Station",
     key: "charge_point",

@@ -26,3 +26,7 @@ export function remoteStopTransaction(transactionId) {
     `/${currentRoute.value.params.garageId}/${endpoint}/${transactionId}`
   );
 }
+
+export function trackProgress(trackId) {
+  return request.get(`/transactions/${trackId}`);
+}
