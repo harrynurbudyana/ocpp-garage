@@ -48,8 +48,8 @@ async def confirm_payment(payload: dict):
             rate = charge_point.garage.daily_rate
             # an amount is used in cents
             # lets convert it into dollars
-            amount = event.data.object.amount / 100
-            watts_limit = (amount / float(rate)) * 1000
+            amount = context.amount / 100
+            watts_limit = int((amount / float(rate)) * 1000)
 
             await memorize_session_context(context.charge_point_id, context.connector_id, context.track_id)
 
