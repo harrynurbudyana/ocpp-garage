@@ -32,6 +32,8 @@ async def confirm_payment(payload: dict):
         logger.error(f"Could not parse event from stripe %r" % format_exc())
         return
 
+    logger.info(f"Got request from the stripe (type={event.type}, metadata={event.data.object.metadata})")
+
     if event.type == 'checkout.session.completed':
         await stripe.PaymentIntent.modify(
             event.data.object.payment_intent,
