@@ -1,3 +1,4 @@
+import asyncio
 from traceback import format_exc
 from uuid import uuid4
 
@@ -14,7 +15,7 @@ from exceptions import Forbidden
 from routers import AnonymousRouter
 from services.charge_points import get_charge_point_or_404, get_connector_or_404
 from services.ocpp.remote_start_transaction import process_remote_start_transaction_call
-from services.transactions import memorize_track_id
+from services.transactions import memorize_session_context
 from views.payments import CheckoutSession, PaymentToken
 
 public_router = AnonymousRouter()
@@ -35,10 +36,18 @@ async def confirm_payment(payload: dict):
     logger.info(f"Got request from the stripe (type={event.type}, metadata={event.data.object.metadata})")
 
     if event.type == 'checkout.session.completed':
-        await stripe.PaymentIntent.modify(
-            event.data.object.payment_intent,
-            metadata=event.data.object.metadata
-        )
+        metadata = event.data.object.metadata
+        # For unknown reasons, the metadata is not always being stored in the intent, right away.
+        # Very important to ensure that the metadata does exist.
+        while True:
+            await stripe.PaymentIntent.modify(
+                event.data.object.payment_intent,
+                metadata=metadata
+            )
+            intent = await stripe.PaymentIntent.retrieve(event.data.object.payment_intent)
+            if intent.metadata:
+                break
+            await asyncio.sleep(1)
 
     if event.type == 'payment_intent.succeeded':
         intent = await stripe.PaymentIntent.retrieve(event.data.object.id)
@@ -57,7 +66,7 @@ async def confirm_payment(payload: dict):
             amount = event.data.object.amount / 100
             watts_limit = (amount / float(rate)) * 1000
 
-            await memorize_track_id(context.charge_point_id, context.connector_id, context.track_id)
+            await memorize_session_context(context.charge_point_id, context.connector_id, context.track_id)
 
             logger.info(f"RemoteStartTransaction -> | Start process call request (context={context})")
             async with get_contextual_session() as session:

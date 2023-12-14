@@ -14,7 +14,7 @@ from services.charge_points import (
     update_connector,
     get_connector_or_404
 )
-from services.transactions import create_transaction, recall_track_id_or_404
+from services.transactions import create_transaction, recall_session_context_or_404
 from views.charge_points import UpdateChargPointView
 from views.transactions import CreateTransactionView
 
@@ -35,7 +35,7 @@ async def process_start_transaction(
         data
     )
     try:
-        track_id = await recall_track_id_or_404(event.charge_point_id, event.payload.connector_id)
+        track_id = await recall_session_context_or_404(event.charge_point_id, event.payload.connector_id)
         status = AuthorizationStatus.accepted
         logger.info(f"Successfully obtained track_id (event={event})")
     except NotFound:

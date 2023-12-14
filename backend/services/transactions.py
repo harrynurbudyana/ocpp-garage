@@ -9,26 +9,23 @@ from sqlalchemy.sql import selectable
 
 from core import settings
 from core.fields import TransactionStatus
+from core.utils import make_key_for_cache
 from exceptions import NotFound
 from models import Transaction
 from views.transactions import CreateTransactionView, UpdateTransactionView
 
 
-def _make_key_for_cache(charge_point_id: str, connector_id: int) -> str:
-    return f"{charge_point_id}_{connector_id}"
-
-
-async def memorize_track_id(charge_point_id: str, connector_id: int, track_id: str):
+async def memorize_session_context(charge_point_id: str, connector_id: int, track_id: str):
     # We need a track id before the transaction to be created.
     connection = await get_connection()
-    key = _make_key_for_cache(charge_point_id, connector_id)
+    key = make_key_for_cache(charge_point_id, connector_id)
     await connection.set(key, track_id)
     await connection.expire(key, settings.TRANSACTION_TRACK_ID_EXPIRE_AFTER)
 
 
-async def recall_track_id_or_404(charge_point_id: str, connector_id: int) -> str:
+async def recall_session_context_or_404(charge_point_id: str, connector_id: int) -> str:
     connection = await get_connection()
-    key = _make_key_for_cache(charge_point_id, connector_id)
+    key = make_key_for_cache(charge_point_id, connector_id)
     context: bytes | None = await connection.get(key)
     try:
         track_id = context.decode()
