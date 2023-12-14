@@ -66,7 +66,7 @@ async def confirm_payment(payload: dict):
                 await session.commit()
 
         logger.info(
-            f"Successful payment (context={context}, amount={event.data.object.amount})")
+            f"Successful payment (context={context}, amount={amount})")
 
 
 @public_router.post(
