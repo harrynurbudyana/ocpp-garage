@@ -1,4 +1,3 @@
-import asyncio
 from traceback import format_exc
 from uuid import uuid4
 
@@ -33,30 +32,16 @@ async def confirm_payment(payload: dict):
         logger.error(f"Could not parse event from stripe %r" % format_exc())
         return
 
-    logger.info(f"Got request from the stripe (type={event.type}, metadata={event.data.object.metadata})")
+    logger.info(f"Got request from the stripe (type={event.type}, metadata={event.data.object})")
 
     if event.type == 'checkout.session.completed':
         metadata = event.data.object.metadata
-        # For unknown reasons, the metadata is not always being stored in the intent, right away.
-        # Very important to ensure that the metadata does exist.
-        while True:
-            await stripe.PaymentIntent.modify(
-                event.data.object.payment_intent,
-                metadata=metadata
-            )
-            intent = await stripe.PaymentIntent.retrieve(event.data.object.payment_intent)
-            if intent.metadata:
-                break
-            await asyncio.sleep(1)
-
-    if event.type == 'payment_intent.succeeded':
-        intent = await stripe.PaymentIntent.retrieve(event.data.object.id)
-        logger.info(f"Process successful payment (context={intent.metadata})")
-        # this event type might be duplicated
-        # verify wrong duplicate with empty metadata
-        if not intent.metadata:
-            return
-        context = PaymentToken(**intent.metadata)
+        await stripe.PaymentIntent.modify(
+            event.data.object.payment_intent,
+            metadata=metadata
+        )
+        logger.info(f"Process successful payment (context={metadata})")
+        context = PaymentToken(**metadata)
 
         async with get_contextual_session() as session:
             charge_point = await get_charge_point_or_404(session, context.charge_point_id)
