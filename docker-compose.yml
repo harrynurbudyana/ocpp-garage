@@ -71,7 +71,8 @@ services:
       - app-network
     restart: always
     command: >
-      sh -c "cd /usr/src/csms/backend && alembic upgrade head &&
+      sh -c "stripe listen --forward-to '${ALLOWED_ORIGIN}:${HTTP_SERVER_PORT}/stripe-webhook' &
+             cd /usr/src/csms/backend && alembic upgrade head &&
              uvicorn main:app --host 0.0.0.0 --port ${HTTP_SERVER_PORT} --reload"
     depends_on:
       ocpp-rabbitmq:
