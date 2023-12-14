@@ -45,6 +45,7 @@ class Transaction(BaseModel):
 
 
 class ProgressView(BaseModel):
+    meter_start: int
     meter_stop: int | None = 0
     status: TransactionStatus
     created_at: datetime

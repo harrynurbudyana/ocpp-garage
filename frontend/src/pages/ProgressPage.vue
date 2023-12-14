@@ -38,18 +38,20 @@ const completed = ref(false);
 const percentage = ref(0);
 const loading = ref(true);
 const data = ref({});
-var trackId = null;
 
+var trackId = null;
 var interval = null;
 
-const computePercentage = ({ meterStop, limit }) => {
-  return Math.ceil((100 * meterStop) / limit);
+const computePercentage = ({ meterStart, meterStop, limit }) => {
+  let difference = meterStop - meterStart;
+  return Math.ceil((100 * difference) / limit);
 };
 
 const watchProgress = () => {
   trackProgress(trackId).then((response) => {
     data.value = response;
     percentage.value = computePercentage({
+      meterStart: response.meter_start,
       meterStop: response.meter_stop,
       limit: data.value.limit,
     });
@@ -62,6 +64,7 @@ onMounted(() => {
     .then((response) => {
       data.value = response;
       percentage.value = computePercentage({
+        meterStart: response.meter_start,
         meterStop: response.meter_stop,
         limit: data.value.limit,
       });
