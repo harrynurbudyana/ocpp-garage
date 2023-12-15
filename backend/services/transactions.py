@@ -37,6 +37,13 @@ async def recall_session_context_or_404(charge_point_id: str, connector_id: int)
     return track_id
 
 
+async def cost_to_watts(rate: float, amount: int) -> int:
+    # an amount is used in cents
+    # lets convert it into dollars
+    amount = amount / 100
+    return int((amount / float(rate)) * 1000)
+
+
 async def create_transaction(
         session: AsyncSession,
         data: CreateTransactionView

@@ -16,3 +16,7 @@ class NotificationType(str, Enum):
 class Role(str, Enum):
     admin = "admin"
     operator = "operator"
+
+
+class Currency(str, Enum):
+    usd = "usd"

@@ -49,7 +49,7 @@ async def process_remote_start_transaction_call(
             charging_schedule_period=[
                 ChargingSchedulePeriod(
                     start_period=0,  # Start of the period, in seconds from the start of schedule.
-                    limit=float(limit)
+                    limit=limit
                 )
             ]
         )
