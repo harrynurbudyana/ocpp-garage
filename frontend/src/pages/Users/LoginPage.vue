@@ -1,12 +1,16 @@
 <template>
   <v-form v-model="isValid">
     <v-container>
+      <div align="center" class="mt-16 text-h5 font-weight-light">
+        OCPP Management System
+      </div>
+
       <v-row justify="center" class="mt-16">
-        <v-card width="600">
+        <v-card width="600" elevation="15">
           <v-card-text>
             <v-container>
               <v-row>
-                <v-col cols="12">
+                <v-col cols="12" class="mt-10">
                   <v-text-field
                     :error="showError"
                     :error-messages="errors.email"
@@ -65,8 +69,8 @@ const onSubmit = () => {
   loading.value = true;
   store
     .dispatch("login", data.value)
-    .catch(() => {
-      errors.value.email = "Invalid email or password";
+    .catch((error) => {
+      errors.value.email = error;
     })
     .finally(() => {
       loading.value = false;
