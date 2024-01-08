@@ -36,14 +36,11 @@ async def process_remote_start_transaction_call(
     charging_profile = ChargingProfile(
         charging_profile_id=random.choice(range(1000)),  # Unique identifier for this profile.
         stack_level=1,  # Value determining level in hierarchy stack of profiles.
-
         # Profile with constraints to be imposed by the Charge Point on the current transaction.
         charging_profile_purpose=ChargingProfilePurposeType.tx_profile,
-
-        # Schedule periods are relative to a situation- specific start point
-        # (such as the start of a session) that is determined by the charge point.
-        charging_profile_kind=ChargingProfileKindType.relative,
-
+        # Schedule periods are relative to a fixed point in
+        # time defined in the schedule.
+        charging_profile_kind=ChargingProfileKindType.absolute,
         charging_schedule=ChargingSchedule(
             charging_rate_unit=ChargingRateUnitType.watts,
             charging_schedule_period=[

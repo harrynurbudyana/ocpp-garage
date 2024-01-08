@@ -25,15 +25,15 @@ class InitTransactionView(BaseModel):
 
 
 class UpdateTransactionView(BaseModel):
-    meter_stop: int | None = None
+    meter_stop: float | None = None
     status: TransactionStatus | None = None
 
 
 class Transaction(BaseModel):
     id: str
     meter_start: int
-    meter_stop: int | None = None
-    charge_point: str
+    meter_stop: float | None = None
+    charge_point: float
     connector: int
     status: TransactionStatus
     created_at: datetime
@@ -45,8 +45,8 @@ class Transaction(BaseModel):
 
 
 class ProgressView(BaseModel):
-    meter_start: int
-    meter_stop: int | None = 0
+    meter_start: float
+    meter_stop: float | None = 0
     status: TransactionStatus
     created_at: datetime
     updated_at: datetime | None = None

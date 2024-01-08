@@ -10,7 +10,7 @@ from sqlalchemy import (
     Sequence,
     Numeric,
     UniqueConstraint,
-    Boolean, PrimaryKeyConstraint
+    Boolean, PrimaryKeyConstraint, Float
 )
 from sqlalchemy.orm import relationship
 
@@ -129,12 +129,12 @@ class Transaction(Model):
     id = Column(Integer, Sequence('transaction_id_seq'), primary_key=True)
     track_id = Column(String, index=True, unique=True, nullable=False)
     garage = Column(String, nullable=False)
-    meter_start = Column(Integer, nullable=False)
-    meter_stop = Column(Integer, nullable=True)
+    meter_start = Column(Float, nullable=False)
+    meter_stop = Column(Float, nullable=True)
     charge_point = Column(String, nullable=False)
     connector = Column(Integer, nullable=False)
     status = Column(Enum(TransactionStatus), default=TransactionStatus.in_progress)
-    limit = Column(Integer)
+    limit = Column(Float)
 
     def __repr__(self):
         return f"Transaction (id={self.id}, " \

@@ -11,20 +11,20 @@ configuration = [
         # the Charge Point will not first try to authorize the idTag
         value=False
     ),
-    ChangeConfigurationPayload(
-        key=ConfigurationKey.unlock_connector_on_ev_side_disconnect,
-        # unlock connector once transaction stopped
-        value=True
-    ),
-    ChangeConfigurationPayload(
-        key=ConfigurationKey.stop_transaction_on_ev_side_disconnect,
-        # transaction will be stopped once connector disconnected
-        # will prevent sabotage acts top stop the energy flow by unplugging not locked cables on EV side.
-        value=True
-    ),
+    # ChangeConfigurationPayload(
+    #     key=ConfigurationKey.unlock_connector_on_ev_side_disconnect,
+    #     # unlock connector once transaction stopped
+    #     value=True
+    # ),
+    # ChangeConfigurationPayload(
+    #     key=ConfigurationKey.stop_transaction_on_ev_side_disconnect,
+    #     # transaction will be stopped once connector disconnected
+    #     # will prevent sabotage acts top stop the energy flow by unplugging not locked cables on EV side.
+    #     value=True
+    # ),
     ChangeConfigurationPayload(
         key=ConfigurationKey.meter_value_sample_interval,
-        value=60 * 5  # 5 minutes
+        value=60  # one minute
     ),
     ChangeConfigurationPayload(
         key=ConfigurationKey.meter_values_sampled_data,
